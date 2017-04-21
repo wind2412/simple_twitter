@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+	<!-- 以上，是IOC配置文件 反向 使用了reflection -->
+	<!-- 
+		scope默认是singleton.		=>    service/Dao/工具类
+		可以改为多例的prototype.	=>	  Action对象
+		
+		lazy-init是false是默认的。
+	 -->
+    <bean id="user" class="zxl.spring0.User" scope="prototype" lazy-init="false"></bean>
+</beans>
