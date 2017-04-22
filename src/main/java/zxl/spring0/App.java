@@ -35,7 +35,14 @@ public class App {
 		User user = (User)ac.getBean("user");
 		User user1 = (User)ac.getBean("user");
 		
+		User user2 = (User)ac.getBean("user2");
+		User user3 = (User)ac.getBean("user3");
+		User factory_user = (User)ac.getBean("factory_user");
+		User static_user = (User)ac.getBean("static_user");
+		
 		System.out.println(user + " " + user1);
+		System.out.println(user2 + " " + user3);
+		System.out.println(factory_user + " " + static_user);
 	}
 	
 }

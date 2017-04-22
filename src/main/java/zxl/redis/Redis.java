@@ -33,6 +33,8 @@ public class Redis {
 		System.out.println(call_shell("/usr/local/bin/redis-server cluster_test/6381/redis.conf",  true));
 		System.out.println(call_shell("/usr/local/bin/redis-server cluster_test/6383/redis.conf", true));
 		System.out.println(call_shell("/usr/local/bin/redis-server cluster_test/6384/redis.conf", true));
+		System.out.println(call_shell("/usr/local/bin/redis-server cluster_test/6385_add/redis.conf", true));
+		System.out.println(call_shell("/usr/local/bin/redis-server cluster_test/6386_add_slave/redis.conf", true));
 	}
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
