@@ -62,3 +62,14 @@ $6
 hahar3
 $2
 33
+*2
+$6
+SELECT
+$1
+0
+*1
+$8
+FLUSHALL
+*1
+$8
+FLUSHALL
