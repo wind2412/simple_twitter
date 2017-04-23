@@ -38,6 +38,9 @@ public class Redis {
 			System.out.println(call_shell("/usr/local/bin/redis-server cluster_test/6384/redis.conf", true));
 			System.out.println(call_shell("/usr/local/bin/redis-server cluster_test/6385_add/redis.conf", true));
 			System.out.println(call_shell("/usr/local/bin/redis-server cluster_test/6386_add_slave/redis.conf", true));			
+			System.out.println(call_shell("/usr/local/bin/redis-sentinel cluster_test/sentinel1/redis-sentinel.conf", true));
+			System.out.println(call_shell("/usr/local/bin/redis-sentinel cluster_test/sentinel2/redis-sentinel.conf", true));
+			System.out.println(call_shell("/usr/local/bin/redis-sentinel cluster_test/sentinel3/redis-sentinel.conf", true));
 		} else {
 			System.out.println(call_shell("\"C:\\Program Files\\Redis\\redis-server.exe\" cluster_test\\6382\\redis2.conf", true));
 			System.out.println(call_shell("\"C:\\Program Files\\Redis\\redis-server.exe\" cluster_test\\6379\\redis2.conf", true));
@@ -47,6 +50,9 @@ public class Redis {
 			System.out.println(call_shell("\"C:\\Program Files\\Redis\\redis-server.exe\" cluster_test\\6384\\redis2.conf", true));
 			System.out.println(call_shell("\"C:\\Program Files\\Redis\\redis-server.exe\" cluster_test\\6385_add\\redis.conf", true));
 			System.out.println(call_shell("\"C:\\Program Files\\Redis\\redis-server.exe\" cluster_test\\6386_add_slave\\redis.conf", true));						
+			System.out.println(call_shell("\"C:\\Program Files\\Redis\\redis-server.exe\" cluster_test\\sentinel1\\redis-sentinel2.conf --sentinel", true));
+			System.out.println(call_shell("\"C:\\Program Files\\Redis\\redis-server.exe\" cluster_test\\sentinel2\\redis-sentinel2.conf --sentinel", true));
+			System.out.println(call_shell("\"C:\\Program Files\\Redis\\redis-server.exe\" cluster_test\\sentinel3\\redis-sentinel2.conf --sentinel", true));
 		}
 	}
 	
