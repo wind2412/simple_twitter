@@ -1,6 +1,5 @@
 package zxl.redis;
 
-import java.io.ObjectInputStream.GetField;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -57,13 +56,27 @@ public class Cluster {
 		System.out.println("************************************");		
 	}
 	
-	public void add_a_user(User user){
+	public void add_a_user(User user){	///传入user的除了UID之外的各种属性
 		long UID = jc.incr("UID");
 		user.setUID(UID);
 		jc.hset("user:"+user.getUID(), "name", user.getName());
 		jc.hset("user:"+user.getUID(), "pass", user.getPass());
 		jc.hset("user:"+user.getUID(), "age", String.valueOf(user.getAge()));
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	public static void main(String[] args) {
 
