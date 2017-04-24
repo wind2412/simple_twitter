@@ -6,7 +6,8 @@ public class User {
 	private String pass;
 	private long UID;
 	private int age;
-	
+	private long time;		//user的加入社区时间
+
 	public User(String name, String pass, int age) {
 		super();
 		this.name = name;
@@ -44,6 +45,14 @@ public class User {
 
 	public void setAge(int age) {
 		this.age = age;
+	}
+	
+	public long getTime() {
+		return time;
+	}
+	
+	public void setTime(long time) {
+		this.time = time;
 	}
 	
 	

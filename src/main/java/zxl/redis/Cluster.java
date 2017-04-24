@@ -1,5 +1,7 @@
 package zxl.redis;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -9,7 +11,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.JedisSentinelPool;
+import zxl.bean.Article;
 import zxl.bean.User;
 
 public class Cluster {
@@ -62,12 +64,23 @@ public class Cluster {
 	public void add_a_user(User user){	///传入user的除了UID之外的各种属性
 		long UID = jc.incr("UID");
 		user.setUID(UID);
+		user.setTime(System.currentTimeMillis()/1000);
 		jc.hset("user:"+user.getUID(), "name", user.getName());
 		jc.hset("user:"+user.getUID(), "pass", user.getPass());
 		jc.hset("user:"+user.getUID(), "age", String.valueOf(user.getAge()));
+		jc.hset("user:"+user.getUID(), "time", String.valueOf(user.getTime()));
 	}
 	
-	
+	public void add_an_article(Article article) throws IOException{
+		long AID = jc.incr("AID");
+		article.setPath("articles/article_" + AID);
+		article.setTime(System.currentTimeMillis()/1000);
+		article.add_article_to_disk();		//持久化文章内容到硬盘上			//图片功能再议
+		jc.hset("article:"+article.getAID(), "path", article.getPath());
+		jc.hset("article:"+article.getAID(), "UID",  String.valueOf(article.getUID()));
+		if(article.getTrans_AID() != 0)		jc.hset("article:"+article.getAID(), "trans_AID",  String.valueOf(article.getTrans_AID()));
+		jc.hset("article:"+article.getAID(), "time", String.valueOf(article.getTime()));
+	}
 	
 	
 	
@@ -84,7 +97,6 @@ public class Cluster {
 	public static void main(String[] args) {
 
 		Cluster c = new Cluster();
-//		c.add_a_user(new User("sb", "123", 20));
 //		c.get_all_keys();
 	}
 
