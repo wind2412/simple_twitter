@@ -14,6 +14,8 @@ public class Article {
 	private long UID;			//作者代号
 	private long AID;			//文章编号
 	private long trans_AID;		//用作转发的AID 即：此文章是一篇转发的文章，trans_AID是引用文章的AID.
+//	private long transed_cnt;	//被转发次数		=>	   舍弃。请去get_transed:AID表去查找。
+//	private long commented_cnt;	//被评论次数		=>     舍弃。请去get_commented:AID表去查找。
 	
 	public Article(String content, long UID, long trans_AID) {
 		super();

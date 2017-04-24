@@ -15,6 +15,8 @@ public class Comment {
 	private long CID;			//此评论编号
 	private long AID;			//所评论的推文的编号
 	
+	//评论被点赞和评论被评论的功能暂时不考虑
+	
 	public Comment(String content, long uID, long aID) {
 		super();
 		this.content = content;
