@@ -1,16 +1,11 @@
 package zxl.bean;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 
 public class Comment {
 
 	private long time;			//发布时间
 	private String content;		//评论的内容
-	private String path;		//评论在服务器的路径
+//	private String path;		//评论在服务器的路径	//obsoleted.
 	private long UID;			//评论者代号
 	private long CID;			//此评论编号
 	private long AID;			//所评论的推文的编号
@@ -40,13 +35,13 @@ public class Comment {
 		this.content = content;
 	}
 
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
+//	public String getPath() {
+//		return path;
+//	}
+//
+//	public void setPath(String path) {
+//		this.path = path;
+//	}
 
 	public long getUID() {
 		return UID;
@@ -72,13 +67,14 @@ public class Comment {
 		AID = aID;
 	}
 	
-	public void add_comment_to_disk() throws IOException {
-		if(this.path != null && this.content != null) {
-			File file = new File(this.path);
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
-			bw.write(this.content);
-			bw.close();
-		}
-	}
+	//鉴于与Article.add_article_to_disk()的理由，删除此函数即功能。
+//	public void add_comment_to_disk() throws IOException {
+//		if(this.path != null && this.content != null) {
+//			File file = new File(this.path);
+//			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+//			bw.write(this.content);
+//			bw.close();
+//		}
+//	}
 	
 }

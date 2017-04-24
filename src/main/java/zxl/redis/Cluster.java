@@ -11,7 +11,6 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import zxl.bean.Article;
-import zxl.bean.Binutils;
 import zxl.bean.Comment;
 import zxl.bean.User;
 
@@ -61,18 +60,25 @@ public class Cluster {
 			}catch (Exception e){}
 			System.out.println(s + " " + conn.keys("*"));
 		}
-		System.out.println("************************************");		
+		System.out.println("************************************");
 	}
 	
 	//如果成功，返回1  否则返回0
 	public int add_a_user(User user){	///传入user的除了UID之外的各种属性
 //		jc		//没有事务？？？ 事务无法操纵多个主键。因此只能使用lua脚本。
+		//添加信息到用户名密码数据库中 + 判断是否重复注册。表名：pass		这个判断必须放在所有数据库操作的第一位。因为它必须最先判断。
+		long ret = jc.hsetnx("pass", user.getName(), user.getPass());
+		if(ret == 0){
+			//临退出之前，需要在这个空的user中写入他本身的UID才好，方便外界的user可以重复使用。
+			long user_uid = Long.parseLong(jc.hget("getuser", user.getName()));
+			user.setUID(user_uid);
+			user.setTime(Long.parseLong(jc.hget("user:"+user_uid, "time")));
+			return 0;			//此用户名已经存在，已经有此用户了。操作终止。
+		}
+		//写入
 		long UID = jc.incr("UID");
 		user.setUID(UID);
 		user.setTime(System.currentTimeMillis()/1000);
-		//添加信息到用户名密码数据库中 + 判断是否重复注册。表名：pass		这个判断必须放在所有数据库操作的第一位。因为最为重要。
-		long ret = jc.hsetnx("pass", user.getName(), user.getPass());
-		if(ret == 0)	return 0;			//此用户名已经存在，已经有此用户了。操作终止。
 		//添加到name-UID反查库中。表名：getuser	<hash>
 		jc.hset("getuser", user.getName(), String.valueOf(user.getUID()));
 		//设置user:[UID]，user信息表		//UID不用设置。表的名字即是UID。
@@ -88,11 +94,9 @@ public class Cluster {
 		long AID = jc.incr("AID");
 		article.setAID(AID);
 		String keyname = "article:"+article.getAID();	//hash
-		article.setPath("articles/article_" + article.getAID());
 		article.setTime(System.currentTimeMillis()/1000);
-		article.add_article_to_disk();					//持久化文章内容到硬盘上			//图片功能再议
 		//设置文章article的article:[AID]表。
-		jc.hset(keyname, "path", article.getPath());
+		jc.hset(keyname, "content", article.getContent());
 		jc.hset(keyname, "UID",  String.valueOf(article.getUID()));
 		if(article.getTrans_AID() != 0)	{				//如果是正在转发别人的文章
 			jc.hset(keyname, "trans_AID",  String.valueOf(article.getTrans_AID()));
@@ -107,8 +111,6 @@ public class Cluster {
 	public void remove_an_article(long AID){
 		String keyname = "article:"+AID;				//hash
 		//删除此文章的磁盘路径
-		String path = jc.hget(keyname, "path");
-		Binutils.remove_things_from_disk(path);
 		//从该用户的all_articles:[UID]表中移除此文章的AID。但是我们因为要由此文章的article:[AID]表索引到UID，因此这一步必须放在前面。
 		long UID = Long.parseLong(jc.hget(keyname, "UID"));	//得到文章作者UID
 		jc.zrem("all_articles:"+UID, String.valueOf(AID));	//移除此作者名下的这篇文章
@@ -126,11 +128,9 @@ public class Cluster {
 		long CID = jc.incr("CID");
 		comment.setCID(CID);
 		String keyname = "comment:"+comment.getCID();	//hash
-		comment.setPath("comments/comment_" + comment.getCID());
 		comment.setTime(System.currentTimeMillis()/1000);
-		comment.add_comment_to_disk();					//持久化文章内容到硬盘上			//图片功能再议
 		//设置comment:[CID]表。		=>		此评论信息
-		jc.hset(keyname, "path", comment.getPath());
+		jc.hset(keyname, "content", String.valueOf(comment.getContent()));
 		jc.hset(keyname, "UID", String.valueOf(comment.getUID()));
 		jc.hset(keyname, "AID", String.valueOf(comment.getAID()));
 		jc.hset(keyname, "time", String.valueOf(comment.getTime()));
@@ -152,11 +152,12 @@ public class Cluster {
 	public static void main(String[] args) throws IOException {
 
 		Cluster c = new Cluster();
-		User zxl = new User("zhengxiaolin", "123", 20);
+//		User zxl = new User("zhengxiaolin", "123", 20);
 //		User jxc = new User("jiangxicong", "123", 20);
-		c.add_a_user(zxl);	//函数内部会自动赋给zxl一个UID
+//		c.add_a_user(zxl);	//函数内部会自动赋给zxl一个UID
 //		c.add_a_user(jxc);
 //		c.add_an_article(new Article("today I bought a very good thing!", zxl.getUID(), 0));		//0参数表示并非转发
+//		c.remove_an_article(1);
 //		c.flush_all();
 		c.get_all_keys();
 	}
