@@ -1,6 +1,5 @@
 package zxl.redis;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,6 +11,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import zxl.bean.Article;
+import zxl.bean.Comment;
 import zxl.bean.User;
 
 public class Cluster {
@@ -82,7 +82,16 @@ public class Cluster {
 		jc.hset("article:"+article.getAID(), "time", String.valueOf(article.getTime()));
 	}
 	
-	
+	public void add_a_comment(Comment comment) throws IOException{
+		long CID = jc.incr("CID");
+		comment.setPath("comments/comment_" + CID);
+		comment.setTime(System.currentTimeMillis()/1000);
+		comment.add_comment_to_disk();		//持久化文章内容到硬盘上			//图片功能再议
+		jc.hset("comment:"+comment.getCID(), "path", comment.getPath());
+		jc.hset("comment:"+comment.getCID(), "UID", String.valueOf(comment.getUID()));
+		jc.hset("comment:"+comment.getCID(), "AID", String.valueOf(comment.getAID()));
+		jc.hset("comment:"+comment.getCID(), "time", String.valueOf(comment.getTime()));
+	}	
 	
 	
 	
