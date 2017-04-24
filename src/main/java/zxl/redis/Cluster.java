@@ -64,22 +64,31 @@ public class Cluster {
 		System.out.println("************************************");		
 	}
 	
-	public void add_a_user(User user){	///传入user的除了UID之外的各种属性
+	//如果成功，返回1  否则返回0
+	public int add_a_user(User user){	///传入user的除了UID之外的各种属性
 //		jc		//没有事务？？？ 事务无法操纵多个主键。因此只能使用lua脚本。
 		long UID = jc.incr("UID");
 		user.setUID(UID);
 		user.setTime(System.currentTimeMillis()/1000);
-		//设置user:[UID]，user信息表
-		jc.hset("user:"+user.getUID(), "name", user.getName());
-		jc.hset("user:"+user.getUID(), "pass", user.getPass());
-		jc.hset("user:"+user.getUID(), "age", String.valueOf(user.getAge()));
-		jc.hset("user:"+user.getUID(), "time", String.valueOf(user.getTime()));
+		//添加信息到用户名密码数据库中 + 判断是否重复注册。表名：pass		这个判断必须放在所有数据库操作的第一位。因为最为重要。
+		long ret = jc.hsetnx("pass", user.getName(), user.getPass());
+		if(ret == 0)	return 0;			//此用户名已经存在，已经有此用户了。操作终止。
+		//添加到name-UID反查库中。表名：getuser	<hash>
+		jc.hset("getuser", user.getName(), String.valueOf(user.getUID()));
+		//设置user:[UID]，user信息表		//UID不用设置。表的名字即是UID。
+		String keyname = "user:"+user.getUID();
+		jc.hset(keyname, "name", user.getName());
+		jc.hset(keyname, "pass", user.getPass());
+		jc.hset(keyname, "age", String.valueOf(user.getAge()));
+		jc.hset(keyname, "time", String.valueOf(user.getTime()));
+		return 1;
 	}
 	
 	public void add_an_article(Article article) throws IOException{
 		long AID = jc.incr("AID");
+		article.setAID(AID);
 		String keyname = "article:"+article.getAID();	//hash
-		article.setPath("articles/article_" + AID);
+		article.setPath("articles/article_" + article.getAID());
 		article.setTime(System.currentTimeMillis()/1000);
 		article.add_article_to_disk();					//持久化文章内容到硬盘上			//图片功能再议
 		//设置文章article的article:[AID]表。
@@ -115,8 +124,9 @@ public class Cluster {
 	
 	public void add_a_comment(Comment comment) throws IOException{
 		long CID = jc.incr("CID");
+		comment.setCID(CID);
 		String keyname = "comment:"+comment.getCID();	//hash
-		comment.setPath("comments/comment_" + CID);
+		comment.setPath("comments/comment_" + comment.getCID());
 		comment.setTime(System.currentTimeMillis()/1000);
 		comment.add_comment_to_disk();					//持久化文章内容到硬盘上			//图片功能再议
 		//设置comment:[CID]表。		=>		此评论信息
@@ -128,6 +138,9 @@ public class Cluster {
 		jc.zadd("get_commented:"+comment.getAID(), comment.getTime(), String.valueOf(comment.getCID()));		//被评论的文章被评论次数+1，加到被评论文章的get_commented列表中。
 	}	
 	
+	public Set<String> get_user_vote_others(long UID){
+		return jc.zrevrangeByScore("voted:"+UID, "+inf", "-inf");
+	}
 	
 	
 	
@@ -136,11 +149,16 @@ public class Cluster {
 	
 	
 	
-	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
 		Cluster c = new Cluster();
-//		c.get_all_keys();
+		User zxl = new User("zhengxiaolin", "123", 20);
+//		User jxc = new User("jiangxicong", "123", 20);
+		c.add_a_user(zxl);	//函数内部会自动赋给zxl一个UID
+//		c.add_a_user(jxc);
+//		c.add_an_article(new Article("today I bought a very good thing!", zxl.getUID(), 0));		//0参数表示并非转发
+//		c.flush_all();
+		c.get_all_keys();
 	}
 
 }
