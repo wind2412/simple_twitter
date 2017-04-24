@@ -8,24 +8,27 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisSentinelPool;
 import zxl.bean.User;
 
 public class Cluster {
 
+	public static String ip = "127.0.0.1";
 	private JedisCluster jc;
 	
 	public Cluster() {
 		
 		Set<HostAndPort> hosts = new HashSet<HostAndPort>();
-		hosts.add(new HostAndPort("localhost", 6379));
-		hosts.add(new HostAndPort("localhost", 6380));
-		hosts.add(new HostAndPort("localhost", 6381));
-		hosts.add(new HostAndPort("localhost", 6382));
-		hosts.add(new HostAndPort("localhost", 6383));
-		hosts.add(new HostAndPort("localhost", 6384));
-		hosts.add(new HostAndPort("localhost", 6385));
-		hosts.add(new HostAndPort("localhost", 6386));			
-		jc = new JedisCluster(hosts);
+		hosts.add(new HostAndPort(ip, 6379));
+		hosts.add(new HostAndPort(ip, 6380));
+		hosts.add(new HostAndPort(ip, 6381));
+		hosts.add(new HostAndPort(ip, 6382));
+		hosts.add(new HostAndPort(ip, 6383));
+		hosts.add(new HostAndPort(ip, 6384));
+		hosts.add(new HostAndPort(ip, 6385));
+		hosts.add(new HostAndPort(ip, 6386));			
+		jc = new JedisCluster(hosts, new JedisPoolConfig());
 		
 		get_all_keys();
 		
@@ -81,7 +84,7 @@ public class Cluster {
 	public static void main(String[] args) {
 
 		Cluster c = new Cluster();
-		c.add_a_user(new User("sb", "123", 20));
+//		c.add_a_user(new User("sb", "123", 20));
 //		c.get_all_keys();
 	}
 
