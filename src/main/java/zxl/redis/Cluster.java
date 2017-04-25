@@ -14,9 +14,19 @@ import zxl.bean.Article;
 import zxl.bean.Comment;
 import zxl.bean.User;
 
+/**
+ * 	Jedis不支持集群的事务。
+ *  等逻辑写完之后，我会使用lua重写全部。
+ *  再加上spring。
+ */
 public class Cluster {
-
+	
 	public static String ip = "127.0.0.1";
+	public static final int VOTE_SCORE = 432;
+	public static final int COMMENT_SCORE = 648;
+	public static final int TRANS_SCORE = 1080;
+	public static final int ARTICLES_PER_PAGE = 25;
+	
 	private JedisCluster jc;
 	
 	public Cluster() {
@@ -106,11 +116,12 @@ public class Cluster {
 		jc.hset(keyname, "time", String.valueOf(article.getTime()));
 		//添加到user的all_articles:[UID]表。	=>	user写的文章。
 		jc.zadd("all_articles:"+article.getUID(), article.getTime(), String.valueOf(article.getAID()));
+		//添加此文章AID到score表。填入内容为Unix时间。
+		jc.zadd("score", article.getTime(), String.valueOf(article.getAID()));
 	}
 
 	public void remove_an_article(long AID){
 		String keyname = "article:"+AID;				//hash
-		//删除此文章的磁盘路径
 		//从该用户的all_articles:[UID]表中移除此文章的AID。但是我们因为要由此文章的article:[AID]表索引到UID，因此这一步必须放在前面。
 		long UID = Long.parseLong(jc.hget(keyname, "UID"));	//得到文章作者UID
 		jc.zrem("all_articles:"+UID, String.valueOf(AID));	//移除此作者名下的这篇文章
@@ -120,8 +131,11 @@ public class Cluster {
 		jc.del("get_commented:"+AID);
 		//删除此文章下所有赞：get_voted:[AID]		//注意：此文章下所有转发是删不了的。
 		jc.del("get_voted:"+AID);
+				//是谁赞的文章的voted:[AID]表就不删除了。如果发现“xxx最近赞了xxx”时候文章已经被del，那就直接显示已经被删除好了。但是“最近赞了”还是要留下。
 		//删除此文章下所有图片，但是图片的路径还是别删了（大雾 :pictures:[AID]
 		jc.del("pictures:"+AID);
+		//删除score表中的此AID
+		jc.zrem("score", String.valueOf(AID));
 	}
 	
 	public void add_a_comment(Comment comment) throws IOException{
@@ -138,16 +152,65 @@ public class Cluster {
 		jc.zadd("get_commented:"+comment.getAID(), comment.getTime(), String.valueOf(comment.getCID()));		//被评论的文章被评论次数+1，加到被评论文章的get_commented列表中。
 	}	
 	
+	//untested
+	//得到此用户最后赞过谁  适用于：(xxx在hh:mm时赞过yyy)的twitter
 	public Set<String> get_user_vote_others(long UID){
 		return jc.zrevrangeByScore("voted:"+UID, "+inf", "-inf");
 	}
 	
+	//untested
+	//得到此用户所有推文
+	public Set<String> get_user_articles(long UID){
+		return jc.zrevrangeByScore("all_articles:"+UID, "+inf", "-inf");
+	}
 	
+	//untested
+	//得到此用户所有推文的总数
+	public long get_user_articles_num(long UID){
+		//返回zset.length()
+		return jc.zcard("all_articles:"+UID);
+	}
 	
+	//untested
+	//关注某人o(*////▽////*)o
+	public void focus_a_user(long srcUID, long targetUID){
+		long time = System.currentTimeMillis()/1000;
+		//在自己关注中加入对方
+		jc.zadd("focus:"+srcUID, time, String.valueOf(targetUID));
+		//在对方粉丝中加入自己
+		jc.zadd("fans:"+targetUID, time, String.valueOf(srcUID));
+	}
 	
+	//untested
+	//取消关注
+	public void focus_cancelled_oh_no(long srcUID, long targetUID){
+		//从自己的关注中移除对方
+		jc.zrem("focus:"+srcUID, String.valueOf(targetUID));
+		//从对方的粉丝中移除自己
+		jc.zrem("fans:"+targetUID, String.valueOf(srcUID));
+	}
 	
+	//untested
+	/**
+	 * 需要加入文章score机制的vote系统	=> 表名：score{`AID`, `score`}
+	 * 设定：一篇文章的score是：Unix_time + voted*432 + comment*648 + trans*1080
+	 * @param UID => 谁赞的
+	 * @param AID => 赞了啥
+	 */
+	public void vote_an_article(long UID, long AID){
+		long cur_time = System.currentTimeMillis()/1000;
+		//让这篇文章的分数上升432
+		jc.zincrby("score", VOTE_SCORE, String.valueOf(AID));
+		//加文章到此人赞的列表中
+		jc.zadd("voted:"+UID, cur_time, String.valueOf(AID));
+		//加此人到此文章被赞的列表中
+		jc.zadd("get_voted:"+AID, cur_time, String.valueOf(UID));
+	}
 	
-	
+	public void comment_an_article(Comment comment){
+		long cur_time = System.currentTimeMillis()/1000;
+		
+	}
 	
 	public static void main(String[] args) throws IOException {
 
