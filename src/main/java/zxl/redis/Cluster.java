@@ -82,6 +82,7 @@ public class Cluster {
 			//临退出之前，需要在这个空的user中写入他本身的UID才好，方便外界的user可以重复使用。
 			long user_uid = Long.parseLong(jc.hget("getuser", user.getName()));
 			user.setUID(user_uid);
+			System.out.println(user.getUID());
 			user.setTime(Long.parseLong(jc.hget("user:"+user_uid, "time")));
 			return 0;			//此用户名已经存在，已经有此用户了。操作终止。
 		}
@@ -138,6 +139,7 @@ public class Cluster {
 		jc.zrem("score", String.valueOf(AID));
 	}
 	
+	//untested
 	public void add_a_comment(Comment comment) throws IOException{
 		long CID = jc.incr("CID");
 		comment.setCID(CID);
@@ -150,6 +152,8 @@ public class Cluster {
 		jc.hset(keyname, "time", String.valueOf(comment.getTime()));
 		//设置get_commented:[AID]表。=>		被评论的文章的所有评论列表。	
 		jc.zadd("get_commented:"+comment.getAID(), comment.getTime(), String.valueOf(comment.getCID()));		//被评论的文章被评论次数+1，加到被评论文章的get_commented列表中。
+		//给被评论的文章+648分 =>  score表
+		jc.zincrby("score", COMMENT_SCORE, String.valueOf(comment.getAID()));
 	}	
 	
 	//untested
@@ -171,8 +175,12 @@ public class Cluster {
 		return jc.zcard("all_articles:"+UID);
 	}
 	
-	//untested
 	//关注某人o(*////▽////*)o
+	/**
+	 * 前端调用之前，需要调用focus_or_not()方法检测srcUID和targetUID是不是已经关注了。必须调用！
+	 * @param srcUID
+	 * @param targetUID
+	 */
 	public void focus_a_user(long srcUID, long targetUID){
 		long time = System.currentTimeMillis()/1000;
 		//在自己关注中加入对方
@@ -181,7 +189,11 @@ public class Cluster {
 		jc.zadd("fans:"+targetUID, time, String.valueOf(srcUID));
 	}
 	
-	//untested
+	/**
+	 * 前端调用之前，需要调用focus_or_not()方法检测srcUID和targetUID是不是已经关注了。必须调用！
+	 * @param srcUID
+	 * @param targetUID
+	 */
 	//取消关注
 	public void focus_cancelled_oh_no(long srcUID, long targetUID){
 		//从自己的关注中移除对方
@@ -190,14 +202,28 @@ public class Cluster {
 		jc.zrem("fans:"+targetUID, String.valueOf(srcUID));
 	}
 	
-	//untested
+	/**
+	 * 判断$(1)是否关注了$(2)		=>		$(1)指第一个参数
+	 * @param srcUID
+	 * @param targetUID
+	 * @return
+	 */
+	public boolean focus_or_not(long srcUID, long targetUID){
+		return jc.zrank("focus:"+srcUID, String.valueOf(targetUID)) == null ? false : true;
+	}
+	
 	/**
 	 * 需要加入文章score机制的vote系统	=> 表名：score{`AID`, `score`}
 	 * 设定：一篇文章的score是：Unix_time + voted*432 + comment*648 + trans*1080
 	 * @param UID => 谁赞的
 	 * @param AID => 赞了啥
+	 * 		PS::调用此方法之前需要先使用judge_voted函数检测是否投过票了？
 	 */
 	public void vote_an_article(long UID, long AID){
+		//先检查文章到底被没被删除！也就是查AID到底有没有！但是不必管UID到底有没有。因为操作者一定有个UID。也就是UID一定是存在的。
+		if(jc.zrank("score", String.valueOf(AID)) == null)		return;		//看似不相干，但是因为score表当中存了所有文章的集合，因此可以拿来使用！！
+		//检查一个用户到底有没有那个文章，=> 不能给自己投票！！
+		if(jc.zrank("all_articles:"+UID, String.valueOf(AID)) != null) 		return;
 		long cur_time = System.currentTimeMillis()/1000;
 		//让这篇文章的分数上升432
 		jc.zincrby("score", VOTE_SCORE, String.valueOf(AID));
@@ -207,10 +233,46 @@ public class Cluster {
 		jc.zadd("get_voted:"+AID, cur_time, String.valueOf(UID));
 	}
 	
-	public void comment_an_article(Comment comment){
-		long cur_time = System.currentTimeMillis()/1000;
-		
+	/**
+	 * 取消点赞一篇文章
+	 * @param UID
+	 * @param AID
+	 * 		PS::调用此方法之前需要先使用judge_voted函数检测是否投过票了？
+	 */
+	public void vote_cancelled_oh_no(long UID, long AID){
+		//先检查文章到底被没被删除！也就是查AID到底有没有！但是不必管UID到底有没有。因为操作者一定有个UID。也就是UID一定是存在的。
+		if(jc.zrank("score", String.valueOf(AID)) == null)		return;		//看似不相干，但是因为score表当中存了所有文章的集合，因此可以拿来使用！！
+		//检查一个用户到底有没有那个文章，=> 不能给自己反投票！！
+		if(jc.zrank("all_articles:"+UID, String.valueOf(AID)) != null) 		return;
+		//让这篇文章的分数下降432
+		jc.zincrby("score", -VOTE_SCORE, String.valueOf(AID));
+		//删除文章从此人赞的列表
+		jc.zrem("voted:"+UID, String.valueOf(AID));
+		//删除此人从此文章被赞的列表
+		jc.zrem("get_voted:"+AID, String.valueOf(UID));		
 	}
+	
+	/**
+	 * 判断一篇文章是否已经被投票？仅仅从投票一方voted:UID进行判断，可以不判断get_voted:AID.
+	 * @param UID
+	 * @param AID
+	 */
+	public boolean judge_voted(long UID, long AID){
+		return jc.zrank("voted:"+UID, String.valueOf(AID)) == null ? true : false;
+	}
+	
+	/**
+	 * 得到一篇文章的评分
+	 * @param AID
+	 * @return
+	 */
+	public Long get_an_article_score(long AID){
+		Double score = jc.zscore("score", String.valueOf(AID));
+		if(score == null)	return null;
+		else return (long)((double)score);		//我们的score全是整数。
+	}
+	
+	
 	
 	public static void main(String[] args) throws IOException {
 
@@ -219,10 +281,14 @@ public class Cluster {
 //		User jxc = new User("jiangxicong", "123", 20);
 //		c.add_a_user(zxl);	//函数内部会自动赋给zxl一个UID
 //		c.add_a_user(jxc);
-//		c.add_an_article(new Article("today I bought a very good thing!", zxl.getUID(), 0));		//0参数表示并非转发
+//		c.add_an_article(new Article("today I bought a very good thing!", jxc.getUID(), 0));		//0参数表示并非转发
 //		c.remove_an_article(1);
 //		c.flush_all();
+		c.vote_cancelled_oh_no(1, 3);
+//		c.focus_a_user(2, 1);
+//		c.focus_cancelled_oh_no(2, 1);
 		c.get_all_keys();
+		
 	}
 
 }
