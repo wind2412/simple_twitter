@@ -171,19 +171,16 @@ public class Cluster {
 		jc.zincrby("score", -COMMENT_SCORE, String.valueOf(AID));
 	}
 	
-	//untested
-	//得到此用户最后赞过谁  适用于：(xxx在hh:mm时赞过yyy)的twitter		//发现好像没有xxx在最后评论过yyy的文章啊......
+	//得到此用户最后赞过哪篇文章  适用于：(xxx在hh:mm时赞过yyy)的twitter		//发现好像没有xxx在最后评论过yyy的文章啊......
 	public Set<String> get_user_vote_others(long UID){
 		return jc.zrevrangeByScore("voted:"+UID, "+inf", "-inf");
 	}
 	
-	//untested
 	//得到此用户所有推文
 	public Set<String> get_user_articles(long UID){
 		return jc.zrevrangeByScore("all_articles:"+UID, "+inf", "-inf");
 	}
 	
-	//untested
 	//得到此用户所有推文的总数
 	public long get_user_articles_num(long UID){
 		//返回zset.length()
@@ -300,9 +297,11 @@ public class Cluster {
 //		c.remove_an_article(1);
 //		c.flush_all();
 		System.out.println(c.get_an_article_score(3));
+//		c.vote_an_article(1, 3);
+		System.out.println(c.get_user_articles(1));
 //		c.add_a_comment(new Comment("nice to see U!", 1, 3, 0));	//调用的时候，如果不是转别人的评论，就不需要填写。但是AID那个参数是必填的，因为全归属于那个文章。
 //		c.add_a_comment(new Comment("comment myself comment!", 1, 3, 1));	//调用的时候，如果不是转别人的评论，就不需要填写。但是AID那个参数是必填的，因为全归属于那个文章。
-		c.remove_a_comment(10);
+//		c.remove_a_comment(10);
 		System.out.println(c.get_an_article_score(3));
 //		c.vote_cancelled_oh_no(1, 3);
 //		c.focus_a_user(2, 1);
