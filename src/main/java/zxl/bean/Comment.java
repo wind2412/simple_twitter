@@ -18,7 +18,7 @@ public class Comment {
 		this.content = content;
 		UID = uID;
 		AID = aID;
-		this.commented_CID = commented_CID;
+		this.commented_CID = commented_CID;		//如果不是评论一个评论的话，这里赋值位0.
 	}
 
 	public long getTime() {

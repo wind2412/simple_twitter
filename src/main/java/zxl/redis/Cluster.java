@@ -130,16 +130,15 @@ public class Cluster {
 		jc.del(keyname);
 		//删除此文章下所有评论：get_commented:[AID]
 		jc.del("get_commented:"+AID);
-		//删除此文章下所有赞：get_voted:[AID]		//注意：此文章下所有转发是删不了的。
-		jc.del("get_voted:"+AID);
+		//删除此文章下所有赞：get_voted:AID:[AID]		//注意：此文章下所有转发是删不了的。
+		jc.del("get_voted:AID:"+AID);
 				//是谁赞的文章的voted:[AID]表就不删除了。如果发现“xxx最近赞了xxx”时候文章已经被del，那就直接显示已经被删除好了。但是“最近赞了”还是要留下。
-		//删除此文章下所有图片，但是图片的路径还是别删了（大雾 :pictures:[AID]
-		jc.del("pictures:"+AID);
+		//删除此文章下所有图片，但是图片的路径还是别删了（大雾 :pictures:AID:[AID]
+		jc.del("pictures:AID:"+AID);
 		//删除score表中的此AID
 		jc.zrem("score", String.valueOf(AID));
 	}
 	
-	//untested
 	public void add_a_comment(Comment comment) throws IOException{
 		long CID = jc.incr("CID");
 		comment.setCID(CID);
@@ -150,14 +149,30 @@ public class Cluster {
 		jc.hset(keyname, "UID", String.valueOf(comment.getUID()));
 		jc.hset(keyname, "AID", String.valueOf(comment.getAID()));
 		jc.hset(keyname, "time", String.valueOf(comment.getTime()));
+		if(comment.getCommented_CID() != 0)	jc.hset(keyname, "commented_CID", String.valueOf(comment.getCommented_CID()));
 		//设置get_commented:[AID]表。=>		被评论的文章的所有评论列表。	
 		jc.zadd("get_commented:"+comment.getAID(), comment.getTime(), String.valueOf(comment.getCID()));		//被评论的文章被评论次数+1，加到被评论文章的get_commented列表中。
 		//给被评论的文章+648分 =>  score表
 		jc.zincrby("score", COMMENT_SCORE, String.valueOf(comment.getAID()));
 	}	
 	
+	public void remove_a_comment(long CID){
+		String keyname = "comment:"+CID;
+		//从该文章的get_commented:[AID]中移除此评论的CID。
+		long AID = Long.parseLong(jc.hget(keyname, "AID"));	//得到所评论文章的AID
+		jc.zrem("get_commented:"+AID, String.valueOf(CID)); //移除此文章下的这个评论
+		//删除此文章下的comment:[CID]表，全删除就好了。
+		jc.del(keyname);
+		//删除此评论下的所有赞				//注意：评论了此评论的评论是删不了的。
+		jc.del("get_voted:CID:"+CID);
+		//删除此评论下的所有图片，但是图片的路径也还是不删了吧～
+		jc.del("pictures:CID:"+CID);
+		//删除评论文章的分数也要减去？
+		jc.zincrby("score", -COMMENT_SCORE, String.valueOf(AID));
+	}
+	
 	//untested
-	//得到此用户最后赞过谁  适用于：(xxx在hh:mm时赞过yyy)的twitter
+	//得到此用户最后赞过谁  适用于：(xxx在hh:mm时赞过yyy)的twitter		//发现好像没有xxx在最后评论过yyy的文章啊......
 	public Set<String> get_user_vote_others(long UID){
 		return jc.zrevrangeByScore("voted:"+UID, "+inf", "-inf");
 	}
@@ -230,7 +245,7 @@ public class Cluster {
 		//加文章到此人赞的列表中
 		jc.zadd("voted:"+UID, cur_time, String.valueOf(AID));
 		//加此人到此文章被赞的列表中
-		jc.zadd("get_voted:"+AID, cur_time, String.valueOf(UID));
+		jc.zadd("get_voted:AID:"+AID, cur_time, String.valueOf(UID));
 	}
 	
 	/**
@@ -249,11 +264,11 @@ public class Cluster {
 		//删除文章从此人赞的列表
 		jc.zrem("voted:"+UID, String.valueOf(AID));
 		//删除此人从此文章被赞的列表
-		jc.zrem("get_voted:"+AID, String.valueOf(UID));		
+		jc.zrem("get_voted:AID:"+AID, String.valueOf(UID));		
 	}
 	
 	/**
-	 * 判断一篇文章是否已经被投票？仅仅从投票一方voted:UID进行判断，可以不判断get_voted:AID.
+	 * 判断一篇文章是否已经被投票？仅仅从投票一方voted:[UID]进行判断，可以不判断get_voted:AID:[AID].
 	 * @param UID
 	 * @param AID
 	 */
@@ -284,7 +299,12 @@ public class Cluster {
 //		c.add_an_article(new Article("today I bought a very good thing!", jxc.getUID(), 0));		//0参数表示并非转发
 //		c.remove_an_article(1);
 //		c.flush_all();
-		c.vote_cancelled_oh_no(1, 3);
+		System.out.println(c.get_an_article_score(3));
+//		c.add_a_comment(new Comment("nice to see U!", 1, 3, 0));	//调用的时候，如果不是转别人的评论，就不需要填写。但是AID那个参数是必填的，因为全归属于那个文章。
+//		c.add_a_comment(new Comment("comment myself comment!", 1, 3, 1));	//调用的时候，如果不是转别人的评论，就不需要填写。但是AID那个参数是必填的，因为全归属于那个文章。
+		c.remove_a_comment(10);
+		System.out.println(c.get_an_article_score(3));
+//		c.vote_cancelled_oh_no(1, 3);
 //		c.focus_a_user(2, 1);
 //		c.focus_cancelled_oh_no(2, 1);
 		c.get_all_keys();
