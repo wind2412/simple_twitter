@@ -1,7 +1,22 @@
 package zxl.bean;
 
+import java.util.List;
+
 
 public class Article {
+	
+	/**
+	 * 发一篇文章有7种方式：
+	 * 1.普通推文
+	 * 2.回复别人的推文
+	 * 3.转发别人的推文
+	 * 4.回复别人的回复	=>	由于回复和转发也会变成推文。因此相当于“回复别人的推文”。同2.
+	 * 5.转发别人的回复	=>	同3.
+	 * 6.回复别人的转发	=>	同2.
+	 * 7.转发别人的转发	=>	同3.
+	 * 
+	 * 因此分析后发现只有3种方式。	也就是，只有“正在创建”的推文有类型type。而被回复/转发的推文没有type，全是某一文章，全用trans_AID代替。这样可以架构清晰。
+	 */
 	
 	private long time;			//发布时间
 	private String content;		//推文的内容
@@ -9,12 +24,15 @@ public class Article {
 	private long AID;			//文章编号
 	private long type;			//此推文的类型。 0：普通推文  1：reply	2：trans		=>    某种程度reply和trans的实现是一样的。只是，reply的显示和trans不同。
 	private long trans_AID;		//用作reply和trans的AID 即：此文章是一篇转发的文章，trans_AID是引用文章的AID.		//没有设为0.
+	private List<String> pics;
 	
-	public Article(String content, long UID, long trans_AID) {
+	public Article(String content, long UID, long type, long trans_AID, List<String> pics) {
 		super();
 		this.content = content;
 		this.UID = UID;
+		this.type = type;
 		this.trans_AID = trans_AID;
+		this.pics = pics;
 	}
 
 	public long getAID() {
@@ -55,6 +73,22 @@ public class Article {
 
 	public void setTrans_AID(long trans_AID) {
 		this.trans_AID = trans_AID;
+	}
+
+	public long getType() {
+		return type;
+	}
+
+	public void setType(long type) {
+		this.type = type;
+	}
+
+	public List<String> getPics() {
+		return pics;
+	}
+
+	public void setPics(List<String> pics) {
+		this.pics = pics;
 	}
 
 	

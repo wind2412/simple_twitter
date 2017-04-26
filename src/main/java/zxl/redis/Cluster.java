@@ -3,6 +3,8 @@ package zxl.redis;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,19 +14,19 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import zxl.bean.Article;
-import zxl.bean.Comment;
 import zxl.bean.User;
 
 /**
  * 	Jedis不支持集群的事务。
- *  等逻辑写完之后，我会使用lua重写全部。
- *  再加上spring。
+ *  等逻辑写完之后，我会使用lua重写全部。						=> 	 	大坑
+ *  再加上spring。										=>		大坑	
+ *  time最好不要在这里写。应该放到前端，用户点击的瞬间才好啊。		=>		坑
  */
 public class Cluster {
 	
 	public static String ip = "127.0.0.1";
 	public static final int VOTE_SCORE = 432;
-	public static final int COMMENT_SCORE = 648;
+	public static final int REPLY_SCORE = 648;
 	public static final int TRANS_SCORE = 1080;
 	public static final int ARTICLES_PER_PAGE = 25;
 	
@@ -102,34 +104,79 @@ public class Cluster {
 		return 1;
 	}
 	
-	public void add_an_article(Article article) throws IOException{
+	public void add_an_article(Article article) throws IOException{		//注意，没有加上图片功能。
 		long AID = jc.incr("AID");
 		article.setAID(AID);
-		String keyname = "article:"+article.getAID();	//hash
+		String keyname = "article:"+article.getAID();
 		article.setTime(System.currentTimeMillis()/1000);
 		//设置文章article的article:[AID]表。
 		jc.hset(keyname, "content", article.getContent());
 		jc.hset(keyname, "UID",  String.valueOf(article.getUID()));
-		if(article.getTrans_AID() != 0)	{				//如果是正在转发别人的文章		//“转发自己文章是错误的”的判断，要放到前端去写。
-			//设置此article:AID表的trans_AID属性。
-			jc.hset(keyname, "trans_AID", String.valueOf(article.getTrans_AID()));
-			//设置get_transed:[AID]表。		=>	被转发文章的所有转发列表
-			jc.zadd("get_transed:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));		//被转发的文章被转发次数+1，加到被转发文章的get_transed的zset中。
-			//给被转发的文章加分		//改？？？？？
-			jc.zincrby("score:AID", TRANS_SCORE, String.valueOf(article.getTrans_AID()));
-		} else if(article.getTrans_CID() != 0) {		//如果是正在转发别人的评论
-			//设置此article:AID表的trans_CID属性。
-			jc.hset(keyname, "trans_CID", String.valueOf(article.getTrans_CID()));
-			//设置get_transed:[CID]表。
-			
-		}
+		jc.hset(keyname, "type", String.valueOf(article.getType()));
 		jc.hset(keyname, "time", String.valueOf(article.getTime()));
+		//设置文章article的pictures:[AID]表的pics路径。
+		if(article.getPics() != null)
+		for(int i = 0; i < article.getPics().size(); i ++){
+			jc.lpush("pictures:"+AID, article.getPics().get(i));
+		}
 		//添加到user的all_articles:[UID]表。	=>	user写的文章。
 		jc.zadd("all_articles:"+article.getUID(), article.getTime(), String.valueOf(article.getAID()));
 		//添加此文章AID到score:AID表。填入内容为Unix时间。
 		jc.zadd("score:AID", article.getTime(), String.valueOf(article.getAID()));
+		//对于[回复和/转发]进行额外的工作
+		if(article.getType() == 1)	{			//如果是正在[回复]别人的[文章/回复/转发]
+			//设置此article:AID表的trans_AID属性。
+			jc.hset(keyname, "trans_AID", String.valueOf(article.getTrans_AID()));
+			//设置get_commented:[AID]表。
+			jc.zadd("get_commented:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));		//被回复的文章被回复次数+1，加到被回复文章的get_commented的zset中。
+			//给被回复的文章加分		//改？？？？？应该改成给所有链上的文章加分。。。
+			add_score_to_article_chains(AID, REPLY_SCORE);
+		} else if(article.getType() == 2) {		//如果是正在[转发]别人的[文章/回复/转发]
+			//设置此article:AID表的trans_AID属性。
+			jc.hset(keyname, "trans_AID", String.valueOf(article.getTrans_AID()));
+			//设置get_transed:[AID]表。		=>	被转发文章的所有转发列表
+			jc.zadd("get_transed:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));		//被转发的文章被转发次数+1，加到被转发文章的get_transed的zset中。
+			//给被转发的文章加分		//改？？？？？应该改成给所有链上的文章加分。。。
+			add_score_to_article_chains(AID, TRANS_SCORE);
+		}
+	}
+	
+	/**
+	 * 得到不包括此AID文章的之前所有文章链。举例：此AID时由转发AID(3)文章得来。AID(3)由评论AID(5)文章得来。于是得到表：[3,5].
+	 * @param AID
+	 * @return
+	 */
+	public List<Long> get_article_chains(long AID){
+		List<Long> list = new LinkedList<Long>();
+		long type = Long.parseLong(jc.hget("article:"+AID, "type"));
+		while(type == 1 || type == 2){		//是评论和转发才继续做。
+			long trans_AID = Long.parseLong(jc.hget("article:"+AID, "trans_AID"));
+			list.add(trans_AID);
+			type = Long.parseLong(jc.hget("article:"+trans_AID, "type"));
+		}
+		return list;
 	}
 
+	/**
+	 * 调用get_article_chains方法进行对chain上的每个article都进行加分。
+	 * @param AID
+	 */
+	public void add_score_to_article_chains(long AID, int add_score){
+		List<Long> s = this.get_article_chains(AID);
+		for(long aid : s){
+			//先给score总表加分
+			jc.zincrby("score", add_score, String.valueOf(aid));
+			long type = Long.parseLong(jc.hget("article:"+aid, "type"));
+			if(type == 1){
+				//如果这个aid代表的是回复，也需要在回复表计分当中同步。
+				jc.zincrby("score:reply:"+aid, add_score, String.valueOf(aid));
+			}else if(type == 2){
+				//如果这个aid代表的是转发，也需要在转发表计分当中同步。
+				jc.zincrby("score:trans:"+aid, add_score, String.valueOf(aid));					
+			}
+		}
+	}
+	
 	public void remove_an_article(long AID){
 		String keyname = "article:"+AID;				//hash
 		//从该用户的all_articles:[UID]表中移除此文章的AID。但是我们因为要由此文章的article:[AID]表索引到UID，因此这一步必须放在前面。
@@ -156,40 +203,8 @@ public class Cluster {
 		jc.zrem("score:AID", String.valueOf(AID));
 	}
 	
-	public void add_a_comment(Comment comment) throws IOException{
-		long CID = jc.incr("CID");
-		comment.setCID(CID);
-		String keyname = "comment:"+comment.getCID();	//hash
-		comment.setTime(System.currentTimeMillis()/1000);
-		//设置comment:[CID]表。		=>		此评论信息
-		jc.hset(keyname, "content", String.valueOf(comment.getContent()));
-		jc.hset(keyname, "UID", String.valueOf(comment.getUID()));
-		jc.hset(keyname, "AID", String.valueOf(comment.getAID()));
-		jc.hset(keyname, "time", String.valueOf(comment.getTime()));
-		if(comment.getCommented_CID() != 0)	jc.hset(keyname, "commented_CID", String.valueOf(comment.getCommented_CID()));
-		//设置get_commented:[AID]表。=>		被评论的文章的所有评论列表。	
-		jc.zadd("get_commented:"+comment.getAID(), comment.getTime(), String.valueOf(comment.getCID()));		//被评论的文章被评论次数+1，加到被评论文章的get_commented列表中。
-		//给被评论的文章+648分 =>  score:AID表			////1.所有的转发文章也要加分！！！	2.评论也可以转推！！！??????????????????????????????????
-		jc.zincrby("score:AID", COMMENT_SCORE, String.valueOf(comment.getAID()));
-	}	
-	
-	public void remove_a_comment(long CID){
-		String keyname = "comment:"+CID;
-		//从该文章的get_commented:[AID]中移除此评论的CID。
-		long AID = Long.parseLong(jc.hget(keyname, "AID"));	//得到所评论文章的AID
-		jc.zrem("get_commented:"+AID, String.valueOf(CID)); //移除此文章下的这个评论
-		//删除此文章下的comment:[CID]表，全删除就好了。
-		jc.del(keyname);
-		//删除此评论下的所有赞				//注意：评论了此评论的评论是删不了的。
-		jc.del("get_voted:CID:"+CID);
-		//删除此评论下的所有图片，但是图片的路径也还是不删了吧～
-		jc.del("pictures:CID:"+CID);
-		//删除评论文章的分数也要减去？
-		jc.zincrby("score:AID", -COMMENT_SCORE, String.valueOf(AID));
-	}
-	
 	/**
-	 * 某篇文章是不是转发的？
+	 * 某篇文章是不是转发/回复的？
 	 * @param AID
 	 * @return
 	 */
@@ -200,7 +215,7 @@ public class Cluster {
 	
 	/**
 	 * 需要加入文章score:AID机制的vote系统	=> 表名：score:AID{`AID`, `score`}
-	 * 设定：一篇文章的score是：Unix_time + voted*432 + comment*648 + trans*1080
+	 * 设定：一篇文章的score是：Unix_time + voted*432 + reply*648 + trans*1080
 	 * @param UID => 谁赞的
 	 * @param AID => 赞了啥
 	 * 		PS::调用此方法之前需要先使用judge_voted函数检测是否投过票了？
@@ -336,23 +351,15 @@ public class Cluster {
 	 * @return
 	 */
 	public Set<String> get_article_comments_msg(long AID, int page){
-		//得到一页的用户评论
+		//得到一页的用户回复
 		Set<String> CIDs = jc.zrevrange("get_commented:"+AID, (page-1)*ARTICLES_PER_PAGE, page*ARTICLES_PER_PAGE-1);
 		Set<String> comments = new LinkedHashSet<String>();
 		for(String CID : CIDs){
-			comments.add(this.get_nested_comments(Long.parseLong(CID)));
+			comments.add(this.get_nested_reply(Long.parseLong(CID)));
 		}
 		return comments;
 	}
 	
-	/**
-	 * 得到一个评论的[完全体].
-	 * @param CID
-	 * @return
-	 */
-	public String get_nested_comments(long CID){
-		
-	}
 	
 	
 	
