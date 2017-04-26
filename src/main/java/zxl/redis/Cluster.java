@@ -2,6 +2,7 @@ package zxl.redis;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -109,16 +110,24 @@ public class Cluster {
 		//设置文章article的article:[AID]表。
 		jc.hset(keyname, "content", article.getContent());
 		jc.hset(keyname, "UID",  String.valueOf(article.getUID()));
-		if(article.getTrans_AID() != 0)	{				//如果是正在转发别人的文章
-			jc.hset(keyname, "trans_AID",  String.valueOf(article.getTrans_AID()));
+		if(article.getTrans_AID() != 0)	{				//如果是正在转发别人的文章		//“转发自己文章是错误的”的判断，要放到前端去写。
+			//设置此article:AID表的trans_AID属性。
+			jc.hset(keyname, "trans_AID", String.valueOf(article.getTrans_AID()));
 			//设置get_transed:[AID]表。		=>	被转发文章的所有转发列表
 			jc.zadd("get_transed:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));		//被转发的文章被转发次数+1，加到被转发文章的get_transed的zset中。
+			//给被转发的文章加分		//改？？？？？
+			jc.zincrby("score:AID", TRANS_SCORE, String.valueOf(article.getTrans_AID()));
+		} else if(article.getTrans_CID() != 0) {		//如果是正在转发别人的评论
+			//设置此article:AID表的trans_CID属性。
+			jc.hset(keyname, "trans_CID", String.valueOf(article.getTrans_CID()));
+			//设置get_transed:[CID]表。
+			
 		}
 		jc.hset(keyname, "time", String.valueOf(article.getTime()));
 		//添加到user的all_articles:[UID]表。	=>	user写的文章。
 		jc.zadd("all_articles:"+article.getUID(), article.getTime(), String.valueOf(article.getAID()));
-		//添加此文章AID到score表。填入内容为Unix时间。
-		jc.zadd("score", article.getTime(), String.valueOf(article.getAID()));
+		//添加此文章AID到score:AID表。填入内容为Unix时间。
+		jc.zadd("score:AID", article.getTime(), String.valueOf(article.getAID()));
 	}
 
 	public void remove_an_article(long AID){
@@ -126,6 +135,14 @@ public class Cluster {
 		//从该用户的all_articles:[UID]表中移除此文章的AID。但是我们因为要由此文章的article:[AID]表索引到UID，因此这一步必须放在前面。
 		long UID = Long.parseLong(jc.hget(keyname, "UID"));	//得到文章作者UID
 		jc.zrem("all_articles:"+UID, String.valueOf(AID));	//移除此作者名下的这篇文章
+		//如果这篇文章是转发自别人的话，需要从get_transed:[trans_AID]表当中删除这篇被删除的转发！
+		String trans_AID = jc.hget("article:"+AID, "trans_AID");
+		if(trans_AID != null){
+			//删除表项：get_transed:[AID]表中的trans_AID字段
+			jc.zrem("get_transed:"+trans_AID, String.valueOf(AID));
+			//给被转发的文章减分
+			jc.zincrby("score:AID", -TRANS_SCORE, String.valueOf(trans_AID));			
+		}
 		//删除此文章的article:[AID]表......全删除好了。查文章索引不到为nil的时候，直接弹出“因法律法规原因并未显示”好了（笑
 		jc.del(keyname);
 		//删除此文章下所有评论：get_commented:[AID]
@@ -135,8 +152,8 @@ public class Cluster {
 				//是谁赞的文章的voted:[AID]表就不删除了。如果发现“xxx最近赞了xxx”时候文章已经被del，那就直接显示已经被删除好了。但是“最近赞了”还是要留下。
 		//删除此文章下所有图片，但是图片的路径还是别删了（大雾 :pictures:AID:[AID]
 		jc.del("pictures:AID:"+AID);
-		//删除score表中的此AID
-		jc.zrem("score", String.valueOf(AID));
+		//删除score:AID表中的此AID
+		jc.zrem("score:AID", String.valueOf(AID));
 	}
 	
 	public void add_a_comment(Comment comment) throws IOException{
@@ -152,8 +169,8 @@ public class Cluster {
 		if(comment.getCommented_CID() != 0)	jc.hset(keyname, "commented_CID", String.valueOf(comment.getCommented_CID()));
 		//设置get_commented:[AID]表。=>		被评论的文章的所有评论列表。	
 		jc.zadd("get_commented:"+comment.getAID(), comment.getTime(), String.valueOf(comment.getCID()));		//被评论的文章被评论次数+1，加到被评论文章的get_commented列表中。
-		//给被评论的文章+648分 =>  score表
-		jc.zincrby("score", COMMENT_SCORE, String.valueOf(comment.getAID()));
+		//给被评论的文章+648分 =>  score:AID表			////1.所有的转发文章也要加分！！！	2.评论也可以转推！！！??????????????????????????????????
+		jc.zincrby("score:AID", COMMENT_SCORE, String.valueOf(comment.getAID()));
 	}	
 	
 	public void remove_a_comment(long CID){
@@ -168,7 +185,66 @@ public class Cluster {
 		//删除此评论下的所有图片，但是图片的路径也还是不删了吧～
 		jc.del("pictures:CID:"+CID);
 		//删除评论文章的分数也要减去？
-		jc.zincrby("score", -COMMENT_SCORE, String.valueOf(AID));
+		jc.zincrby("score:AID", -COMMENT_SCORE, String.valueOf(AID));
+	}
+	
+	/**
+	 * 某篇文章是不是转发的？
+	 * @param AID
+	 * @return
+	 */
+	public boolean is_transed_article(long AID){
+		return jc.hget("article:"+AID, "trans_AID") == null ? false : true;
+	}
+	
+	
+	/**
+	 * 需要加入文章score:AID机制的vote系统	=> 表名：score:AID{`AID`, `score`}
+	 * 设定：一篇文章的score是：Unix_time + voted*432 + comment*648 + trans*1080
+	 * @param UID => 谁赞的
+	 * @param AID => 赞了啥
+	 * 		PS::调用此方法之前需要先使用judge_voted函数检测是否投过票了？
+	 */
+	public void vote_an_article(long UID, long AID){
+		//先检查文章到底被没被删除！也就是查AID到底有没有！但是不必管UID到底有没有。因为操作者一定有个UID。也就是UID一定是存在的。
+		if(jc.zrank("score:AID", String.valueOf(AID)) == null)		return;		//看似不相干，但是因为score:AID表当中存了所有文章的集合，因此可以拿来使用！！
+		//检查一个用户到底有没有那个文章，=> 不能给自己投票！！
+		if(jc.zrank("all_articles:"+UID, String.valueOf(AID)) != null) 		return;
+		long cur_time = System.currentTimeMillis()/1000;
+		//让这篇文章的分数上升432
+		jc.zincrby("score:AID", VOTE_SCORE, String.valueOf(AID));
+		//加文章到此人赞的列表中
+		jc.zadd("voted:"+UID, cur_time, String.valueOf(AID));
+		//加此人到此文章被赞的列表中
+		jc.zadd("get_voted:AID:"+AID, cur_time, String.valueOf(UID));
+	}
+	
+	/**
+	 * 取消点赞一篇文章
+	 * @param UID
+	 * @param AID
+	 * 		PS::调用此方法之前需要先使用judge_voted函数检测是否投过票了？
+	 */
+	public void vote_cancelled_oh_no(long UID, long AID){
+		//先检查文章到底被没被删除！也就是查AID到底有没有！但是不必管UID到底有没有。因为操作者一定有个UID。也就是UID一定是存在的。
+		if(jc.zrank("score:AID", String.valueOf(AID)) == null)		return;		//看似不相干，但是因为score:AID表当中存了所有文章的集合，因此可以拿来使用！！
+		//检查一个用户到底有没有那个文章，=> 不能给自己反投票！！
+		if(jc.zrank("all_articles:"+UID, String.valueOf(AID)) != null) 		return;
+		//让这篇文章的分数下降432
+		jc.zincrby("score:AID", -VOTE_SCORE, String.valueOf(AID));
+		//删除文章从此人赞的列表
+		jc.zrem("voted:"+UID, String.valueOf(AID));
+		//删除此人从此文章被赞的列表
+		jc.zrem("get_voted:AID:"+AID, String.valueOf(UID));		
+	}
+	
+	/**
+	 * 判断一篇文章是否已经被投票？仅仅从投票一方voted:[UID]进行判断，可以不判断get_voted:AID:[AID].
+	 * @param UID
+	 * @param AID
+	 */
+	public boolean judge_voted(long UID, long AID){
+		return jc.zrank("voted:"+UID, String.valueOf(AID)) == null ? true : false;
 	}
 	
 	//得到此用户最后赞过哪篇文章  适用于：(xxx在hh:mm时赞过yyy)的twitter		//发现好像没有xxx在最后评论过yyy的文章啊......
@@ -225,52 +301,21 @@ public class Cluster {
 	}
 	
 	/**
-	 * 需要加入文章score机制的vote系统	=> 表名：score{`AID`, `score`}
-	 * 设定：一篇文章的score是：Unix_time + voted*432 + comment*648 + trans*1080
-	 * @param UID => 谁赞的
-	 * @param AID => 赞了啥
-	 * 		PS::调用此方法之前需要先使用judge_voted函数检测是否投过票了？
+	 * 得到某个用户的所有关注列表	=>		按照时间排序
+	 * @param UID
+	 * @return
 	 */
-	public void vote_an_article(long UID, long AID){
-		//先检查文章到底被没被删除！也就是查AID到底有没有！但是不必管UID到底有没有。因为操作者一定有个UID。也就是UID一定是存在的。
-		if(jc.zrank("score", String.valueOf(AID)) == null)		return;		//看似不相干，但是因为score表当中存了所有文章的集合，因此可以拿来使用！！
-		//检查一个用户到底有没有那个文章，=> 不能给自己投票！！
-		if(jc.zrank("all_articles:"+UID, String.valueOf(AID)) != null) 		return;
-		long cur_time = System.currentTimeMillis()/1000;
-		//让这篇文章的分数上升432
-		jc.zincrby("score", VOTE_SCORE, String.valueOf(AID));
-		//加文章到此人赞的列表中
-		jc.zadd("voted:"+UID, cur_time, String.valueOf(AID));
-		//加此人到此文章被赞的列表中
-		jc.zadd("get_voted:AID:"+AID, cur_time, String.valueOf(UID));
+	public Set<String> get_all_focus(long UID){
+		return jc.zrevrangeByScore("focus:"+UID, "+inf", "-inf");
 	}
 	
 	/**
-	 * 取消点赞一篇文章
+	 * 得到某个用户的所有粉丝列表	=>		按照时间排序
 	 * @param UID
-	 * @param AID
-	 * 		PS::调用此方法之前需要先使用judge_voted函数检测是否投过票了？
+	 * @return
 	 */
-	public void vote_cancelled_oh_no(long UID, long AID){
-		//先检查文章到底被没被删除！也就是查AID到底有没有！但是不必管UID到底有没有。因为操作者一定有个UID。也就是UID一定是存在的。
-		if(jc.zrank("score", String.valueOf(AID)) == null)		return;		//看似不相干，但是因为score表当中存了所有文章的集合，因此可以拿来使用！！
-		//检查一个用户到底有没有那个文章，=> 不能给自己反投票！！
-		if(jc.zrank("all_articles:"+UID, String.valueOf(AID)) != null) 		return;
-		//让这篇文章的分数下降432
-		jc.zincrby("score", -VOTE_SCORE, String.valueOf(AID));
-		//删除文章从此人赞的列表
-		jc.zrem("voted:"+UID, String.valueOf(AID));
-		//删除此人从此文章被赞的列表
-		jc.zrem("get_voted:AID:"+AID, String.valueOf(UID));		
-	}
-	
-	/**
-	 * 判断一篇文章是否已经被投票？仅仅从投票一方voted:[UID]进行判断，可以不判断get_voted:AID:[AID].
-	 * @param UID
-	 * @param AID
-	 */
-	public boolean judge_voted(long UID, long AID){
-		return jc.zrank("voted:"+UID, String.valueOf(AID)) == null ? true : false;
+	public Set<String> get_all_fans(long UID){
+		return jc.zrevrangeByScore("fans:"+UID, "+inf", "-inf");
 	}
 	
 	/**
@@ -279,9 +324,34 @@ public class Cluster {
 	 * @return
 	 */
 	public Long get_an_article_score(long AID){
-		Double score = jc.zscore("score", String.valueOf(AID));
+		Double score = jc.zscore("score:AID", String.valueOf(AID));
 		if(score == null)	return null;
 		else return (long)((double)score);		//我们的score全是整数。
+	}
+	
+	/**
+	 * 分页得到某个文章评论。一页25个评论。
+	 * @param AID
+	 * @param page
+	 * @return
+	 */
+	public Set<String> get_article_comments_msg(long AID, int page){
+		//得到一页的用户评论
+		Set<String> CIDs = jc.zrevrange("get_commented:"+AID, (page-1)*ARTICLES_PER_PAGE, page*ARTICLES_PER_PAGE-1);
+		Set<String> comments = new LinkedHashSet<String>();
+		for(String CID : CIDs){
+			comments.add(this.get_nested_comments(Long.parseLong(CID)));
+		}
+		return comments;
+	}
+	
+	/**
+	 * 得到一个评论的[完全体].
+	 * @param CID
+	 * @return
+	 */
+	public String get_nested_comments(long CID){
+		
 	}
 	
 	
@@ -293,12 +363,12 @@ public class Cluster {
 //		User jxc = new User("jiangxicong", "123", 20);
 //		c.add_a_user(zxl);	//函数内部会自动赋给zxl一个UID
 //		c.add_a_user(jxc);
-//		c.add_an_article(new Article("today I bought a very good thing!", jxc.getUID(), 0));		//0参数表示并非转发
+//		c.add_an_article(new Article("today I bought a very good thing!", jxc.getUID(), 0, 0));		//0参数表示并非转发
 //		c.remove_an_article(1);
 //		c.flush_all();
 		System.out.println(c.get_an_article_score(3));
 //		c.vote_an_article(1, 3);
-		System.out.println(c.get_user_articles(1));
+		c.remove_an_article(4);
 //		c.add_a_comment(new Comment("nice to see U!", 1, 3, 0));	//调用的时候，如果不是转别人的评论，就不需要填写。但是AID那个参数是必填的，因为全归属于那个文章。
 //		c.add_a_comment(new Comment("comment myself comment!", 1, 3, 1));	//调用的时候，如果不是转别人的评论，就不需要填写。但是AID那个参数是必填的，因为全归属于那个文章。
 //		c.remove_a_comment(10);
