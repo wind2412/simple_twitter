@@ -4,16 +4,16 @@ __this is the teamwork repository__
 
 __create in 2017.4.14 3:19__
 
-Lab member:
+Lab members:
 	
-	@[wind2412](https://github.com/wind2412)	=>		Zheng Xiaolin
+@[wind2412](https://github.com/wind2412)	=>		Zheng Xiaolin
 	
-	@[YoungerJiang](https://github.com/YoungerJiang)	=>		Jiang Xicong
+@[YoungerJiang](https://github.com/YoungerJiang)	=>		Jiang Xicong
 	
-	@Li Tiange
+@Li Tiange
 	
-	@Zhang Fangyuan
+@Zhang Fangyuan
 	
-	@Wang Yue
+@Wang Yue
 
 
