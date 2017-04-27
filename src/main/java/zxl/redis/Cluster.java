@@ -121,9 +121,9 @@ public class Cluster {
 		}
 		//添加到user的all_articles:[UID]表。	=>	user写的文章。
 		jc.zadd("all_articles:"+article.getUID(), article.getTime(), String.valueOf(article.getAID()));
-		//添加此文章AID到score:AID表。填入内容为Unix时间。
-		jc.zadd("score:AID", article.getTime(), String.valueOf(article.getAID()));
-		//对于[回复和/转发]进行额外的工作
+		//添加此文章AID到score表。填入内容为Unix时间。
+		jc.zadd("score", article.getTime(), String.valueOf(article.getAID()));
+		//对于[回复和/转发]进行额外的工作		=>	get_commented/get_transed:trans_AID
 		if(article.getType() == 1)	{			//如果是正在[回复]别人的[文章/回复/转发]
 			//设置此article:AID表的trans_AID属性。
 			jc.hset(keyname, "trans_AID", String.valueOf(article.getTrans_AID()));
@@ -143,15 +143,20 @@ public class Cluster {
 	
 	/**
 	 * 得到不包括此AID文章的之前所有文章链。举例：此AID时由转发AID(3)文章得来。AID(3)由评论AID(5)文章得来。于是得到表：[3,5].
+	 * 此函数仅仅用于给文章加分。如果是要显示所有回复什么的，请使用get_article_context().
 	 * @param AID
 	 * @return
 	 */
-	public List<Long> get_article_chains(long AID){
+	private List<Long> get_article_chains_all_before(long AID){
 		List<Long> list = new LinkedList<Long>();
 		long type = Long.parseLong(jc.hget("article:"+AID, "type"));
 		while(type == 1 || type == 2){		//是评论和转发才继续做。
 			long trans_AID = Long.parseLong(jc.hget("article:"+AID, "trans_AID"));
-			list.add(trans_AID);
+			//如果原来被评论的文章已经被删除了的话	=> 到达源头
+			if(jc.zrank("score", String.valueOf(AID)) == null){
+				break;
+			}
+			else list.add(trans_AID);
 			type = Long.parseLong(jc.hget("article:"+trans_AID, "type"));
 		}
 		return list;
@@ -161,8 +166,8 @@ public class Cluster {
 	 * 调用get_article_chains方法进行对chain上的每个article都进行加分。
 	 * @param AID
 	 */
-	public void add_score_to_article_chains(long AID, int add_score){
-		List<Long> s = this.get_article_chains(AID);
+	private void add_score_to_article_chains(long AID, int add_score){
+		List<Long> s = this.get_article_chains_all_before(AID);
 		for(long aid : s){
 			//先给score总表加分
 			jc.zincrby("score", add_score, String.valueOf(aid));
@@ -170,9 +175,6 @@ public class Cluster {
 			if(type == 1){
 				//如果这个aid代表的是回复，也需要在回复表计分当中同步。
 				jc.zincrby("score:reply:"+aid, add_score, String.valueOf(aid));
-			}else if(type == 2){
-				//如果这个aid代表的是转发，也需要在转发表计分当中同步。
-				jc.zincrby("score:trans:"+aid, add_score, String.valueOf(aid));					
 			}
 		}
 	}
@@ -182,25 +184,28 @@ public class Cluster {
 		//从该用户的all_articles:[UID]表中移除此文章的AID。但是我们因为要由此文章的article:[AID]表索引到UID，因此这一步必须放在前面。
 		long UID = Long.parseLong(jc.hget(keyname, "UID"));	//得到文章作者UID
 		jc.zrem("all_articles:"+UID, String.valueOf(AID));	//移除此作者名下的这篇文章
-		//如果这篇文章是转发自别人的话，需要从get_transed:[trans_AID]表当中删除这篇被删除的转发！
-		String trans_AID = jc.hget("article:"+AID, "trans_AID");
-		if(trans_AID != null){
+		//如果这篇文章是回复/转发自别人的话，需要从get_commented/get_transed:[trans_AID]表当中删除这篇被删除的转发！
+		long type = Long.parseLong(jc.hget("article:"+AID, "type"));
+		if(type == 1){
+			//删除表项：get_commented:[AID]表中的trans_AID字段
+			jc.zrem("get_commented:"+Long.parseLong(jc.hget("article:"+AID, "trans_AID")), String.valueOf(AID));
+			//给被回复的文章链整体减分	//算了。已经回复过就是回复过，即使删了分数也还有吧。
+//			add_score_to_article_chains(AID, -REPLY_SCORE);
+		}else if(type == 2){
 			//删除表项：get_transed:[AID]表中的trans_AID字段
-			jc.zrem("get_transed:"+trans_AID, String.valueOf(AID));
-			//给被转发的文章减分
-			jc.zincrby("score:AID", -TRANS_SCORE, String.valueOf(trans_AID));			
+			jc.zrem("get_transed:"+Long.parseLong(jc.hget("article:"+AID, "trans_AID")), String.valueOf(AID));
+			//给被转发的文章链整体减分
+//			add_score_to_article_chains(AID, -REPLY_SCORE);			
 		}
 		//删除此文章的article:[AID]表......全删除好了。查文章索引不到为nil的时候，直接弹出“因法律法规原因并未显示”好了（笑
 		jc.del(keyname);
-		//删除此文章下所有评论：get_commented:[AID]
-		jc.del("get_commented:"+AID);
-		//删除此文章下所有赞：get_voted:AID:[AID]		//注意：此文章下所有转发是删不了的。
+		//删除此文章下所有赞：get_voted:AID:[AID]		//注意：此文章下所有回复和转发已经变成推文，是删不了的。
 		jc.del("get_voted:AID:"+AID);
 				//是谁赞的文章的voted:[AID]表就不删除了。如果发现“xxx最近赞了xxx”时候文章已经被del，那就直接显示已经被删除好了。但是“最近赞了”还是要留下。
 		//删除此文章下所有图片，但是图片的路径还是别删了（大雾 :pictures:AID:[AID]
-		jc.del("pictures:AID:"+AID);
-		//删除score:AID表中的此AID
-		jc.zrem("score:AID", String.valueOf(AID));
+		jc.del("pictures:"+AID);
+		//删除score表中的此AID
+		jc.zrem("score", String.valueOf(AID));
 	}
 	
 	/**
@@ -214,7 +219,7 @@ public class Cluster {
 	
 	
 	/**
-	 * 需要加入文章score:AID机制的vote系统	=> 表名：score:AID{`AID`, `score`}
+	 * 需要加入文章score机制的vote系统	=> 表名：score{`AID`, `score`}
 	 * 设定：一篇文章的score是：Unix_time + voted*432 + reply*648 + trans*1080
 	 * @param UID => 谁赞的
 	 * @param AID => 赞了啥
@@ -222,12 +227,10 @@ public class Cluster {
 	 */
 	public void vote_an_article(long UID, long AID){
 		//先检查文章到底被没被删除！也就是查AID到底有没有！但是不必管UID到底有没有。因为操作者一定有个UID。也就是UID一定是存在的。
-		if(jc.zrank("score:AID", String.valueOf(AID)) == null)		return;		//看似不相干，但是因为score:AID表当中存了所有文章的集合，因此可以拿来使用！！
-		//检查一个用户到底有没有那个文章，=> 不能给自己投票！！
-		if(jc.zrank("all_articles:"+UID, String.valueOf(AID)) != null) 		return;
+		if(jc.zrank("score", String.valueOf(AID)) == null)		return;		//看似不相干，但是因为score表当中存了所有文章的集合，因此可以拿来使用！！
 		long cur_time = System.currentTimeMillis()/1000;
-		//让这篇文章的分数上升432
-		jc.zincrby("score:AID", VOTE_SCORE, String.valueOf(AID));
+		//让这篇文章链的分数上升432
+		this.add_score_to_article_chains(AID, VOTE_SCORE);
 		//加文章到此人赞的列表中
 		jc.zadd("voted:"+UID, cur_time, String.valueOf(AID));
 		//加此人到此文章被赞的列表中
@@ -242,11 +245,9 @@ public class Cluster {
 	 */
 	public void vote_cancelled_oh_no(long UID, long AID){
 		//先检查文章到底被没被删除！也就是查AID到底有没有！但是不必管UID到底有没有。因为操作者一定有个UID。也就是UID一定是存在的。
-		if(jc.zrank("score:AID", String.valueOf(AID)) == null)		return;		//看似不相干，但是因为score:AID表当中存了所有文章的集合，因此可以拿来使用！！
-		//检查一个用户到底有没有那个文章，=> 不能给自己反投票！！
-		if(jc.zrank("all_articles:"+UID, String.valueOf(AID)) != null) 		return;
+		if(jc.zrank("score", String.valueOf(AID)) == null)		return;		//看似不相干，但是因为score表当中存了所有文章的集合，因此可以拿来使用！！
 		//让这篇文章的分数下降432
-		jc.zincrby("score:AID", -VOTE_SCORE, String.valueOf(AID));
+		this.add_score_to_article_chains(AID, -VOTE_SCORE);
 		//删除文章从此人赞的列表
 		jc.zrem("voted:"+UID, String.valueOf(AID));
 		//删除此人从此文章被赞的列表
@@ -278,8 +279,8 @@ public class Cluster {
 		return jc.zcard("all_articles:"+UID);
 	}
 	
-	//关注某人o(*////▽////*)o
 	/**
+	 * 关注某人o(* ////▽//// *)o
 	 * 前端调用之前，需要调用focus_or_not()方法检测srcUID和targetUID是不是已经关注了。必须调用！
 	 * @param srcUID
 	 * @param targetUID
@@ -339,28 +340,35 @@ public class Cluster {
 	 * @return
 	 */
 	public Long get_an_article_score(long AID){
-		Double score = jc.zscore("score:AID", String.valueOf(AID));
+		Double score = jc.zscore("score", String.valueOf(AID));
 		if(score == null)	return null;
 		else return (long)((double)score);		//我们的score全是整数。
 	}
 	
 	/**
-	 * 分页得到某个文章评论。一页25个评论。
+	 * 分页得到某个文章评论。一页25个评论。且注意twitter只能得到左子树评论。
 	 * @param AID
 	 * @param page
 	 * @return
 	 */
-	public Set<String> get_article_comments_msg(long AID, int page){
+	public List<String> get_article_context(long AID, int page){
 		//得到一页的用户回复
-		Set<String> CIDs = jc.zrevrange("get_commented:"+AID, (page-1)*ARTICLES_PER_PAGE, page*ARTICLES_PER_PAGE-1);
-		Set<String> comments = new LinkedHashSet<String>();
-		for(String CID : CIDs){
-			comments.add(this.get_nested_reply(Long.parseLong(CID)));
+		Set<String> AIDs = jc.zrevrange("get_commented:"+AID, (page-1)*ARTICLES_PER_PAGE, page*ARTICLES_PER_PAGE-1);
+		List<String> comments;
+		for(String aid : AIDs){
+			comments = this.(Long.parseLong(aid));
 		}
 		return comments;
 	}
 	
-	
+	/**
+	 * 得到此AID上方回溯的所有列表。即，得到此AID的评论链条。通过此AID，可以追溯到根源。
+	 * @param AID
+	 * @return
+	 */
+	private List<Long> get_comments_up(long AID){
+		
+	}
 	
 	
 	public static void main(String[] args) throws IOException {
