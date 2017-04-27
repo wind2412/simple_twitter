@@ -8,11 +8,20 @@ import org.junit.Test;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
-public class Test1 {
+public class ClusterTest {
 	
 	private JedisCluster jc;
 	
-	public Test1() {
+	public ClusterTest() {
+		//连接数据库服务器
+		connect();
+		//先要清空数据库。然后调用此方法初始化数据.
+		initialize_db();
+	
+	}
+	
+	private void connect() {
+
 		Set<HostAndPort> hosts = new HashSet<HostAndPort>();
 		hosts.add(new HostAndPort("localhost", 6379));
 		hosts.add(new HostAndPort("localhost", 6380));
@@ -23,8 +32,14 @@ public class Test1 {
 		hosts.add(new HostAndPort("localhost", 6385));
 		hosts.add(new HostAndPort("localhost", 6386));			
 		jc = new JedisCluster(hosts);
+	
 	}
 	
+	private void initialize_db() {
+		
+	}
+
+
 	@Test
 	public void getUser(){
 		assert jc.hget("user:1", "name") == "sb";
