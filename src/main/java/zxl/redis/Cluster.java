@@ -2,7 +2,6 @@ package zxl.redis;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,8 @@ public class Cluster {
 	public static final int VOTE_SCORE = 432;
 	public static final int REPLY_SCORE = 648;
 	public static final int TRANS_SCORE = 1080;
-	public static final int ARTICLES_PER_PAGE = 25;
+	public static final int ARTICLES_PER_PAGE = 20;
+	public static final int COMMENT_PER_PAGE = 20;
 	
 	private JedisCluster jc;
 	
@@ -138,6 +138,9 @@ public class Cluster {
 			jc.zadd("get_transed:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));		//被转发的文章被转发次数+1，加到被转发文章的get_transed的zset中。
 			//给被转发的文章加分		//改？？？？？应该改成给所有链上的文章加分。。。
 			add_score_to_article_chains(AID, TRANS_SCORE);
+		} else{		//type == 0
+			//设置此article:AID表的trans_AID属性。
+			jc.hset(keyname, "trans_AID", String.valueOf(0));		//也要设置。如果仅仅因为没有trans_AID就不设置，那么到get_an_article方法里，Long.parseLong应该会崩溃吧。		
 		}
 	}
 	
@@ -345,29 +348,129 @@ public class Cluster {
 		else return (long)((double)score);		//我们的score全是整数。
 	}
 	
+	
 	/**
-	 * 分页得到某个文章评论。一页25个评论。且注意twitter只能得到左子树评论。
+	 * 分页得到某个文章评论。一页10个评论。且注意twitter只能得到左子树评论。
+	 * 推特的推文是，打开的此AID节点下的所有评论(支脉)都会显示出来。但是此AID节点下的子节点的评论(支脉)会只显示最早评论的那一条(即左子树).
 	 * @param AID
-	 * @param page
-	 * @return
+	 * @param page	=>	用户先得到第一页。需要往下滚动的时候才开始加载第二页。这时要把page加上1之后调用此函数。注意，网页中，需要使用一个js变量page保存用户打开了几页.
+	 * @return 返回值是一个List<List<Long>>类型。list.0是根源->此AID(包括)。list.1以后，全是评论的支脉。也就是每个child_aid的支脉了。
 	 */
-	public List<String> get_article_context(long AID, int page){
-		//得到一页的用户回复
-		Set<String> AIDs = jc.zrevrange("get_commented:"+AID, (page-1)*ARTICLES_PER_PAGE, page*ARTICLES_PER_PAGE-1);
-		List<String> comments;
-		for(String aid : AIDs){
-			comments = this.(Long.parseLong(aid));
+	public List<List<Article>> get_article_context(long AID, int page){
+		List<List<Article>> art_list = new LinkedList<List<Article>>();
+		if(page == 0){		//如果是第一次请求page，即page==0，那么就把根源->此AID全发过去。如果page>0，那么这一段必然已经加载。那就不必再发这个了。
+			//得到所有上游
+			List<Long> upon = get_comments_up(AID);
+			//添加自己的AID	//遍历时候找到此AID，就最大显示。因为这是用户所点击的AID。因此主要显示。
+			upon.add(AID);
+			//创建上游总表
+			List<Article> art_upon = new LinkedList<Article>();
+			//必须用Long来承接。因为第一个根源可能是null。已经被作者删除了。
+			for(Long aid : upon){
+				if(aid == null)	art_upon.add(null);
+				else art_upon.add(this.get_an_article(aid));
+			}
+			//添加上游总表
+			art_list.add(art_upon);
 		}
-		return comments;
+		//得到一页的用户回复	=>	先得到10个“此节点的支脉”:child_AID，然后对所有支脉:child_AID求左子树。
+		Set<String> child_AIDs = jc.zrevrange("get_commented:"+AID, (page-1)*COMMENT_PER_PAGE, page*COMMENT_PER_PAGE-1);
+		for(String child_aid : child_AIDs){
+			//得到左支脉下游
+			List<Long> child_AID_down = get_comments_down(Long.parseLong(child_aid));
+			//最前边加上此child_aid
+			child_AID_down.add(0, Long.parseLong(child_aid));
+			//创建下游总表
+			List<Article> art_down = new LinkedList<Article>();
+			//可以使用long来承接。	这样可以看出和上边的区别所在。
+			for(long aid : child_AID_down){
+				art_down.add(this.get_an_article(aid));
+			}
+			//添加上游总表
+			art_list.add(art_down);
+		}
+		return art_list;
 	}
 	
 	/**
-	 * 得到此AID上方回溯的所有列表。即，得到此AID的评论链条。通过此AID，可以追溯到根源。
+	 * 得到此AID上游回溯的所有列表。即，得到此AID的上游评论链条。通过此AID，可以追溯到根源。
 	 * @param AID
 	 * @return
 	 */
 	private List<Long> get_comments_up(long AID){
-		
+		List<Long> list = new LinkedList<Long>();
+		long type = Long.parseLong(jc.hget("article:"+AID, "type"));
+		while(true){		
+			if(type == 1 || type == 2){	//是评论才继续做。		//是转发的话，就只做一次，添加完然后退出。
+				//得到上一篇文章的AID
+				long trans_AID = Long.parseLong(jc.hget("article:"+AID, "trans_AID"));
+				//如果原来被评论的文章已经被删除了的话	=> 到达源头
+				if(jc.zrank("score", String.valueOf(AID)) == null){
+					//头插入
+					list.add(0, null);		//添加一个占位符表示原文章被删除！！
+					break;
+				} else {
+					list.add(0, trans_AID);
+					if(type == 2)	break;
+				}
+				type = Long.parseLong(jc.hget("article:"+trans_AID, "type"));				
+			}else{		//type是0，返回空列表。因为上游是空的。
+				break;
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * 注意get_comments_up和get_comments_down之间应该是由两层没有做。一层是传入参数的AID，第二层是AID的所有支脉。
+	 * 也就是说，此函数的传参是第二层的某一个child_AID.
+	 * 
+	 * 得到此AID下游回溯的左子树表。即，得到此AID的下游评论链条。通过此AID，可以追踪到最后。
+	 * @param child_AID
+	 * @return
+	 */
+	private List<Long> get_comments_down(long child_AID){
+		List<Long> list = new LinkedList<Long>();
+//		long type = Long.parseLong(jc.hget("article:"+AID, "type"));
+		while(jc.exists("get_commented:"+child_AID)){	//下边有评论才继续做。
+			//得到最早评论的AID，即左子树上的那个。
+			list.add(Long.parseLong(jc.zrange("get_commented:"+child_AID, 0, 0).iterator().next()));
+		}
+		return list;
+	}
+	
+	/**
+	 * 得到一篇推文的信息
+	 * @param AID
+	 * @return
+	 */
+	public Article get_an_article(long AID){
+		String keyname = "article:"+AID;
+		Article art =  new Article(
+				jc.hget(keyname, "context"),
+				Long.parseLong(jc.hget(keyname, "UID")), 
+				Long.parseLong(jc.hget(keyname, "type")), 
+				Long.parseLong(jc.hget(keyname, "trans_AID")), 
+				jc.lrange("pictures:"+AID, 0, -1));
+		art.setTime(Long.parseLong(jc.hget(keyname, "time")));
+		art.setAID(AID);
+		return art;
+	}
+	
+	/**
+	 * 得到一个用户的信息
+	 * @param UID
+	 * @return
+	 */
+	public User get_user(long UID){
+		String keyname = "user:"+UID;
+		User user = new User(
+				jc.hget(keyname, "name"), 
+				jc.hget(keyname, "pass"), 
+				Integer.parseInt(jc.hget(keyname, "age")));
+		user.setTime(Long.parseLong(jc.hget(keyname, "time")));
+		user.setUID(UID);
+		return user;
 	}
 	
 	
