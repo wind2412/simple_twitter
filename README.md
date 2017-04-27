@@ -6,9 +6,9 @@ __create in 2017.4.14 3:19__
 
 Lab member:
 	
-	@wind2412		=>		Zheng Xiaolin
+	@[wind2412](https://github.com/wind2412)	=>		Zheng Xiaolin
 	
-	@YoungerJiang	=>		Jiang Xicong
+	@[YoungerJiang](https://github.com/YoungerJiang)	=>		Jiang Xicong
 	
 	@Li Tiange
 	
