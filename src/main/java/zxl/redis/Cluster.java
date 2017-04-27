@@ -1,6 +1,5 @@
 package zxl.redis;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,6 +46,10 @@ public class Cluster {
 		
 		get_all_keys();
 		
+	}
+	
+	public static JedisCluster getJC() {
+		return jc;
 	}
 	
 	//得到所有的key表的列表。
@@ -104,7 +107,7 @@ public class Cluster {
 		return 1;
 	}
 	
-	public static void add_an_article(Article article) throws IOException{		//注意，没有加上图片功能。
+	public static void add_an_article(Article article){		//注意，没有加上图片功能。
 		long AID = jc.incr("AID");
 		article.setAID(AID);
 		String keyname = "article:"+article.getAID();
@@ -507,11 +510,11 @@ public class Cluster {
 	}
 	
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 
-//		User zxl = new User("zhengxiaolin", "123", 20);
+		User zxl = new User("zhengxiaolin", "123", 20);
 //		User jxc = new User("jiangxicong", "123", 20);
-//		Cluster.add_a_user(zxl);	//函数内部会自动赋给zxl一个UID
+		Cluster.add_a_user(zxl);	//函数内部会自动赋给zxl一个UID
 //		Cluster.add_a_user(jxc);
 //		Cluster.add_an_article(new Article("today I bought a very good thing!", jxc.getUID(), 0, 0));		//0参数表示并非转发
 //		Cluster.remove_an_article(1);
