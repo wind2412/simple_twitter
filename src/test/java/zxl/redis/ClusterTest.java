@@ -1,7 +1,5 @@
 package zxl.redis;
 
-import java.io.IOException;
-
 import org.junit.Test;
 
 import redis.clients.jedis.JedisCluster;
@@ -14,21 +12,21 @@ public class ClusterTest {
 	
 	static {
 		//先要更换成为测试数据库。
-		try {
-			KillRedis.main(null);		//杀死目前的数据库进程。
-			Thread.sleep(100);			//需要等待。否则还没杀完，就又开启了。			//这里的等待时间竟然只需要100ms！！
-			RedisTest.main(null); 		//开启测试数据库服务器
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}		
-		//连接数据库服务器
-		try {
-			Thread.sleep(2000);		//需要等待。否则服务还没开启，客户端就去连接了，肯定错误。		//卧槽！！原来的CLUSTER DOWN居然问题在这里！！ 这里即使等待1s也不行！！开不开！！必须要2s！！！
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			KillRedis.main(null);		//杀死目前的数据库进程。
+//			Thread.sleep(100);			//需要等待。否则还没杀完，就又开启了。			//这里的等待时间竟然只需要100ms！！
+//			RedisTest.main(null); 		//开启测试数据库服务器
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}		
+//		//连接数据库服务器
+//		try {
+//			Thread.sleep(2000);		//需要等待。否则服务还没开启，客户端就去连接了，肯定错误。		//卧槽！！原来的CLUSTER DOWN居然问题在这里！！ 这里即使等待1s也不行！！开不开！！必须要2s！！！
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 		connect();
 		//然后调用此方法初始化数据.
 		initialize_db();
