@@ -27,8 +27,8 @@ public class ClusterTest {
 //		} catch (InterruptedException e) {
 //			e.printStackTrace();
 //		}
+		
 		connect();
-		//然后调用此方法初始化数据.
 		initialize_db();
 		
 	}
@@ -57,12 +57,59 @@ public class ClusterTest {
 		Cluster.add_an_article(new Article("if U can take me with the trip~ --By zhangfangyuan.", zfy.getUID(), 0, 0, null));
 		Cluster.add_an_article(new Article("T4ks --By wangyue.", wy.getUID(), 0, 0, null));
 		Cluster.get_all_keys();
+		get_all_scores();
 	}
 	
+	/**
+	 * 在此test中，得到用户和文章的所有分数
+	 */
+	private static void get_all_scores(){
+		System.out.println("**************user scores*************");
+		System.out.println("zhengxiaolin: " + Cluster.get_a_user_score(1));
+		System.out.println("jiangxicong: " + Cluster.get_a_user_score(2));
+		System.out.println("litiange: " + Cluster.get_a_user_score(3));
+		System.out.println("zhangfangyuan: " + Cluster.get_a_user_score(4));
+		System.out.println("wangyue: " + Cluster.get_a_user_score(5));
+		System.out.println("************article scores************");
+		System.out.println("article: 1, UID: " + Cluster.get_userID_of_an_article(1) + ", score: " + Cluster.get_an_article_score(1));
+		System.out.println("article: 2, UID: " + Cluster.get_userID_of_an_article(2) + ", score: " + Cluster.get_an_article_score(2));
+		System.out.println("article: 3, UID: " + Cluster.get_userID_of_an_article(3) + ", score: " + Cluster.get_an_article_score(3));
+		System.out.println("article: 4, UID: " + Cluster.get_userID_of_an_article(4) + ", score: " + Cluster.get_an_article_score(4));
+		System.out.println("article: 5, UID: " + Cluster.get_userID_of_an_article(5) + ", score: " + Cluster.get_an_article_score(5));
+		System.out.println("article: 6, UID: " + Cluster.get_userID_of_an_article(6) + ", score: " + Cluster.get_an_article_score(6));
+		System.out.println("**************************************");
+	}
 	
 	
 	private static void initialize_db() {
 		
+		//互相关注一波
+		Cluster.focus_a_user(2, 1);
+		Cluster.focus_a_user(1, 2);
+		Cluster.focus_a_user(3, 4);
+		Cluster.focus_a_user(4, 3);
+		Cluster.focus_a_user(1, 5);
+		
+		Cluster.focus_cancelled_oh_no(1, 2);
+		
+		get_all_scores();
+		
+		//test
+		assert Cluster.focus_or_not(1, 2) == false;
+		assert Cluster.focus_or_not(2, 1) == true;
+		assert Cluster.focus_or_not(3, 4) == true;
+		assert Cluster.focus_or_not(4, 3) == true;
+		assert Cluster.focus_or_not(1, 5) == true;
+		assert Cluster.focus_or_not(5, 1) == false;
+		
+		//开始点赞
+		Cluster.vote_an_article(1, 1); 		//zhengxiaolin 给自己的 1 文章点赞
+		
+		get_all_scores();
+		
+		//test
+		assert Cluster.judge_voted(1, 1) == true;
+		assert Cluster.judge_voted(2, 1) == false;
 	}
 
 

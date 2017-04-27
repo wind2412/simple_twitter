@@ -26,6 +26,7 @@ public class Cluster {
 	public static final int VOTE_SCORE = 432;
 	public static final int REPLY_SCORE = 648;
 	public static final int TRANS_SCORE = 1080;
+	public static final int FOCUS_SCORE = 2160;
 	public static final int ARTICLES_PER_PAGE = 20;
 	public static final int COMMENT_PER_PAGE = 20;
 	
@@ -72,7 +73,7 @@ public class Cluster {
 			JedisPool jp = nodes.get(s);
 			Jedis conn = jp.getResource();
 			try{
-				conn.flushAll();				
+				conn.flushAll();	
 			}catch (Exception e){}
 			System.out.println(s + " " + conn.keys("*"));
 		}
@@ -88,7 +89,6 @@ public class Cluster {
 			//临退出之前，需要在这个空的user中写入他本身的UID才好，方便外界的user可以重复使用。
 			long user_uid = Long.parseLong(jc.hget("getuser", user.getName()));
 			user.setUID(user_uid);
-			System.out.println(user.getUID());
 			user.setTime(Long.parseLong(jc.hget("user:"+user_uid, "time")));
 			return 0;			//此用户名已经存在，已经有此用户了。操作终止。
 		}
@@ -175,6 +175,7 @@ public class Cluster {
 	 */
 	private static void add_score_to_article_chains_and_user(long AID, int add_score){
 		List<Long> art_list = get_article_chains_all_before(AID);
+		art_list.add(AID);		//把这篇文章也加入到加分表中。
 		Set<Long> user_set = new HashSet<Long>();		//使用HashSet是为了防止同一个用户多次在链上评论，然后被加了多次分。
 		for(long aid : art_list){
 			//搜索文章的作者，然后加到无重复集合中。届时会给user加分。
@@ -274,7 +275,7 @@ public class Cluster {
 	 * @param AID
 	 */
 	public static boolean judge_voted(long UID, long AID){
-		return jc.zrank("voted:"+UID, String.valueOf(AID)) == null ? true : false;
+		return jc.zrank("voted:"+UID, String.valueOf(AID)) == null ? false : true;
 	}
 	
 	//得到此用户最后赞过哪篇文章  适用于：(xxx在hh:mm时赞过yyy)的twitter		//发现好像没有xxx在最后评论过yyy的文章啊......
@@ -285,6 +286,10 @@ public class Cluster {
 	//得到此用户所有推文
 	public static Set<String> get_user_articles(long UID){
 		return jc.zrevrangeByScore("all_articles:"+UID, "+inf", "-inf");
+	}
+	
+	public static long get_userID_of_an_article(long AID){
+		return Long.parseLong(jc.hget("article:"+AID, "UID"));
 	}
 	
 	//得到此用户所有推文的总数
@@ -305,6 +310,8 @@ public class Cluster {
 		jc.zadd("focus:"+srcUID, time, String.valueOf(targetUID));
 		//在对方粉丝中加入自己
 		jc.zadd("fans:"+targetUID, time, String.valueOf(srcUID));
+		//给对方加分
+		jc.zincrby("score:user", FOCUS_SCORE, String.valueOf(targetUID));
 	}
 	
 	/**
@@ -318,6 +325,8 @@ public class Cluster {
 		jc.zrem("focus:"+srcUID, String.valueOf(targetUID));
 		//从对方的粉丝中移除自己
 		jc.zrem("fans:"+targetUID, String.valueOf(srcUID));
+		//给对方减分
+		jc.zincrby("score:user", -FOCUS_SCORE, String.valueOf(targetUID));
 	}
 	
 	/**
@@ -355,6 +364,17 @@ public class Cluster {
 	 */
 	public static Long get_an_article_score(long AID){
 		Double score = jc.zscore("score", String.valueOf(AID));
+		if(score == null)	return null;
+		else return (long)((double)score);		//我们的score全是整数。
+	}
+
+	/**
+	 * 得到一个用户的个人分数
+	 * @param UID
+	 * @return
+	 */
+	public static Long get_a_user_score(long UID){
+		Double score = jc.zscore("score:user", String.valueOf(UID));
 		if(score == null)	return null;
 		else return (long)((double)score);		//我们的score全是整数。
 	}
@@ -508,6 +528,7 @@ public class Cluster {
 		if(UID == null)	return null;		//查无此人
 		return get_a_user(Long.parseLong(UID));
 	}
+	
 	
 	
 	public static void main(String[] args) {
