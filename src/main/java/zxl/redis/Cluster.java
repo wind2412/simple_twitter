@@ -130,14 +130,14 @@ public class Cluster {
 			//设置get_commented:[AID]表。
 			jc.zadd("get_commented:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));		//被回复的文章被回复次数+1，加到被回复文章的get_commented的zset中。
 			//给被回复的文章加分		//改？？？？？应该改成给所有链上的文章加分。。。
-			add_score_to_article_chains(AID, REPLY_SCORE);
+			add_score_to_article_chains_and_user(AID, REPLY_SCORE);
 		} else if(article.getType() == 2) {		//如果是正在[转发]别人的[文章/回复/转发]
 			//设置此article:AID表的trans_AID属性。
 			jc.hset(keyname, "trans_AID", String.valueOf(article.getTrans_AID()));
 			//设置get_transed:[AID]表。		=>	被转发文章的所有转发列表
 			jc.zadd("get_transed:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));		//被转发的文章被转发次数+1，加到被转发文章的get_transed的zset中。
 			//给被转发的文章加分		//改？？？？？应该改成给所有链上的文章加分。。。
-			add_score_to_article_chains(AID, TRANS_SCORE);
+			add_score_to_article_chains_and_user(AID, TRANS_SCORE);
 		} else{		//type == 0
 			//设置此article:AID表的trans_AID属性。
 			jc.hset(keyname, "trans_AID", String.valueOf(0));		//也要设置。如果仅仅因为没有trans_AID就不设置，那么到get_an_article方法里，Long.parseLong应该会崩溃吧。		
@@ -146,7 +146,7 @@ public class Cluster {
 	
 	/**
 	 * 得到不包括此AID文章的之前所有文章链。举例：此AID时由转发AID(3)文章得来。AID(3)由评论AID(5)文章得来。于是得到表：[3,5].
-	 * 此函数仅仅用于给文章加分。如果是要显示所有回复什么的，请使用get_article_context().
+	 * 此函数仅仅用于给文章加分。如果是要显示所有回复什么的，请使用get_article_comments_context().
 	 * @param AID
 	 * @return
 	 */
@@ -168,10 +168,14 @@ public class Cluster {
 	/**
 	 * 调用get_article_chains方法进行对chain上的每个article都进行加分。
 	 * @param AID
+	 * @param add_score
 	 */
-	private void add_score_to_article_chains(long AID, int add_score){
-		List<Long> s = this.get_article_chains_all_before(AID);
-		for(long aid : s){
+	private void add_score_to_article_chains_and_user(long AID, int add_score){
+		List<Long> art_list = this.get_article_chains_all_before(AID);
+		Set<Long> user_set = new HashSet<Long>();		//使用HashSet是为了防止同一个用户多次在链上评论，然后被加了多次分。
+		for(long aid : art_list){
+			//搜索文章的作者，然后加到无重复集合中。届时会给user加分。
+			user_set.add(Long.parseLong(jc.hget("article:"+AID, "UID")));
 			//先给score总表加分
 			jc.zincrby("score", add_score, String.valueOf(aid));
 			long type = Long.parseLong(jc.hget("article:"+aid, "type"));
@@ -179,6 +183,10 @@ public class Cluster {
 				//如果这个aid代表的是回复，也需要在回复表计分当中同步。
 				jc.zincrby("score:reply:"+aid, add_score, String.valueOf(aid));
 			}
+		}
+		//给链上的user加分。
+		for(long uid : user_set){
+			jc.zincrby("score:user", add_score, String.valueOf(uid));
 		}
 	}
 	
@@ -233,7 +241,7 @@ public class Cluster {
 		if(jc.zrank("score", String.valueOf(AID)) == null)		return;		//看似不相干，但是因为score表当中存了所有文章的集合，因此可以拿来使用！！
 		long cur_time = System.currentTimeMillis()/1000;
 		//让这篇文章链的分数上升432
-		this.add_score_to_article_chains(AID, VOTE_SCORE);
+		this.add_score_to_article_chains_and_user(AID, VOTE_SCORE);
 		//加文章到此人赞的列表中
 		jc.zadd("voted:"+UID, cur_time, String.valueOf(AID));
 		//加此人到此文章被赞的列表中
@@ -250,7 +258,7 @@ public class Cluster {
 		//先检查文章到底被没被删除！也就是查AID到底有没有！但是不必管UID到底有没有。因为操作者一定有个UID。也就是UID一定是存在的。
 		if(jc.zrank("score", String.valueOf(AID)) == null)		return;		//看似不相干，但是因为score表当中存了所有文章的集合，因此可以拿来使用！！
 		//让这篇文章的分数下降432
-		this.add_score_to_article_chains(AID, -VOTE_SCORE);
+		this.add_score_to_article_chains_and_user(AID, -VOTE_SCORE);
 		//删除文章从此人赞的列表
 		jc.zrem("voted:"+UID, String.valueOf(AID));
 		//删除此人从此文章被赞的列表
@@ -348,6 +356,20 @@ public class Cluster {
 		else return (long)((double)score);		//我们的score全是整数。
 	}
 	
+	/**
+	 * 分页得到某个user的文章。一页20篇文章。
+	 * @param UID
+	 * @param page
+	 * @return
+	 */
+	public List<Article> get_articles(long UID, int page){
+		Set<String> AIDs = jc.zrevrange("all_articles:"+UID, (page-1)*ARTICLES_PER_PAGE, page*ARTICLES_PER_PAGE-1);
+		List<Article> art_list = new LinkedList<Article>();
+		for(String aid : AIDs){
+			art_list.add(get_an_article(Long.parseLong(aid)));
+		}
+		return art_list;
+	}
 	
 	/**
 	 * 分页得到某个文章评论。一页10个评论。且注意twitter只能得到左子树评论。
@@ -356,7 +378,7 @@ public class Cluster {
 	 * @param page	=>	用户先得到第一页。需要往下滚动的时候才开始加载第二页。这时要把page加上1之后调用此函数。注意，网页中，需要使用一个js变量page保存用户打开了几页.
 	 * @return 返回值是一个List<List<Long>>类型。list.0是根源->此AID(包括)。list.1以后，全是评论的支脉。也就是每个child_aid的支脉了。
 	 */
-	public List<List<Article>> get_article_context(long AID, int page){
+	public List<List<Article>> get_article_comments_context(long AID, int page){
 		List<List<Article>> art_list = new LinkedList<List<Article>>();
 		if(page == 0){		//如果是第一次请求page，即page==0，那么就把根源->此AID全发过去。如果page>0，那么这一段必然已经加载。那就不必再发这个了。
 			//得到所有上游
@@ -462,7 +484,7 @@ public class Cluster {
 	 * @param UID
 	 * @return
 	 */
-	public User get_user(long UID){
+	public User get_a_user(long UID){
 		String keyname = "user:"+UID;
 		User user = new User(
 				jc.hget(keyname, "name"), 
@@ -471,6 +493,17 @@ public class Cluster {
 		user.setTime(Long.parseLong(jc.hget(keyname, "time")));
 		user.setUID(UID);
 		return user;
+	}
+	
+	/**
+	 * 得到一个用户的信息
+	 * @param name
+	 * @return
+	 */
+	public User get_a_user(String name){
+		String UID = jc.hget("getuser", name);
+		if(UID == null)	return null;		//查无此人
+		return get_a_user(Long.parseLong(UID));
 	}
 	
 	
