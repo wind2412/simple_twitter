@@ -1,5 +1,8 @@
 package zxl.redis;
 
+import java.util.List;
+import java.util.Set;
+
 import org.junit.Test;
 
 import redis.clients.jedis.JedisCluster;
@@ -62,21 +65,19 @@ public class ClusterTest {
 	
 	/**
 	 * 在此test中，得到用户和文章的所有分数
+	 * 假定至少有一个用户。否则会崩溃。
 	 */
 	private static void get_all_scores(){
 		System.out.println("**************user scores*************");
-		System.out.println("zhengxiaolin: " + Cluster.get_a_user_score(1));
-		System.out.println("jiangxicong: " + Cluster.get_a_user_score(2));
-		System.out.println("litiange: " + Cluster.get_a_user_score(3));
-		System.out.println("zhangfangyuan: " + Cluster.get_a_user_score(4));
-		System.out.println("wangyue: " + Cluster.get_a_user_score(5));
+		Set<String> user_names = jc.hkeys("pass");
+		for(String name : user_names){
+			System.out.println(name + ": " + Cluster.get_a_user_score(Cluster.get_user_UID(name)));			
+		}
 		System.out.println("************article scores************");
-		System.out.println("article: 1, UID: " + Cluster.get_userID_of_an_article(1) + ", score: " + Cluster.get_an_article_score(1));
-		System.out.println("article: 2, UID: " + Cluster.get_userID_of_an_article(2) + ", score: " + Cluster.get_an_article_score(2));
-		System.out.println("article: 3, UID: " + Cluster.get_userID_of_an_article(3) + ", score: " + Cluster.get_an_article_score(3));
-		System.out.println("article: 4, UID: " + Cluster.get_userID_of_an_article(4) + ", score: " + Cluster.get_an_article_score(4));
-		System.out.println("article: 5, UID: " + Cluster.get_userID_of_an_article(5) + ", score: " + Cluster.get_an_article_score(5));
-		System.out.println("article: 6, UID: " + Cluster.get_userID_of_an_article(6) + ", score: " + Cluster.get_an_article_score(6));
+		List<String> AIDs = jc.sort("score");
+		for(String aid : AIDs){
+			System.out.println("article: "+aid+", UID: " + Cluster.get_userID_of_an_article(Long.parseLong(aid)) + ", score: " + Cluster.get_an_article_score(Long.parseLong(aid)));
+		}
 		System.out.println("**************************************");
 	}
 	
@@ -103,13 +104,38 @@ public class ClusterTest {
 		assert Cluster.focus_or_not(5, 1) == false;
 		
 		//开始点赞
-		Cluster.vote_an_article(1, 1); 		//zhengxiaolin 给自己的 1 文章点赞
+//		Cluster.vote_an_article(1, 1); 		//zhengxiaolin 给自己的 1 文章点赞
+//		
+//		get_all_scores();
+//		
+//		//test
+//		assert Cluster.judge_voted(1, 1) == true;
+//		assert Cluster.judge_voted(2, 1) == false;
 		
+		//开始评论
+		Cluster.add_an_article(new Article("comment myself article~~ --By zhengxiaolin", 1, 1, 1, null));	//7号文章回复1号
 		get_all_scores();
 		
-		//test
-		assert Cluster.judge_voted(1, 1) == true;
-		assert Cluster.judge_voted(2, 1) == false;
+		Cluster.add_an_article(new Article("comment your comment. --By jiangxicong", 2, 1, 7, null));		//8号文章回复7号
+		get_all_scores();
+		
+		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 8, null));		//9号文章回复8号
+		get_all_scores();
+		
+		Cluster.remove_an_article(9);																		//移除9号
+		get_all_scores();
+		
+		//开始转发
+		Cluster.add_an_article(new Article("trans myself article~~ --By zhengxiaolin", 1, 2, 1, null));		//10号文章转发1号
+		get_all_scores();
+		
+		Cluster.add_an_article(new Article("trans jxc's article. --By litinage", 3, 2, 8, null));			//11号文章转发8号
+		get_all_scores();
+
+		Cluster.remove_an_article(11); 																		//移除11号文章
+		get_all_scores();
+
+		Cluster.get_all_keys();
 	}
 
 

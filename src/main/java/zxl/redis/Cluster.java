@@ -134,6 +134,8 @@ public class Cluster {
 			jc.zadd("get_commented:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));		//被回复的文章被回复次数+1，加到被回复文章的get_commented的zset中。
 			//给被回复的文章加分		//改？？？？？应该改成给所有链上的文章加分。。。
 			add_score_to_article_chains_and_user(AID, REPLY_SCORE);
+			//加到score:reply:[trans_AID]表中。
+			jc.zadd("score:reply:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));
 		} else if(article.getType() == 2) {		//如果是正在[转发]别人的[文章/回复/转发]
 			//设置此article:AID表的trans_AID属性。
 			jc.hset(keyname, "trans_AID", String.valueOf(article.getTrans_AID()));
@@ -162,8 +164,9 @@ public class Cluster {
 			if(jc.zrank("score", String.valueOf(AID)) == null){
 				break;
 			}
-			else list.add(trans_AID);
+			else list.add(0, trans_AID);
 			type = Long.parseLong(jc.hget("article:"+trans_AID, "type"));
+			AID = trans_AID;
 		}
 		return list;
 	}
@@ -175,11 +178,11 @@ public class Cluster {
 	 */
 	private static void add_score_to_article_chains_and_user(long AID, int add_score){
 		List<Long> art_list = get_article_chains_all_before(AID);
-		art_list.add(AID);		//把这篇文章也加入到加分表中。
+//		art_list.add(AID);		//把这篇文章也加入到加分表中。
 		Set<Long> user_set = new HashSet<Long>();		//使用HashSet是为了防止同一个用户多次在链上评论，然后被加了多次分。
 		for(long aid : art_list){
 			//搜索文章的作者，然后加到无重复集合中。届时会给user加分。
-			user_set.add(Long.parseLong(jc.hget("article:"+AID, "UID")));
+			user_set.add(Long.parseLong(jc.hget("article:"+aid, "UID")));
 			//先给score总表加分
 			jc.zincrby("score", add_score, String.valueOf(aid));
 			long type = Long.parseLong(jc.hget("article:"+aid, "type"));
@@ -189,6 +192,8 @@ public class Cluster {
 			}
 		}
 		//给链上的user加分。
+		System.out.println(art_list);
+		System.out.println(user_set);
 		for(long uid : user_set){
 			jc.zincrby("score:user", add_score, String.valueOf(uid));
 		}
@@ -214,10 +219,10 @@ public class Cluster {
 		}
 		//删除此文章的article:[AID]表......全删除好了。查文章索引不到为nil的时候，直接弹出“因法律法规原因并未显示”好了（笑
 		jc.del(keyname);
-		//删除此文章下所有赞：get_voted:AID:[AID]		//注意：此文章下所有回复和转发已经变成推文，是删不了的。
-		jc.del("get_voted:AID:"+AID);
+		//删除此文章下所有赞：get_voted:[AID]		//注意：此文章下所有回复和转发已经变成推文，是删不了的。
+		jc.del("get_voted:"+AID);
 				//是谁赞的文章的voted:[AID]表就不删除了。如果发现“xxx最近赞了xxx”时候文章已经被del，那就直接显示已经被删除好了。但是“最近赞了”还是要留下。
-		//删除此文章下所有图片，但是图片的路径还是别删了（大雾 :pictures:AID:[AID]
+		//删除此文章下所有图片，但是图片的路径还是别删了（大雾 :pictures:[AID]
 		jc.del("pictures:"+AID);
 		//删除score表中的此AID
 		jc.zrem("score", String.valueOf(AID));
@@ -249,7 +254,7 @@ public class Cluster {
 		//加文章到此人赞的列表中
 		jc.zadd("voted:"+UID, cur_time, String.valueOf(AID));
 		//加此人到此文章被赞的列表中
-		jc.zadd("get_voted:AID:"+AID, cur_time, String.valueOf(UID));
+		jc.zadd("get_voted:"+AID, cur_time, String.valueOf(UID));
 	}
 	
 	/**
@@ -266,11 +271,11 @@ public class Cluster {
 		//删除文章从此人赞的列表
 		jc.zrem("voted:"+UID, String.valueOf(AID));
 		//删除此人从此文章被赞的列表
-		jc.zrem("get_voted:AID:"+AID, String.valueOf(UID));		
+		jc.zrem("get_voted:"+AID, String.valueOf(UID));		
 	}
 	
 	/**
-	 * 判断一篇文章是否已经被投票？仅仅从投票一方voted:[UID]进行判断，可以不判断get_voted:AID:[AID].
+	 * 判断一篇文章是否已经被投票？仅仅从投票一方voted:[UID]进行判断，可以不判断get_voted:[AID].
 	 * @param UID
 	 * @param AID
 	 */
@@ -529,13 +534,30 @@ public class Cluster {
 		return get_a_user(Long.parseLong(UID));
 	}
 	
+	/**
+	 * 通过UID得到用户名
+	 * @param UID
+	 * @return
+	 */
+	public static String get_user_name(long UID){
+		return jc.hget("user:"+UID, "name");
+	}
+	
+	/**
+	 * 通过用户名得到UID
+	 * @param name
+	 * @return
+	 */
+	public static long get_user_UID(String name){
+		return Long.parseLong(jc.hget("getuser", name));
+	}
 	
 	
 	public static void main(String[] args) {
 
-		User zxl = new User("zhengxiaolin", "123", 20);
+//		User zxl = new User("zhengxiaolin", "123", 20);
 //		User jxc = new User("jiangxicong", "123", 20);
-		Cluster.add_a_user(zxl);	//函数内部会自动赋给zxl一个UID
+//		Cluster.add_a_user(zxl);	//函数内部会自动赋给zxl一个UID
 //		Cluster.add_a_user(jxc);
 //		Cluster.add_an_article(new Article("today I bought a very good thing!", jxc.getUID(), 0, 0));		//0参数表示并非转发
 //		Cluster.remove_an_article(1);
