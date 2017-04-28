@@ -104,6 +104,8 @@ public class Cluster {
 		jc.hset(keyname, "pass", user.getPass());
 		jc.hset(keyname, "age", String.valueOf(user.getAge()));
 		jc.hset(keyname, "time", String.valueOf(user.getTime()));
+		//把UID添加到UIDs，用作在“推荐认识的人”那里的uid查询方便......
+		jc.sadd("UIDs", String.valueOf(UID));
 		return 1;
 	}
 	
@@ -137,7 +139,7 @@ public class Cluster {
 			//加到score:reply:[trans_AID]表中。
 			jc.zadd("score:reply:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));
 			//加到commented:[UID]表中
-			jc.zadd("commented:"+article.getUID(), article.getTime(), String.valueOf(article.getAID()));
+			jc.zadd("commented{"+article.getUID()+"}", article.getTime(), String.valueOf(article.getAID()));
 		} else if(article.getType() == 2) {		//如果是正在[转发]别人的[文章/回复/转发]
 			//设置此article:AID表的trans_AID属性。
 			jc.hset(keyname, "trans_AID", String.valueOf(article.getTrans_AID()));
@@ -146,7 +148,7 @@ public class Cluster {
 			//给被转发的文章加分		//改？？？？？应该改成给所有链上的文章加分。。。
 			add_score_to_article_chains_and_user(AID, TRANS_SCORE);
 			//加到transed:[UID]表中
-			jc.zadd("transed:"+article.getUID(), article.getTime(), String.valueOf(article.getAID()));
+			jc.zadd("transed{"+article.getUID()+"}", article.getTime(), String.valueOf(article.getAID()));
 		} else{		//type == 0
 			//设置此article:AID表的trans_AID属性。
 			jc.hset(keyname, "trans_AID", String.valueOf(0));		//也要设置。如果仅仅因为没有trans_AID就不设置，那么到get_an_article方法里，Long.parseLong应该会崩溃吧。		
@@ -216,14 +218,14 @@ public class Cluster {
 			//给被回复的文章链整体减分	//算了。已经回复过就是回复过，即使删了分数也还有吧。
 //			add_score_to_article_chains(AID, -REPLY_SCORE);
 			//删除表项：commented:[UID]
-			jc.zrem("commented:"+UID, String.valueOf(AID));
+			jc.zrem("commented{"+UID+"}", String.valueOf(AID));
 		}else if(type == 2){
 			//删除表项：get_transed:[AID]表中的trans_AID字段
 			jc.zrem("get_transed:"+Long.parseLong(jc.hget("article:"+AID, "trans_AID")), String.valueOf(AID));
 			//给被转发的文章链整体减分
 //			add_score_to_article_chains(AID, -REPLY_SCORE);			
 			//删除表项：transed:[UID]
-			jc.zrem("transed:"+UID, String.valueOf(AID));
+			jc.zrem("transed{"+UID+"}", String.valueOf(AID));
 		}
 		//删除此文章的article:[AID]表......全删除好了。查文章索引不到为nil的时候，直接弹出“因法律法规原因并未显示”好了（笑
 		jc.del(keyname);
@@ -260,7 +262,7 @@ public class Cluster {
 		//让这篇文章链的分数上升432
 		add_score_to_article_chains_and_user(AID, VOTE_SCORE);
 		//加文章到此人赞的列表中
-		jc.zadd("voted:"+UID, cur_time, String.valueOf(AID));
+		jc.zadd("voted{"+UID+"}", cur_time, String.valueOf(AID));
 		//加此人到此文章被赞的列表中
 		jc.zadd("get_voted:"+AID, cur_time, String.valueOf(UID));
 	}
@@ -277,7 +279,7 @@ public class Cluster {
 		//让这篇文章的分数下降432
 		add_score_to_article_chains_and_user(AID, -VOTE_SCORE);
 		//删除文章从此人赞的列表
-		jc.zrem("voted:"+UID, String.valueOf(AID));
+		jc.zrem("voted{"+UID+"}", String.valueOf(AID));
 		//删除此人从此文章被赞的列表
 		jc.zrem("get_voted:"+AID, String.valueOf(UID));		
 	}
@@ -288,12 +290,12 @@ public class Cluster {
 	 * @param AID
 	 */
 	public static boolean judge_voted(long UID, long AID){
-		return jc.zrank("voted:"+UID, String.valueOf(AID)) == null ? false : true;
+		return jc.zrank("voted{"+UID+"}", String.valueOf(AID)) == null ? false : true;
 	}
 	
 	//得到此用户最后赞过哪篇文章  适用于：(xxx在hh:mm时赞过yyy)的twitter		//发现好像没有xxx在最后评论过yyy的文章啊......
 	public static Set<String> get_user_vote_others(long UID){
-		return jc.zrevrangeByScore("voted:"+UID, "+inf", "-inf");
+		return jc.zrevrangeByScore("voted{"+UID+"}", "+inf", "-inf");
 	}
 	
 	//得到此用户所有推文
@@ -320,9 +322,9 @@ public class Cluster {
 	public static void focus_a_user(long srcUID, long targetUID){
 		long time = System.currentTimeMillis()/1000;
 		//在自己关注中加入对方
-		jc.zadd("focus:"+srcUID, time, String.valueOf(targetUID));
+		jc.zadd("focus{"+srcUID+"}", time, String.valueOf(targetUID));
 		//在对方粉丝中加入自己
-		jc.zadd("fans:"+targetUID, time, String.valueOf(srcUID));
+		jc.zadd("fans{"+targetUID+"}", time, String.valueOf(srcUID));
 		//给对方加分
 		jc.zincrby("score:user", FOCUS_SCORE, String.valueOf(targetUID));
 	}
@@ -335,9 +337,9 @@ public class Cluster {
 	//取消关注
 	public static void focus_cancelled_oh_no(long srcUID, long targetUID){
 		//从自己的关注中移除对方
-		jc.zrem("focus:"+srcUID, String.valueOf(targetUID));
+		jc.zrem("focus{"+srcUID+"}", String.valueOf(targetUID));
 		//从对方的粉丝中移除自己
-		jc.zrem("fans:"+targetUID, String.valueOf(srcUID));
+		jc.zrem("fans{"+targetUID+"}", String.valueOf(srcUID));
 		//给对方减分
 		jc.zincrby("score:user", -FOCUS_SCORE, String.valueOf(targetUID));
 	}
@@ -349,7 +351,7 @@ public class Cluster {
 	 * @return
 	 */
 	public static boolean focus_or_not(long srcUID, long targetUID){
-		return jc.zrank("focus:"+srcUID, String.valueOf(targetUID)) == null ? false : true;
+		return jc.zrank("focus{"+srcUID+"}", String.valueOf(targetUID)) == null ? false : true;
 	}
 	
 	/**
@@ -358,7 +360,7 @@ public class Cluster {
 	 * @return
 	 */
 	public static Set<String> get_all_focus(long UID){
-		return jc.zrevrangeByScore("focus:"+UID, "+inf", "-inf");
+		return jc.zrevrangeByScore("focus{"+UID+"}", "+inf", "-inf");
 	}
 	
 	/**
@@ -367,7 +369,7 @@ public class Cluster {
 	 * @return
 	 */
 	public static Set<String> get_all_fans(long UID){
-		return jc.zrevrangeByScore("fans:"+UID, "+inf", "-inf");
+		return jc.zrevrangeByScore("fans{"+UID+"}", "+inf", "-inf");
 	}
 	
 	/**
@@ -561,16 +563,75 @@ public class Cluster {
 	}
 	
 	/**
+	 * Set<String> => Set<Long>的转换
+	 * @param s
+	 * @return
+	 */
+	public static Set<Long> change_set_type(Set<String> set){
+		Set<Long> result = new HashSet<Long>();
+		for(String s : set){
+			result.add(Long.parseLong(s));
+		}
+		return result;
+	}
+	
+	/**
 	 * 推送：可能认识的人  =>	twitter·类三元闭包算法, 使用二度好友当做推荐对象.  =>   额外加入随机化。
 	 * http://www.aboutyun.com/thread-17333-1-1.html
 	 * https://www.quora.com/How-does-Twitters-follow-suggestion-algorithm-work
 	 * https://zhuanlan.zhihu.com/p/20533434
 	 * 
-	 * 算法思想：找出UID所focus的所有人和评论。二度查找这些人的focus以及
+	 * ****以下：不一定要找出所有人。按照时间顺序找最新的30人就可以。毕竟用户的关注是按时间增长的。这样可以减少服务器分析压力。****
+	 * 算法思想：找出UID所focus的所有人和votes, comment, trans。二度查找这些人的focus，votes，comment以及trans。对二度的这些zunionstore，然后设置expire过期时间。
+	 * 之后score会增加。取最多的几个。如果不是UID和一度查找里边的UID，就显示出来。<注意这步操作放在前端执行>当然，为什么用并集呢？因为速度快，而且redis的并集有sum操作。这样的话，相当于实际上是交集了。因为交集的元素
+	 * score会变得超高，酸爽！于是乎，这样还可以避免讨论二度的UID里边两两交集，复杂度超高->平方级别，而且有空集的现象还要讨论简直头疼......
+	 * 
+	 * 注意返回值是Set<String>.因为可以直接从缓存中取。所以String并没有转为Long。就这样吧。要不反而还要浪费时间复杂度。
 	 * 
 	 * @param UID
 	 */
-	public static Set<Long> probably_acquaintance(long UID){
+	public static Set<Long> get_probably_acquaintance(long UID){
+		//查看是否有缓存～有的话直接取出来～～
+		//注意second的意思是二度查找
+		if(jc.exists("acquaintance_second{"+UID+"}"))	return change_set_type(jc.zrevrange("acquaintance:"+UID, 0, 20));		//返回20个。虽然可能只用得到5个。但是我们不能忽略重复的可能性。
+		
+		//时间倒序查找。每个取20个。		这里的first表示“一度查找”。
+		//[在集群中不是同一个slot不能操作！所以必须把[]改成{}来标记slot！{}中的内容只要一样，就存在同一个slot中！！]
+		//详见：https://my.oschina.net/u/2242064/blog/646771
+		jc.zunionstore("acquaintance_first{"+UID+"}", "focus{"+UID+"}", "voted{"+UID+"}", "commented{"+UID+"}", "trans{"+UID+"}");	//一步操作进行。就是量太大了。其实可以把数量变小。找最新的几人。只不过麻烦，需要额外开辟多个set的副本。
+		jc.expire("acquaintance_first{"+UID+"}", 24*60*60);		//保存一天。
+		
+		Set<Long> first = change_set_type(jc.zrange("acquaintance_first{"+UID+"}", 0, -1));
+		//http://www.oschina.net/question/947956_2192487?p=1
+		String[] argu = new String[first.size()];	//作为变长参数的参数传递。=> 如何把数组中的东西当参数传递给变长参数？=>直接传递数组就好。java会懂你的。～～
+		int i = 0;
+		for(long uid : first){
+			//对于每个一度朋友，都缓存一次这个朋友的一度查找。然后我们会对所有一度朋友的一度查找进行union，形成我的二度查找。即寻找朋友的朋友最牛B的几个人。
+			String uid_string = "acquaintance_first:"+uid+"{"+UID+"}";
+			if(!jc.exists(uid_string)){
+				jc.zunionstore(uid_string, "focus{"+uid+"}", "voted{"+uid+"}", "commented{"+uid+"}", "trans{"+uid+"}");	//一步操作进行。就是量太大了。其实可以把数量变小。找最新的几人。只不过麻烦，需要额外开辟多个set的副本。
+				jc.expire(uid_string, 24*60*60);		//保存一天。				
+			}
+			argu[i++] = uid_string; 
+		}
+		
+		jc.zunionstore("acquaintance_second{"+UID+"}", argu);		//数组传递变长参数太棒了！！
+		
+		//得到二度查找，不够就扩充。
+		Set<Long> ac = change_set_type(jc.zrevrange("acquaintance_second{"+UID+"}", 0, 20));
+		long user_num = Long.parseLong(jc.get("UID"));		//得到用户总数
+		while(ac.size() < 10){		//设定如果数目太少，那就随机推荐人吧。填充到10个就好了。毕竟全是陌生人。
+			//防止随机生成的列表出现focus里边的人+自己的UID，即防止出现已经关注过的人+自己.
+			long random_UID = (long)(Math.random() * (user_num-1)) + 1;		//+1防止出现0这样的UID
+			//无此人 防止日后可能加入删除用户功能
+			if(jc.sismember("UIDs", String.valueOf(random_UID)) == null)	continue;
+			//是个新人，不是UID自身及其关注对象。
+			if(random_UID != UID && jc.zrank("focus{"+UID+"}", String.valueOf(random_UID)) == null){
+				ac.add(random_UID);
+			}
+		}
+		
+		return ac;
 		
 	}
 	

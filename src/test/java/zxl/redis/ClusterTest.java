@@ -47,12 +47,32 @@ public class ClusterTest {
 		User ltg = new User("litiange", "123", 19);
 		User zfy = new User("zhangfangyuan", "123", 19);
 		User wy = new User("wangyue", "123", 20);
+		User user1 = new User("user1", "123", 11);		//加上10个随机用户  测试推荐好友算法
+		User user2 = new User("user2", "123", 12);
+		User user3 = new User("user3", "123", 13);
+		User user4 = new User("user4", "123", 14);
+		User user5 = new User("user5", "123", 15);
+		User user6 = new User("user6", "123", 16);
+		User user7 = new User("user7", "123", 17);
+		User user8 = new User("user8", "123", 18);
+		User user9 = new User("user9", "123", 19);
+		User user10 = new User("user10", "123", 20);
 		Cluster.add_a_user(zxl);	//函数内部会自动赋给zxl一个UID
 		Cluster.add_a_user(zxl);				//***重复添加测试***
 		Cluster.add_a_user(jxc);
 		Cluster.add_a_user(ltg);
 		Cluster.add_a_user(zfy);
 		Cluster.add_a_user(wy);
+		Cluster.add_a_user(user1);
+		Cluster.add_a_user(user2);
+		Cluster.add_a_user(user3);
+		Cluster.add_a_user(user4);
+		Cluster.add_a_user(user5);
+		Cluster.add_a_user(user6);
+		Cluster.add_a_user(user7);
+		Cluster.add_a_user(user8);
+		Cluster.add_a_user(user9);
+		Cluster.add_a_user(user10);
 		Cluster.add_an_article(new Article("null --By zhengxiaolin.", zxl.getUID(), 0, 0, null));		//0参数表示并非转发
 		Cluster.add_an_article(new Article("the second blood! --By zhengxiaolin.", zxl.getUID(), 0, 0, null));		//0参数表示并非转发
 		Cluster.add_an_article(new Article("omoshiroi --By jiangxicong.", jxc.getUID(), 0, 0, null));
@@ -90,6 +110,17 @@ public class ClusterTest {
 		Cluster.focus_a_user(3, 4);
 		Cluster.focus_a_user(4, 3);
 		Cluster.focus_a_user(1, 5);
+		Cluster.focus_a_user(1, 4);
+		Cluster.focus_a_user(1, 3);
+		Cluster.focus_a_user(6, 5);
+		Cluster.focus_a_user(5, 6);
+		Cluster.focus_a_user(3, 7);
+		Cluster.focus_a_user(4, 7);
+		Cluster.focus_a_user(2, 8);
+		
+		Cluster.get_all_keys();
+		
+		System.out.println("***" + Cluster.get_probably_acquaintance(1));
 		
 		Cluster.focus_cancelled_oh_no(1, 2);
 		
