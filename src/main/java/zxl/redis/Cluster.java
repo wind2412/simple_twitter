@@ -136,6 +136,8 @@ public class Cluster {
 			add_score_to_article_chains_and_user(AID, REPLY_SCORE);
 			//加到score:reply:[trans_AID]表中。
 			jc.zadd("score:reply:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));
+			//加到commented:[UID]表中
+			jc.zadd("commented:"+article.getUID(), article.getTime(), String.valueOf(article.getAID()));
 		} else if(article.getType() == 2) {		//如果是正在[转发]别人的[文章/回复/转发]
 			//设置此article:AID表的trans_AID属性。
 			jc.hset(keyname, "trans_AID", String.valueOf(article.getTrans_AID()));
@@ -143,6 +145,8 @@ public class Cluster {
 			jc.zadd("get_transed:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));		//被转发的文章被转发次数+1，加到被转发文章的get_transed的zset中。
 			//给被转发的文章加分		//改？？？？？应该改成给所有链上的文章加分。。。
 			add_score_to_article_chains_and_user(AID, TRANS_SCORE);
+			//加到transed:[UID]表中
+			jc.zadd("transed:"+article.getUID(), article.getTime(), String.valueOf(article.getAID()));
 		} else{		//type == 0
 			//设置此article:AID表的trans_AID属性。
 			jc.hset(keyname, "trans_AID", String.valueOf(0));		//也要设置。如果仅仅因为没有trans_AID就不设置，那么到get_an_article方法里，Long.parseLong应该会崩溃吧。		
@@ -211,11 +215,15 @@ public class Cluster {
 			jc.zrem("get_commented:"+Long.parseLong(jc.hget("article:"+AID, "trans_AID")), String.valueOf(AID));
 			//给被回复的文章链整体减分	//算了。已经回复过就是回复过，即使删了分数也还有吧。
 //			add_score_to_article_chains(AID, -REPLY_SCORE);
+			//删除表项：commented:[UID]
+			jc.zrem("commented:"+UID, String.valueOf(AID));
 		}else if(type == 2){
 			//删除表项：get_transed:[AID]表中的trans_AID字段
 			jc.zrem("get_transed:"+Long.parseLong(jc.hget("article:"+AID, "trans_AID")), String.valueOf(AID));
 			//给被转发的文章链整体减分
 //			add_score_to_article_chains(AID, -REPLY_SCORE);			
+			//删除表项：transed:[UID]
+			jc.zrem("transed:"+UID, String.valueOf(AID));
 		}
 		//删除此文章的article:[AID]表......全删除好了。查文章索引不到为nil的时候，直接弹出“因法律法规原因并未显示”好了（笑
 		jc.del(keyname);
@@ -552,6 +560,19 @@ public class Cluster {
 		return Long.parseLong(jc.hget("getuser", name));
 	}
 	
+	/**
+	 * 推送：可能认识的人  =>	twitter·类三元闭包算法, 使用二度好友当做推荐对象.  =>   额外加入随机化。
+	 * http://www.aboutyun.com/thread-17333-1-1.html
+	 * https://www.quora.com/How-does-Twitters-follow-suggestion-algorithm-work
+	 * https://zhuanlan.zhihu.com/p/20533434
+	 * 
+	 * 算法思想：找出UID所focus的所有人和评论。二度查找这些人的focus以及
+	 * 
+	 * @param UID
+	 */
+	public static Set<Long> probably_acquaintance(long UID){
+		
+	}
 	
 	public static void main(String[] args) {
 
