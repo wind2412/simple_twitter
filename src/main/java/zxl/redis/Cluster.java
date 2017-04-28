@@ -1,5 +1,6 @@
 package zxl.redis;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +12,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Tuple;
 import zxl.bean.Article;
 import zxl.bean.User;
 
@@ -604,18 +606,35 @@ public class Cluster {
 		Set<Long> first = change_set_type(jc.zrange("acquaintance_first{"+UID+"}", 0, -1));
 		//http://www.oschina.net/question/947956_2192487?p=1
 		String[] argu = new String[first.size()];	//作为变长参数的参数传递。=> 如何把数组中的东西当参数传递给变长参数？=>直接传递数组就好。java会懂你的。～～
-		int i = 0;
+		int j = 0;
 		for(long uid : first){
 			//对于每个一度朋友，都缓存一次这个朋友的一度查找。然后我们会对所有一度朋友的一度查找进行union，形成我的二度查找。即寻找朋友的朋友最牛B的几个人。
-			String uid_string = "acquaintance_first:"+uid+"{"+UID+"}";
+			String uid_string = "acquaintance_first{"+uid+"}";
 			if(!jc.exists(uid_string)){
 				jc.zunionstore(uid_string, "focus{"+uid+"}", "voted{"+uid+"}", "commented{"+uid+"}", "trans{"+uid+"}");	//一步操作进行。就是量太大了。其实可以把数量变小。找最新的几人。只不过麻烦，需要额外开辟多个set的副本。
 				jc.expire(uid_string, 24*60*60);		//保存一天。				
 			}
-			argu[i++] = uid_string; 
+			argu[j++] = uid_string; 
 		}
 		
-		jc.zunionstore("acquaintance_second{"+UID+"}", argu);		//数组传递变长参数太棒了！！
+		
+		String[] argu2 = new String[first.size()];		//存新的转存的字符串～
+		for(int i = 0; i < argu.length; i ++){
+			//疯狂地从redis中取出
+			Set<Tuple> set = jc.zrangeWithScores(argu[i], 0, -1);
+			//提取uid
+			String uid = argu[i].substring(argu[i].indexOf('{')+1, argu[i].indexOf('}'));
+			//换个名字：
+			argu2[i] = "acquaintance_first:"+uid+"{"+UID+"}";
+			//然后换个名字存进和UID相同的槽中去
+			Map<String, Double> map = new HashMap<String, Double>();
+			for(Tuple t : set){
+				map.put(t.getElement(), t.getScore());
+			}
+			jc.zadd(argu2[i], map);
+		}
+		
+		jc.zunionstore("acquaintance_second{"+UID+"}", argu2);		//数组传递变长参数太棒了！！		//用不了。因为每个用户在不同的槽中，{uid}不同。所以最后一步无法这样。必须手动。、
 		
 		//得到二度查找，不够就扩充。
 		Set<Long> ac = change_set_type(jc.zrevrange("acquaintance_second{"+UID+"}", 0, 20));
