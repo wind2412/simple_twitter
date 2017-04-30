@@ -639,7 +639,7 @@ public class Cluster {
 		//得到二度查找，不够就扩充。
 		Set<Long> ac = change_set_type(jc.zrevrange("acquaintance_second{"+UID+"}", 0, 20));
 		long user_num = Long.parseLong(jc.get("UID"));		//得到用户总数
-		while(ac.size() < 10){		//设定如果数目太少，那就随机推荐人吧。填充到10个就好了。毕竟全是陌生人。
+		while(ac.size() < 8){		//设定如果数目太少，那就随机推荐人吧。填充到10个就好了。毕竟全是陌生人。
 			//防止随机生成的列表出现focus里边的人+自己的UID，即防止出现已经关注过的人+自己.
 			long random_UID = (long)(Math.random() * (user_num-1)) + 1;		//+1防止出现0这样的UID
 			//无此人 防止日后可能加入删除用户功能
@@ -649,6 +649,11 @@ public class Cluster {
 				ac.add(random_UID);
 			}
 		}
+		
+		//移除自己
+		ac.remove(UID);
+		//移除自己的focus
+		ac.removeAll(change_set_type(jc.zrange("focus{"+UID+"}", 0, -1)));
 		
 		return ac;
 		
