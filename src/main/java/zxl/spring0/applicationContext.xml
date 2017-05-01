@@ -12,5 +12,29 @@
 		
 		lazy-init是false是默认的。
 	 -->
-    <bean id="user" class="zxl.spring0.User" scope="prototype" lazy-init="false"></bean>
+    <bean id="user" class="zxl.spring0.User" scope="prototype" lazy-init="false">
+    	<!-- set注入 -->
+    	<property name="id" value="102"></property>	<!-- 用set方法填充User的两个参数id和name -->
+    	<property name="name" value="Jack"></property>
+    </bean>
+    <bean id="user2" class="zxl.spring0.User">
+    	<constructor-arg index="0" type="java.lang.String" value="Tom"></constructor-arg>
+    	<constructor-arg index="1" type="int" value="100"></constructor-arg>
+    </bean>
+    
+    <bean id="jack" class="java.lang.String">
+    	<constructor-arg value="Jack"></constructor-arg>
+    </bean>
+    <bean id="user3" class="zxl.spring0.User">
+    	<constructor-arg ref="jack"></constructor-arg>	<!-- reference object -->
+    	<constructor-arg value="100"></constructor-arg>
+    </bean>
+    
+    <!-- UserFactory [static method create object] -->
+    <bean id="factory" class="zxl.spring0.UserFactory"></bean>
+    <bean id="factory_user" factory-bean="factory" factory-method="normal_create"></bean>
+    <bean id="static_user" class="zxl.spring0.UserFactory" factory-method="static_create"></bean>
+    
+    
+    
 </beans>
