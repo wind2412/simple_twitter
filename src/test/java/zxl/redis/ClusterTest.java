@@ -32,7 +32,11 @@ public class ClusterTest {
 //		}
 		
 		connect();
-		initialize_db();
+		try {
+			initialize_db();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -102,7 +106,7 @@ public class ClusterTest {
 	}
 	
 	
-	private static void initialize_db() {
+	private static void initialize_db() throws InterruptedException {
 		
 		//互相关注一波
 		Cluster.focus_a_user(2, 1);
@@ -143,36 +147,60 @@ public class ClusterTest {
 //		assert Cluster.judge_voted(1, 1) == true;
 //		assert Cluster.judge_voted(2, 1) == false;
 		
+		int sleepsec = 1;		//更改这个就可以修改时间间隔。一般如果想要时间间隔，因为内部时间time是除以1000的，因此设置为1000就好。
+		
 		//开始评论
 		Cluster.add_an_article(new Article("comment myself article~~ --By zhengxiaolin", 1, 1, 1, false, null));	//7号文章回复1号
 		get_all_scores();
+		Thread.sleep(sleepsec);		//间隔一秒钟，模拟时间的不同。否则zrevrange里边的时间都是一样。。只能按照字典排序了。。。
 		
 		Cluster.add_an_article(new Article("comment your comment. --By jiangxicong", 2, 1, 7, false, null));		//8号文章回复7号
 		get_all_scores();
+		Thread.sleep(sleepsec);
 		
 		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 8, false, null));		//9号文章回复8号
 		get_all_scores();
+		Thread.sleep(sleepsec);
 		
-		Cluster.remove_an_article(9);																				//移除9号
-		get_all_scores();
+//		Cluster.remove_an_article(9);																				//移除9号
+//		get_all_scores();
 		
 		//开始转发
 		Cluster.add_an_article(new Article("trans myself article~~ --By zhengxiaolin", 1, 2, 1, false, null));		//10号文章转发1号
 		get_all_scores();
+		Thread.sleep(sleepsec);
 		
 		Cluster.add_an_article(new Article("trans jxc's article. --By litinage", 3, 2, 8, false, null));			//11号文章转发8号
 		get_all_scores();
+		Thread.sleep(sleepsec);
 
+		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 7, false, null));		//12号文章回复7号
+		Thread.sleep(sleepsec);
+		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 12, false, null));		//13号文章回复12号
+		Thread.sleep(sleepsec);
+
+		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 7, false, null));		//14号文章回复7号
+		Thread.sleep(sleepsec);
+		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 14, false, null));		//15号文章回复14号
+		Thread.sleep(sleepsec);
+		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 14, false, null));		//16号文章回复14号
+		Thread.sleep(sleepsec);
+		
+		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 7, false, null));		//17号文章回复7号
+		Thread.sleep(sleepsec);
+
+		
 		Cluster.remove_an_article(11); 																		//移除11号文章
 		get_all_scores();
 
 		Cluster.get_all_keys();
 		
-		List<List<Article>> all_comments = Cluster.get_article_comments_context(1, 0);
+		List<List<Article>> all_comments = Cluster.get_article_comments_context(7, 0);
 		for(List<Article> l : all_comments){
 			for(Article a : l){
 				System.out.println("AID:" + a.getAID() + " ... " + "trans_AID:" + a.getTrans_AID());
 			}
+			System.out.println();
 		}
 		
 	}
