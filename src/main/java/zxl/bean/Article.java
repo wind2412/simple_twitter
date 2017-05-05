@@ -25,14 +25,25 @@ public class Article {
 	private long type;			//此推文的类型。 0：普通推文  1：reply	2：trans		=>    某种程度reply和trans的实现是一样的。只是，reply的显示和trans不同。
 	private long trans_AID;		//用作reply和trans的AID 即：此文章是一篇转发的文章，trans_AID是引用文章的AID.		//没有设为0.
 	private List<String> pics;
+	private long TID;			//发表的这篇文章所对应的时间线编号
+	private boolean isPrivate;	//是公开发表的吗？		//存入redis时，如果是公开就是0=>false，私有就是1=>true.
 	
-	public Article(String content, long UID, long type, long trans_AID, List<String> pics) {
+	public Article(String content, long UID, long type, long trans_AID, boolean isPrivate, List<String> pics) {
 		super();
 		this.content = content;
 		this.UID = UID;
 		this.type = type;
 		this.trans_AID = trans_AID;
+		this.isPrivate = isPrivate;
 		this.pics = pics;
+	}
+
+	public boolean isPrivate() {
+		return isPrivate;
+	}
+
+	public void setPrivate(boolean isPrivate) {
+		this.isPrivate = isPrivate;
 	}
 
 	public long getAID() {
@@ -89,6 +100,14 @@ public class Article {
 
 	public void setPics(List<String> pics) {
 		this.pics = pics;
+	}
+
+	public long getTID() {
+		return TID;
+	}
+
+	public void setTID(long tID) {
+		TID = tID;
 	}
 
 	

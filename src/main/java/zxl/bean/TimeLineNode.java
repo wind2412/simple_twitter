@@ -1,31 +1,42 @@
 package zxl.bean;
 
 /**
- * 某一用户的时间线节点。会被放到timeline:[UID]中。
+ * 某一用户的时间线节点。会被放到timeline表中。
+ * 同时，我们也设置timeline:[UID]表。
  * @author zhengxiaolin
  *
  */
 public class TimeLineNode {
 
-	private long target_UID;	//自己所关注的用户
-	private long type;			//timeline node类型： 0=>target_UID发的推文  1=>target_UID赞了哪篇文章   2=>target_UID回复/转发了哪篇文章
+	private long TID;			//此条时间线编号
+	private long UID;			//某一个用户，他做了什么事情，然后会放到时间线中。
+	private long type;			//timeline node类型： 0=>UID发的推文  1=>UID回复了哪篇文章  2=>UID转发了哪篇文章 /* 3=>UID赞了哪篇文章 --deleted*/ 
 	private long target_AID;	//所谓的“哪篇文章”
 	private long time;			//时间线上的这个节点的产生时间
 	
-	public TimeLineNode(long target_UID, long type, long target_AID, long time) {
+	public TimeLineNode(long TID, long UID, long type, long target_AID, long time) {
 		super();
-		this.target_UID = target_UID;
+		this.TID = TID;
+		this.UID = UID;
 		this.type = type;
 		this.target_AID = target_AID;
 		this.time = time;
 	}
 
-	public long getTarget_UID() {
-		return target_UID;
+	public long getTID() {
+		return TID;
 	}
 
-	public void setTarget_UID(long target_UID) {
-		this.target_UID = target_UID;
+	public void setTID(long tID) {
+		TID = tID;
+	}
+
+	public long getUID() {
+		return UID;
+	}
+
+	public void setTarget_UID(long UID) {
+		this.UID = UID;
 	}
 
 	public long getType() {

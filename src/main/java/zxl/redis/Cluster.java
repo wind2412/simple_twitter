@@ -14,6 +14,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Tuple;
 import zxl.bean.Article;
+import zxl.bean.TimeLineNode;
 import zxl.bean.User;
 
 /**
@@ -121,6 +122,7 @@ public class Cluster {
 		jc.hset(keyname, "UID",  String.valueOf(article.getUID()));
 		jc.hset(keyname, "type", String.valueOf(article.getType()));
 		jc.hset(keyname, "time", String.valueOf(article.getTime()));
+		jc.hset(keyname, "isPrivate", String.valueOf(article.isPrivate()));
 		//设置文章article的pictures:[AID]表的pics路径。
 		if(article.getPics() != null)
 		for(int i = 0; i < article.getPics().size(); i ++){
@@ -155,6 +157,44 @@ public class Cluster {
 			//设置此article:AID表的trans_AID属性。
 			jc.hset(keyname, "trans_AID", String.valueOf(0));		//也要设置。如果仅仅因为没有trans_AID就不设置，那么到get_an_article方法里，Long.parseLong应该会崩溃吧。		
 		}
+		//添加到所有fans的timeline中。
+		long TID = jc.incr("TID");		//把时间线ID=>TID+1.
+		///这里千万注意！！如果是type==0，那就是某个UID发了一篇文章，无可挑剔。但是如果是type==2，3的话，那么这篇文章在timeline表中还是“此UID发的文章”。所以，
+		///如果要产生“XX分钟前XXX转发了XXX的一篇文章”的话，因为这里tln记录的是转发后的哪篇新文章AID，因此还需要通过此AID找到trans_AID来继续跳查一步才行！！
+		TimeLineNode tln = new TimeLineNode(TID, article.getUID(), article.getType(), article.getAID(), article.getTime());	
+		add_action_message(tln);
+		add_action_to_all_fans_timeline(tln);
+		//添加到timeline总表中，于是这个总表可以当成流API来用了。
+		jc.zadd("timeline", tln.getTime(), String.valueOf(tln.getTID()));	
+		//如果不是私有的，就添加TID信息到文章中
+		if(article.isPrivate() == false)	jc.hset("article:"+article.getAID(), "TID", String.valueOf(tln.getTID()));
+	}
+	
+	private static TimeLineNode get_a_timeLineNode(long TID){
+		String keyname = "action:"+TID;
+		return new TimeLineNode(
+				TID,
+				Long.parseLong(jc.hget(keyname, "UID")),
+				Long.parseLong(jc.hget(keyname, "type")),
+				Long.parseLong(jc.hget(keyname, "target_AID")),
+				Long.parseLong(jc.hget(keyname, "time"))
+				);
+	}
+	
+	/**
+	 * 得到用户的时间线。在用户的主页显示。也即是，显示所有他的关注者的动态。
+	 * @param UID
+	 * @param page
+	 * @return
+	 */
+	public static List<TimeLineNode> get_timeline_chains(long UID, int page){
+		if((page-1)*ARTICLES_PER_PAGE > jc.zcard("timeline:"+UID))	return null;		//说明已经到了所有页的末尾，后面已经没有了
+		Set<String> TIDs = jc.zrevrange("timeline:"+UID, (page-1)*ARTICLES_PER_PAGE, page*ARTICLES_PER_PAGE-1);
+		List<TimeLineNode> action_list = new LinkedList<>();
+		for(String tid : TIDs){
+			action_list.add(get_a_timeLineNode(Long.parseLong(tid)));
+		}
+		return action_list;		
 	}
 	
 	/**
@@ -207,10 +247,15 @@ public class Cluster {
 		}
 	}
 	
+	/**
+	 * 移除某一文章
+	 * @param AID
+	 */
 	public static void remove_an_article(long AID){
 		String keyname = "article:"+AID;				//hash
 		//从该用户的all_articles:[UID]表中移除此文章的AID。但是我们因为要由此文章的article:[AID]表索引到UID，因此这一步必须放在前面。
 		long UID = Long.parseLong(jc.hget(keyname, "UID"));	//得到文章作者UID
+		long TID = Long.parseLong(jc.hget(keyname, "TID"));	//得到文章的TID，即时间点
 		jc.zrem("all_articles:"+UID, String.valueOf(AID));	//移除此作者名下的这篇文章
 		//如果这篇文章是回复/转发自别人的话，需要从get_commented/get_transed:[trans_AID]表当中删除这篇被删除的转发！
 		long type = Long.parseLong(jc.hget("article:"+AID, "type"));
@@ -238,6 +283,8 @@ public class Cluster {
 		jc.del("pictures:"+AID);
 		//删除score表中的此AID
 		jc.zrem("score", String.valueOf(AID));
+		//从fans的时间线中删除所有关于这篇文章的信息(如果是公开的文章)		但是总时间线并没有删除。
+		if(Boolean.parseBoolean(jc.hget("article:"+AID, "isPrivate")) == false)	rem_action_to_all_fans_timeline(UID, TID);
 	}
 	
 	/**
@@ -365,6 +412,7 @@ public class Cluster {
 		return jc.zrevrangeByScore("focus{"+UID+"}", "+inf", "-inf");
 	}
 	
+	
 	/**
 	 * 得到某个用户的所有粉丝列表	=>		按照时间排序
 	 * @param UID
@@ -372,6 +420,40 @@ public class Cluster {
 	 */
 	public static Set<String> get_all_fans(long UID){
 		return jc.zrevrangeByScore("fans{"+UID+"}", "+inf", "-inf");
+	}
+	
+	/**
+	 * 把一个时间线事件添加到某一用户的所有fans上	=>   加到timeline:[UID]表中
+	 * @param tln
+	 */
+	private static void add_action_to_all_fans_timeline(TimeLineNode tln){
+		Set<String> fans_set = get_all_fans(tln.getUID());
+		for(String fans : fans_set){
+			long fan = Long.parseLong(fans);
+			jc.zadd("timeline:"+fan, tln.getTime(), String.valueOf(tln.getTID()));		//添加TID到timeline:[UID]表中
+		}
+	}
+	
+	private static void add_action_message(TimeLineNode tln){
+		String keyname = "action:"+tln.getTID();
+		jc.hset(keyname, "time", String.valueOf(tln.getTime()));
+		jc.hset(keyname, "TID", String.valueOf(tln.getTID()));
+		jc.hset(keyname, "UID", String.valueOf(tln.getUID()));
+		jc.hset(keyname, "type", String.valueOf(tln.getType()));
+		jc.hset(keyname, "target_AID", String.valueOf(tln.getTarget_AID()));
+	}
+	
+	/**
+	 * 移除某一用户的fans的所有时间轴上的某一事件
+	 * @param UID
+	 * @param TID
+	 */
+	private static void rem_action_to_all_fans_timeline(long UID, long TID){
+		Set<String> fans_set = get_all_fans(UID);
+		for(String fans : fans_set){
+			long fan = Long.parseLong(fans);
+			jc.zrem("timeline:"+fan, String.valueOf(TID));		//移除TID从timeline:[UID]表中
+		}		
 	}
 	
 	/**
@@ -403,6 +485,7 @@ public class Cluster {
 	 * @return
 	 */
 	public static List<Article> get_articles(long UID, int page){
+		if((page-1)*ARTICLES_PER_PAGE > jc.zcard("all_articles:"+UID))	return null;		//说明已经到了所有页的末尾，后面已经没有了
 		Set<String> AIDs = jc.zrevrange("all_articles:"+UID, (page-1)*ARTICLES_PER_PAGE, page*ARTICLES_PER_PAGE-1);
 		List<Article> art_list = new LinkedList<Article>();
 		for(String aid : AIDs){
@@ -513,6 +596,7 @@ public class Cluster {
 				Long.parseLong(jc.hget(keyname, "UID")), 
 				Long.parseLong(jc.hget(keyname, "type")), 
 				Long.parseLong(jc.hget(keyname, "trans_AID")), 
+				Boolean.parseBoolean(jc.hget(keyname, "isPrivate")),
 				jc.lrange("pictures:"+AID, 0, -1));
 		art.setTime(Long.parseLong(jc.hget(keyname, "time")));
 		art.setAID(AID);

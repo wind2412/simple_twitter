@@ -73,12 +73,12 @@ public class ClusterTest {
 		Cluster.add_a_user(user8);
 		Cluster.add_a_user(user9);
 		Cluster.add_a_user(user10);
-		Cluster.add_an_article(new Article("null --By zhengxiaolin.", zxl.getUID(), 0, 0, null));		//0参数表示并非转发
-		Cluster.add_an_article(new Article("the second blood! --By zhengxiaolin.", zxl.getUID(), 0, 0, null));		//0参数表示并非转发
-		Cluster.add_an_article(new Article("omoshiroi --By jiangxicong.", jxc.getUID(), 0, 0, null));
-		Cluster.add_an_article(new Article("mouth can't hold ouch!! --By litiange.", ltg.getUID(), 0, 0, null));
-		Cluster.add_an_article(new Article("if U can take me with the trip~ --By zhangfangyuan.", zfy.getUID(), 0, 0, null));
-		Cluster.add_an_article(new Article("T4ks --By wangyue.", wy.getUID(), 0, 0, null));
+		Cluster.add_an_article(new Article("null --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null));		//0参数表示并非转发
+		Cluster.add_an_article(new Article("the second blood! --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null));		//0参数表示并非转发
+		Cluster.add_an_article(new Article("omoshiroi --By jiangxicong.", jxc.getUID(), 0, 0, false, null));
+		Cluster.add_an_article(new Article("mouth can't hold ouch!! --By litiange.", ltg.getUID(), 0, 0, false, null));
+		Cluster.add_an_article(new Article("if U can take me with the trip~ --By zhangfangyuan.", zfy.getUID(), 0, 0, false, null));
+		Cluster.add_an_article(new Article("T4ks --By wangyue.", wy.getUID(), 0, 0, false, null));
 		Cluster.get_all_keys();
 		get_all_scores();
 	}
@@ -144,23 +144,23 @@ public class ClusterTest {
 //		assert Cluster.judge_voted(2, 1) == false;
 		
 		//开始评论
-		Cluster.add_an_article(new Article("comment myself article~~ --By zhengxiaolin", 1, 1, 1, null));	//7号文章回复1号
+		Cluster.add_an_article(new Article("comment myself article~~ --By zhengxiaolin", 1, 1, 1, false, null));	//7号文章回复1号
 		get_all_scores();
 		
-		Cluster.add_an_article(new Article("comment your comment. --By jiangxicong", 2, 1, 7, null));		//8号文章回复7号
+		Cluster.add_an_article(new Article("comment your comment. --By jiangxicong", 2, 1, 7, false, null));		//8号文章回复7号
 		get_all_scores();
 		
-		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 8, null));		//9号文章回复8号
+		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 8, false, null));		//9号文章回复8号
 		get_all_scores();
 		
 		Cluster.remove_an_article(9);																		//移除9号
 		get_all_scores();
 		
 		//开始转发
-		Cluster.add_an_article(new Article("trans myself article~~ --By zhengxiaolin", 1, 2, 1, null));		//10号文章转发1号
+		Cluster.add_an_article(new Article("trans myself article~~ --By zhengxiaolin", 1, 2, 1, false, null));		//10号文章转发1号
 		get_all_scores();
 		
-		Cluster.add_an_article(new Article("trans jxc's article. --By litinage", 3, 2, 8, null));			//11号文章转发8号
+		Cluster.add_an_article(new Article("trans jxc's article. --By litinage", 3, 2, 8, false, null));			//11号文章转发8号
 		get_all_scores();
 
 		Cluster.remove_an_article(11); 																		//移除11号文章
