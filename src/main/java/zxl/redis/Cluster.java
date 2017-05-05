@@ -20,7 +20,6 @@ import zxl.bean.User;
 /**
  * 	Jedis不支持集群的事务。
  *  等逻辑写完之后，我会使用lua重写全部。						=> 	 	大坑
- *  再加上spring。										=>		大坑	
  *  time最好不要在这里写。应该放到前端，用户点击的瞬间才好啊。		=>		坑
  */
 public class Cluster {
@@ -159,6 +158,8 @@ public class Cluster {
 		}
 		//添加到所有fans的timeline中。
 		long TID = jc.incr("TID");		//把时间线ID=>TID+1.
+		jc.hset(keyname, "TID", String.valueOf(TID)); 		//设置为文章属性。
+		article.setTID(TID); 			//设置到文章之中。
 		///这里千万注意！！如果是type==0，那就是某个UID发了一篇文章，无可挑剔。但是如果是type==2，3的话，那么这篇文章在timeline表中还是“此UID发的文章”。所以，
 		///如果要产生“XX分钟前XXX转发了XXX的一篇文章”的话，因为这里tln记录的是转发后的哪篇新文章AID，因此还需要通过此AID找到trans_AID来继续跳查一步才行！！
 		TimeLineNode tln = new TimeLineNode(TID, article.getUID(), article.getType(), article.getAID(), article.getTime());	
@@ -518,7 +519,7 @@ public class Cluster {
 			//添加上游总表
 			art_list.add(art_upon);
 		}
-		//得到一页的用户回复	=>	先得到10个“此节点的支脉”:child_AID，然后对所有支脉:child_AID求左子树。
+		//得到一页的用户回复	=>	先得到10个“此节点的支脉(叶节点)”:child_AID，然后对所有支脉:child_AID求左子树。
 		Set<String> child_AIDs = jc.zrevrange("get_commented:"+AID, (page-1)*COMMENT_PER_PAGE, page*COMMENT_PER_PAGE-1);
 		for(String child_aid : child_AIDs){
 			//得到左支脉下游
@@ -574,12 +575,14 @@ public class Cluster {
 	 * @param child_AID
 	 * @return
 	 */
-	private static List<Long> get_comments_down(long child_AID){
+	private static List<Long> get_comments_down(Long child_AID){
 		List<Long> list = new LinkedList<Long>();
 //		long type = Long.parseLong(jc.hget("article:"+AID, "type"));
 		while(jc.exists("get_commented:"+child_AID)){	//下边有评论才继续做。
 			//得到最早评论的AID，即左子树上的那个。
-			list.add(Long.parseLong(jc.zrange("get_commented:"+child_AID, 0, 0).iterator().next()));
+			child_AID = Long.parseLong(jc.zrange("get_commented:"+child_AID, 0, 0).iterator().next());
+			if(child_AID != null)
+				list.add(child_AID);
 		}
 		return list;
 	}
@@ -592,7 +595,7 @@ public class Cluster {
 	public static Article get_an_article(long AID){
 		String keyname = "article:"+AID;
 		Article art =  new Article(
-				jc.hget(keyname, "context"),
+				jc.hget(keyname, "content"),
 				Long.parseLong(jc.hget(keyname, "UID")), 
 				Long.parseLong(jc.hget(keyname, "type")), 
 				Long.parseLong(jc.hget(keyname, "trans_AID")), 
@@ -600,6 +603,7 @@ public class Cluster {
 				jc.lrange("pictures:"+AID, 0, -1));
 		art.setTime(Long.parseLong(jc.hget(keyname, "time")));
 		art.setAID(AID);
+		art.setTID(Long.parseLong(jc.hget(keyname, "TID")));
 		return art;
 	}
 	

@@ -153,7 +153,7 @@ public class ClusterTest {
 		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 8, false, null));		//9号文章回复8号
 		get_all_scores();
 		
-		Cluster.remove_an_article(9);																		//移除9号
+		Cluster.remove_an_article(9);																				//移除9号
 		get_all_scores();
 		
 		//开始转发
@@ -167,6 +167,14 @@ public class ClusterTest {
 		get_all_scores();
 
 		Cluster.get_all_keys();
+		
+		List<List<Article>> all_comments = Cluster.get_article_comments_context(1, 0);
+		for(List<Article> l : all_comments){
+			for(Article a : l){
+				System.out.println("AID:" + a.getAID() + " ... " + "trans_AID:" + a.getTrans_AID());
+			}
+		}
+		
 	}
 
 
