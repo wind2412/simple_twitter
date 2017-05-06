@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import redis.clients.jedis.JedisCluster;
 import zxl.bean.Article;
+import zxl.bean.TimeLineNode;
 import zxl.bean.User;
 
 public class ClusterTest {
@@ -46,21 +47,21 @@ public class ClusterTest {
 		//调用Cluster的任一方法时候，Cluster类会初始化，由于static块在最前边，所以会自动运行，即客户端会自动连接。
 		jc = Cluster.getJC();
 		Cluster.flush_all(); 		//清空测试数据库
-		User zxl = new User("zhengxiaolin", "123", 20);
-		User jxc = new User("jiangxicong", "123", 20);
-		User ltg = new User("litiange", "123", 19);
-		User zfy = new User("zhangfangyuan", "123", 19);
-		User wy = new User("wangyue", "123", 20);
-		User user1 = new User("user1", "123", 11);		//加上10个随机用户  测试推荐好友算法
-		User user2 = new User("user2", "123", 12);
-		User user3 = new User("user3", "123", 13);
-		User user4 = new User("user4", "123", 14);
-		User user5 = new User("user5", "123", 15);
-		User user6 = new User("user6", "123", 16);
-		User user7 = new User("user7", "123", 17);
-		User user8 = new User("user8", "123", 18);
-		User user9 = new User("user9", "123", 19);
-		User user10 = new User("user10", "123", 20);
+		User zxl = new User("zhengxiaolin", "123", 20, null, null);
+		User jxc = new User("jiangxicong", "123", 20, null, null);
+		User ltg = new User("litiange", "123", 19, null, null);
+		User zfy = new User("zhangfangyuan", "123", 19, null, null);
+		User wy = new User("wangyue", "123", 20, null, null);
+		User user1 = new User("user1", "123", 11, null, null);		//加上10个随机用户  测试推荐好友算法
+		User user2 = new User("user2", "123", 12, null, null);
+		User user3 = new User("user3", "123", 13, null, null);
+		User user4 = new User("user4", "123", 14, null, null);
+		User user5 = new User("user5", "123", 15, null, null);
+		User user6 = new User("user6", "123", 16, null, null);
+		User user7 = new User("user7", "123", 17, null, null);
+		User user8 = new User("user8", "123", 18, null, null);
+		User user9 = new User("user9", "123", 19, null, null);
+		User user10 = new User("user10", "123", 20, null, null);
 		Cluster.add_a_user(zxl);	//函数内部会自动赋给zxl一个UID
 		Cluster.add_a_user(zxl);				//***重复添加测试***
 		Cluster.add_a_user(jxc);
@@ -201,6 +202,14 @@ public class ClusterTest {
 				System.out.println("AID:" + a.getAID() + " ... " + "trans_AID:" + a.getTrans_AID());
 			}
 			System.out.println();
+		}
+		
+		List<TimeLineNode> all_timeline = Cluster.get_timeline_chains(2, 0);
+		for(TimeLineNode tln : all_timeline){
+			if(tln.getType() == 0)  System.out.println("your focus " + tln.getUID() + " posted: " + tln.getTarget_AID());		//少！！修复bug。
+			else if(tln.getType() == 1)  System.out.println("your focus " + tln.getUID() + " replied: " + tln.getTarget_AID());
+			else if(tln.getType() == 2)  System.out.println("your focus " + tln.getUID() + " transed: " + tln.getTarget_AID());
+			else System.out.println("hehe");
 		}
 		
 	}

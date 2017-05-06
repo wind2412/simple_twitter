@@ -106,6 +106,8 @@ public class Cluster {
 		jc.hset(keyname, "pass", user.getPass());
 		jc.hset(keyname, "age", String.valueOf(user.getAge()));
 		jc.hset(keyname, "time", String.valueOf(user.getTime()));
+		if(user.getMain_page() != null)	jc.hset(keyname, "main_page", user.getMain_page());
+		if(user.getPortrait_path() != null)	jc.hset(keyname, "portrait_path", user.getPortrait_path());
 		//把UID添加到UIDs，用作在“推荐认识的人”那里的uid查询方便......
 		jc.sadd("UIDs", String.valueOf(UID));
 		return 1;
@@ -617,7 +619,9 @@ public class Cluster {
 		User user = new User(
 				jc.hget(keyname, "name"), 
 				jc.hget(keyname, "pass"), 
-				Integer.parseInt(jc.hget(keyname, "age")));
+				Integer.parseInt(jc.hget(keyname, "age")),
+				jc.hget(keyname, "main_page"),
+				jc.hget(keyname, "portrait_path"));
 		user.setTime(Long.parseLong(jc.hget(keyname, "time")));
 		user.setUID(UID);
 		return user;
