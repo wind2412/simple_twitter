@@ -1,0 +1,122 @@
+body {
+	background-color: #eee;
+}
+.box{
+	width:970px;
+	display:block;
+	margin:0 auto;
+}
+.location {
+    width: 970px;
+    margin: 0 auto;
+    text-align: left;
+    text-indent: 10px;
+    color: #537197;
+    padding: 10px 0 10px;
+    display: block;
+}
+.location strong {
+    font-weight: normal;
+    color: #000;
+}
+.location a {
+    color: #393939;
+}
+.location em {
+    margin: 0 4px;
+    color: #537197;
+    font-style: normal;
+}
+.container {
+	width: 950px;
+	margin: 0 auto;
+}
+
+.waterfall {
+	width:225px;
+	float:left;
+	margin:6px;
+	display:block;
+}
+
+.pin {
+	padding: 1em;
+	margin: 0 0.125em 1em;
+	-moz-page-break-inside: avoid;
+	-webkit-column-break-inside: avoid;
+	break-inside: avoid;
+	background: white;
+	-moz-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 		2px 0 rgba(0, 0, 0, 0.24);
+	-webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 2px 0 rgba(0, 0, 0, 0.24);
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 2px 0 rgba(0, 0, 0, 0.24);
+}
+.pin img {
+	width: 100%;
+	padding-bottom:0;
+	margin-bottom:0 auto;
+}
+.a {
+    background: 0 0;
+    text-decoration: none;
+    color: #707070;
+}
+.waterfall h3 {
+    font-size: 16px;
+    font-weight: normal;
+    line-height: 24px;
+    display: block;
+    margin: 3px 5px 4px;
+}
+.waterfall h3 a {
+    text-align: left;
+}
+.waterfall h5 {
+    font-size: 13px;
+    line-height: 18px;
+    color: #6c6c6c;
+    margin: 10px 5px;
+}
+.waterfall h5 em {
+    font-style: normal;
+    color: #93090F;
+    margin: 0 5px;
+    display: inline-block;
+}
+.waterfall h5 em a { 
+	color:#93090F;
+	margin:0 2px;
+}
+.waterfall h6 {
+    color: #919191;
+    font-size: 12px;
+    height: 20px;
+    line-height: 20px;
+    display: block;
+    margin: 2px 5px 10px;
+}
+.waterfall h6 span { 
+	background-position:-4px 0; 
+	display:inline-block; 
+	width:17px; 
+	height:20px; 
+	float:left;
+}
+#gotoTop {
+	display: none;
+	position: fixed;
+	top: 75%;
+	left: 50%;
+	cursor: pointer;
+	margin-top: -50px;
+	margin-left: 520px;
+	padding: 9px 4px;
+	width: 20px;
+	text-align: center;
+	border: 1px solid #e0e0e0;
+	background: #fff;
+}
+
+#gotoTop {
+	_position:absolute;
+	_top:expression_r(documentElement.scrollTop+documentElement.clientHeight * 3/4+ "px")
+}
