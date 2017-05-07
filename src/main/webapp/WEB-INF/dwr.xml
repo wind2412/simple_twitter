@@ -2,11 +2,18 @@
 
 	<dwr>
 	  <allow>
+	  
+	  	<convert converter="bean" match="zxl.bean.*"/>
+	  	<convert converter="bean" match="redis.clients.jedis.JedisCluster"/>
+	  	
 	    <create creator="new" javascript="JDate">
 	      <param name="class" value="java.util.Date"/>
 	    </create>
 	    <create creator="new" javascript="Demo">
 	      <param name="class" value="zxl.bean.User"/>
+	    </create>
+	    <create creator="none" javascript="Demo1">
+	      <param name="class" value="zxl.redis.Cluster"/>
 	    </create>
 	  </allow>
 	</dwr>

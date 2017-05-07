@@ -659,7 +659,7 @@ public class Cluster {
 	 * @param UID
 	 * @return
 	 */
-	public static User get_a_user(long UID){
+	public static User get_a_user_by_UID(long UID){		//由于使用了DWR，在js中不能分辨重载的方法。因此把重载的方法更改了名称并且取消掉了。
 		String keyname = "user:"+UID;
 		User user = new User(jc.hget(keyname, "name")); 
 		user.setUID(UID);
@@ -678,10 +678,10 @@ public class Cluster {
 	 * @param name
 	 * @return
 	 */
-	public static User get_a_user(String name){
+	public static User get_a_user_by_name(String name){
 		String UID = jc.hget("getuser", name);
 		if(UID == null)	return null;		//查无此人
-		return get_a_user(Long.parseLong(UID));
+		return get_a_user_by_UID(Long.parseLong(UID));
 	}
 	
 	/**

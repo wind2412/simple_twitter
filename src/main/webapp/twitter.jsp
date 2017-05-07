@@ -21,6 +21,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<!-- Javascript -->
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 	<script type="text/javascript" src="js/kickstart.js"></script>
+	
+	<!-- DWR script -->
+	<script type='text/javascript' src='/twitter_proj/dwr/engine.js'></script>
+  	<script type='text/javascript' src='/twitter_proj/dwr/interface/Demo.js'></script>
+	<script type='text/javascript' src='/twitter_proj/dwr/util.js'></script>
+	
 </head>
 <body>
 

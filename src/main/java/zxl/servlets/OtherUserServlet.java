@@ -61,8 +61,8 @@ public class OtherUserServlet extends HttpServlet {
 		
 		//左方之地
 		request.setAttribute("other_name", username);
-		System.out.println(JSONObject.toJSONString(Cluster.get_a_user(other_UID)));
-		request.setAttribute("other_usr_info", JSONObject.toJSONString(Cluster.get_a_user(other_UID)));
+		System.out.println(JSONObject.toJSONString(Cluster.get_a_user_by_UID(other_UID)));
+		request.setAttribute("other_usr_info", JSONObject.toJSONString(Cluster.get_a_user_by_UID(other_UID)));
 //		request.setAttribute("other, o);
 		
 		
