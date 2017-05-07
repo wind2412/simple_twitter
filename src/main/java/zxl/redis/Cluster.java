@@ -33,7 +33,7 @@ public class Cluster {
 	public static final int ARTICLES_PER_PAGE = 20;
 	public static final int COMMENT_PER_PAGE = 20;
 	
-	private static JedisCluster jc;
+	public static JedisCluster jc;
 	
 	static {		//构造函数。变成了静态的。
 		
@@ -50,10 +50,6 @@ public class Cluster {
 		
 		get_all_keys();
 		
-	}
-	
-	public static JedisCluster getJC() {
-		return jc;
 	}
 	
 	//得到所有的key表的列表。

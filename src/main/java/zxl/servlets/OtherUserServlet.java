@@ -56,7 +56,7 @@ public class OtherUserServlet extends HttpServlet {
 		request.setAttribute("other_articles", Cluster.get_user_articles_num(other_UID));						//对方推文数量
 		request.setAttribute("other_focus", Cluster.get_focus_num(other_UID));									//对方正在关注数量
 		request.setAttribute("other_fans", Cluster.get_fans_num(other_UID));									//对方关注者数量
-		request.setAttribute("other_main_page", Cluster.getJC().hget("user:"+other_UID, "main_page"));			//对方主页图片		(不一定用)
+		request.setAttribute("other_main_page", Cluster.jc.hget("user:"+other_UID, "main_page"));			//对方主页图片		(不一定用)
 		request.setAttribute("did_I_focused_him", Cluster.focus_or_not(UID, other_UID));						//关注按钮的显示。true/false
 		
 		//左方之地

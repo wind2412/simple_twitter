@@ -24,8 +24,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	
 	<!-- DWR script -->
 	<script type='text/javascript' src='/twitter_proj/dwr/engine.js'></script>
-  	<script type='text/javascript' src='/twitter_proj/dwr/interface/Demo.js'></script>
 	<script type='text/javascript' src='/twitter_proj/dwr/util.js'></script>
+  	<script type='text/javascript' src='/twitter_proj/dwr/interface/Cluster.js'></script>
 	
 </head>
 <body>
@@ -38,37 +38,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<h4 style="color:#999;margin-bottom:40px;" class="center">Add some HTML KickStart Elements to see the magic happen</h4>
 	</div>
 -->
-
-<script type="text/javascript">      
-	var xmlHttp;    
-    function createXMLHttp(){ 
-		if(window.XMLHttpRequest) { //Mozilla 浏览器  
-    		xmlHttp = new XMLHttpRequest();  
-		}  
-		else if (window.ActiveXObject) { // IE浏览器  
-    		try {  
-    			xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");  
-    		} catch (e) {  
-        			try {  
-        				xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");  
-        			} catch (e) {}  
-    		}  
-		}         
-	}          
-    function follow(is_post, url, func){                
-    	createXMLHttp(); 
-        xmlHttp.onreadystatechange = function(){
-			if(xmlHttp.readyState==4 && xmlHttp.status==200){                  
-				func(xmlHttp.responseText);			//如果成功，执行func函数 
-			}  else {
-				alert("ajax failed!!");
-			}
-		}; 
-		xmlHttp.open(is_post == false ? "GET" : "POST",url,true);               
-        xmlHttp.send(null);       
-	}          
-</script>
-
 
 <div style="z-index: 1001;">
 	<div class="navbar" style="border-bottom-color: black; border-bottom-width:thin">	<!-- 去掉了border-style:solid, 否则会感觉header不在垂直的正中央.-->
@@ -142,35 +111,17 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	
 	var other_uid_json = <%= request.getAttribute("other_usr_info") %>;
 	alert(other_uid_json);
+	
+	
+	
 </script>
 
 <script type="text/javascript">
-    createXMLHttp(); 
-	function jump(){            
-        xmlHttp.onreadystatechange = jumpCallback; 
-		var url = "/twitter_proj/OtherUserServlet?usr=1";               
-		xmlHttp.open("GET",url,true);               
-        xmlHttp.send(null);       
-	}          
-    function jumpCallback(){        
-		if(xmlHttp.readyState==4){                  
-			if(xmlHttp.status==200){
-				var info = xmlHttp.responseText; 
-            	document.getElementById("follow").value=info;                                      
-			}             
-		}         
-	}
-	
-	function myjump(){
-	alert("haha");
-	
-	alert("haha");
-	}
-	
+	//DWR的js方法直接调用java方法！
+	Cluster.get_user_articles_num(1, function(data){alert(data);});
 	
 </script>
 
-<div><button class="medium blue" onclick="myjump()">haha</button></div>
 
 
 <hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr>

@@ -12,7 +12,7 @@ import zxl.bean.User;
 
 public class ClusterTest {
 	
-	private static JedisCluster jc;
+	private static JedisCluster jc = Cluster.jc;
 	
 	static {
 		//先要更换成为测试数据库。
@@ -45,7 +45,6 @@ public class ClusterTest {
 	private static void connect() {
 
 		//调用Cluster的任一方法时候，Cluster类会初始化，由于static块在最前边，所以会自动运行，即客户端会自动连接。
-		jc = Cluster.getJC();
 		Cluster.flush_all(); 		//清空测试数据库
 		User zxl = new User("zhengxiaolin");
 			zxl.setAge(20);
