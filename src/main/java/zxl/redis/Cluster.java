@@ -82,8 +82,8 @@ public class Cluster {
 		System.out.println("************************************");
 	}
 	
-	//如果成功，返回1  否则返回0
-	public static int add_a_user(String username, String pass){	///传入user的除了UID之外的各种属性
+	//如果成功，返回UID  否则返回0
+	public static long add_a_user(String username, String pass){	///传入user的除了UID之外的各种属性
 //		jc		//没有事务？？？ 事务无法操纵多个主键。因此只能使用lua脚本。
 		//添加信息到用户名密码数据库中 + 判断是否重复注册。表名：pass		这个判断必须放在所有数据库操作的第一位。因为它必须最先判断。
 		long ret = jc.hsetnx("pass", username, pass);
@@ -104,7 +104,7 @@ public class Cluster {
 		jc.hset(keyname, "time", String.valueOf(System.currentTimeMillis()/1000));
 		//把UID添加到UIDs，用作在“推荐认识的人”那里的uid查询方便......
 		jc.sadd("UIDs", String.valueOf(UID));
-		return 1;
+		return UID;
 	}
 	
 	/**
@@ -631,6 +631,8 @@ public class Cluster {
 		user.setUID(UID);
 		return user;
 	}
+	
+	
 	
 	/**
 	 * 得到一个用户的信息

@@ -42,9 +42,14 @@ public class RegisterServlet extends HttpServlet {
 		System.out.println(username);
 		String password = request.getParameter("password");
 		System.out.println(password);
-		if(Cluster.add_a_user(username, password) == 1){	//数据库没有那个用户名 就可以建立。	
+		long UID;
+		if((UID = Cluster.add_a_user(username, password)) != 0){	//数据库没有那个用户名 就可以建立。	
+			request.getSession().setAttribute("UID", UID);
 			request.getSession().setAttribute("username", username);
 			request.getSession().setAttribute("password", password);
+			request.getSession().setAttribute("articles", 0);		//推文数量
+			request.getSession().setAttribute("focus", 0);			//正在关注数量
+			request.getSession().setAttribute("fans", 0);			//关注者数量
 			request.getRequestDispatcher("/twitter.jsp").forward(request, response);
 		}else{			
 			request.setAttribute("msg", "Your account has been registered! Please reinput or log in!!");

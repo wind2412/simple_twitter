@@ -67,21 +67,31 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	}
 </script>
 
-<div style="z-index: 1001">
-	<div class="navbar" style="border-bottom-color: black; border-bottom-width:thin">	<!-- 去掉了border-style:solid, 否则会感觉header不在垂直的正中央.-->
-		<a id="logo"><button class="medium blue">发推</button></a>
-		<a id="logo1"><img src="anonymous.jpg" style="width: 40px; height: 40px"></a>
-		<a id="logo2" style="text-align: center"><img src="icons/5.png" style="width: 40px; height: 40px"></a>
-		<!--<a id="logo3"><input results="s" type="search" placeholder="搜索 Twitter"></a>-->
 
-		<ul>
-		<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
-		<li style=""><a href=""><img src="icons/1.png" height="20px" width="20px"><span>主页</span></a></li>
-		<li><a href=""><img src="icons/2.png" height="20px" width="20px"><span>通知</span></a></li>
-		<li><a href=""><img src="icons/3.png" height="20px" width="20px"><span>私信</span></a></li>
-		</ul>
+<div style="z-index: 1001;">
+	<div class="navbar" style="border-bottom-color: black; border-bottom-width:thin">	<!-- 去掉了border-style:solid, 否则会感觉header不在垂直的正中央.-->
+	
+			<ul style="float: left">
+			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+			<li style=""><a href=""><img src="icons/1.png" height="20px" width="20px"><span>主页</span></a></li>
+			<li><a href=""><img src="icons/2.png" height="20px" width="20px"><span>通知</span></a></li>
+			<li><a href=""><img src="icons/3.png" height="20px" width="20px"><span>私信</span></a></li>
+			</ul>
+			
+			<ul style="float: left">
+			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+			<li><a  style="text-align: center"><img src="icons/5.png" style="width: 40px; height: 40px; margin-top: -15px"></a></li>
+			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+			<li><input type="text" placeholder="搜索 Twitter" style="font-size: 13px; margin-top: -10px"></li>
+			<li><a ><img src="" style="width: 30px; height: 30px; margin-top: -10px" id="protrait"></a></li>
+			</ul>
+
+			<a id="logo"><button class="medium blue">发推</button></a>
 	</div>
 </div>
+
 
 
 <div style="background-color: #2aa3ef; height: 225px; width: 100%; ">		<!--蓝色状态栏-->
@@ -95,14 +105,30 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<a id="logo0"><button class="medium blue">编辑个人资料</button></a>
 		
 		<ul>
-		<li><a href=""><div>推文</div><div>1</div></a></li>
-		<li><a href=""><div>正在关注</div><div>1</div></a></li>
-		<li><a href=""><div>关注者</div><div>1</div></a></li>
+		<li><a href=""><div>推文</div><div id="articles"></div></a></li>
+		<li><a href=""><div>正在关注</div><div id="focus"></div></a></li>
+		<li><a href=""><div>关注者</div><div id="fans"></div></a></li>
 		</ul>
 		
 	</nav>
 	
 </div>
+<script type="text/javascript">
+	//得到所有推文，正在关注，以及关注者信息。
+	var UID = <%= request.getSession().getAttribute("UID")%>;		//可能为null
+	var articles = <%= request.getSession().getAttribute("articles")%>;
+	if(articles == null) articles = 0;
+	var focus = <%= request.getSession().getAttribute("focus")%>;
+	if(focus == null) focus = 0;
+	var fans = <%= request.getSession().getAttribute("fans")%>;
+	if(fans == null) fans = 0;
+	var portrait = <%= request.getSession().getAttribute("portrait")%>;
+	if(portrait == null) portrait = "portraits/anonymous.jpg";
+	document.getElementById("articles").innerHTML = articles;
+	document.getElementById("focus").innerHTML = focus;
+	document.getElementById("fans").innerHTML = fans;
+	document.getElementById("protrait").src = portrait;
+</script>
 
 
 
