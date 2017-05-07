@@ -68,11 +68,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 </script>
 
 <div style="z-index: 1001">
-	<nav class="navbar" style="border-bottom-color: black; border-bottom-width:thin">	<!-- 去掉了border-style:solid, 否则会感觉header不在垂直的正中央.-->
+	<div class="navbar" style="border-bottom-color: black; border-bottom-width:thin">	<!-- 去掉了border-style:solid, 否则会感觉header不在垂直的正中央.-->
 		<a id="logo"><button class="medium blue">发推</button></a>
 		<a id="logo1"><img src="anonymous.jpg" style="width: 40px; height: 40px"></a>
 		<a id="logo2" style="text-align: center"><img src="icons/5.png" style="width: 40px; height: 40px"></a>
-		<a id="logo3"><input type="text" placeholder="搜索 Twitter" style="font-size: 16px"></a>
 		<!--<a id="logo3"><input results="s" type="search" placeholder="搜索 Twitter"></a>-->
 
 		<ul>
@@ -81,7 +80,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<li><a href=""><img src="icons/2.png" height="20px" width="20px"><span>通知</span></a></li>
 		<li><a href=""><img src="icons/3.png" height="20px" width="20px"><span>私信</span></a></li>
 		</ul>
-	</nav>
+	</div>
 </div>
 
 

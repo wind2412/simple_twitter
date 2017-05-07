@@ -98,7 +98,7 @@ z-index:1000;
 	padding:0.4em 5em;
 	font-size: 1.7em;
 	color:#efefef;
-	
+	display: inline-block;
 	}
 
 	.navbar #logo1{		/*anonymous*/
@@ -139,9 +139,6 @@ z-index:1000;
 
 
 	.navbar ul{
-	padding: 0em 0.5em 0em 5em;		/*move the element near to center.*/
-	display:inline-block;
-	margin:0;
 	}
 
 		.navbar li{
