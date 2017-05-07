@@ -350,21 +350,38 @@ public class Cluster {
 		return jc.zrank("voted{"+UID+"}", String.valueOf(AID)) == null ? false : true;
 	}
 	
-	//得到此用户最后赞过哪篇文章  适用于：(xxx在hh:mm时赞过yyy)的twitter		//发现好像没有xxx在最后评论过yyy的文章啊......
+	/**
+	 * 得到此用户最后赞过哪篇文章  适用于：(xxx在hh:mm时赞过yyy)的twitter		//发现好像没有xxx在最后评论过yyy的文章啊......
+	 * @param UID
+	 * @return
+	 */
 	public static Set<String> get_user_vote_others(long UID){
 		return jc.zrevrangeByScore("voted{"+UID+"}", "+inf", "-inf");
 	}
 	
-	//得到此用户所有推文
+	/**
+	 * 得到此用户所有推文
+	 * @param UID
+	 * @return
+	 */
 	public static Set<String> get_user_articles(long UID){
 		return jc.zrevrangeByScore("all_articles:"+UID, "+inf", "-inf");
 	}
 	
+	/**
+	 * 得到一篇AID对应的UID
+	 * @param AID
+	 * @return
+	 */
 	public static long get_userID_of_an_article(long AID){
 		return Long.parseLong(jc.hget("article:"+AID, "UID"));
 	}
 	
-	//得到此用户所有推文的总数
+	/**
+	 * 得到此用户所有推文的总数
+	 * @param UID
+	 * @return
+	 */
 	public static long get_user_articles_num(long UID){
 		//返回zset.length()
 		return jc.zcard("all_articles:"+UID);
@@ -418,6 +435,24 @@ public class Cluster {
 	 */
 	public static Set<String> get_all_focus(long UID){
 		return jc.zrevrangeByScore("focus{"+UID+"}", "+inf", "-inf");
+	}
+	
+	/**
+	 * 得到用户关注的数目
+	 * @param UID
+	 * @return
+	 */
+	public static long get_focus_num(long UID){
+		return jc.zcard("focus{"+UID+"}");
+	}
+	
+	/**
+	 * 得到用户关注的数目
+	 * @param UID
+	 * @return
+	 */
+	public static long get_fans_num(long UID){
+		return jc.zcard("fans{"+UID+"}");
 	}
 	
 	
@@ -632,8 +667,6 @@ public class Cluster {
 		return user;
 	}
 	
-	
-	
 	/**
 	 * 得到一个用户的信息
 	 * @param name
@@ -643,6 +676,17 @@ public class Cluster {
 		String UID = jc.hget("getuser", name);
 		if(UID == null)	return null;		//查无此人
 		return get_a_user(Long.parseLong(UID));
+	}
+	
+	/**
+	 * 查询一个用户(登录时校验)是否在数据库中。
+	 * 如果在，返回UID，否则返回0.
+	 * @param name
+	 * @return
+	 */
+	public static long is_user_in_DB(String name){
+		String UID = jc.hget("getuser", name);
+		return UID == null ? 0 : Long.parseLong(UID);
 	}
 	
 	/**

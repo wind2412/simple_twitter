@@ -43,12 +43,18 @@ public class LogInServlet extends HttpServlet {
 		System.out.println(username);
 		String password = request.getParameter("password");
 		System.out.println(password);
-		if(Cluster.add_a_user(username, password) == 0){
+		long UID;
+		if((UID = Cluster.is_user_in_DB(username)) == 0){
+			System.out.println("haha");
 			request.setAttribute("msg", "Your account is invalid!! Please reinput!!");
 			request.getRequestDispatcher("/login.jsp").forward(request, response);
 		}else{
-			request.getSession().setAttribute("username", username);
-			request.getSession().setAttribute("password", password);
+			request.getSession().setAttribute("LogInUID", UID);
+			request.getSession().setAttribute("LogInusername", username);
+			request.getSession().setAttribute("articles", Cluster.get_user_articles_num(UID));		//推文数量
+			request.getSession().setAttribute("focus", Cluster.get_focus_num(UID));			//正在关注数量
+			request.getSession().setAttribute("fans", Cluster.get_fans_num(UID));			//关注者数量
+			request.getSession().setAttribute("main_page", Cluster.getJC().hget("user:"+UID, "main_page"));			//主页图片
 			request.getRequestDispatcher("/twitter.jsp").forward(request, response);
 		}
 //		Cookie cookie = new Cookie(username, password);

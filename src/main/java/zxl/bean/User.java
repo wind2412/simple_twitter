@@ -8,7 +8,7 @@ public class User {
 	private int age;
 	private long time;		//user的加入社区时间
 	
-	private String main_page;		//个人主页
+	private String main_page;		//个人主页(的图片)
 	private String portrait_path;	//头像(相对路径)
 
 	public User(String name, String pass, int age, String main_page, String portrait_path) {

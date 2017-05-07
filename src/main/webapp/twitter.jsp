@@ -81,11 +81,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<ul style="float: left">
 			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
 			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
-			<li><a  style="text-align: center"><img src="icons/5.png" style="width: 40px; height: 40px; margin-top: -15px"></a></li>
+			<li><a  style="text-align: center"><img src="icons/5.png" style="width: 40px; height: 40px; margin-top: -10px"></a></li>
 			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
 			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
-			<li><input type="text" placeholder="搜索 Twitter" style="font-size: 13px; margin-top: -10px"></li>
-			<li><a ><img src="" style="width: 30px; height: 30px; margin-top: -10px" id="protrait"></a></li>
+			<li><input type="text" placeholder="搜索 Twitter" style="font-size: 13px; margin-top: -20px"></li>
+			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+			<li><a ><img src="" style="width: 30px; height: 30px; margin-top: -25px" id="protrait"><font id="loginusername" style="color: black;"></font></a></li>
 			</ul>
 
 			<a id="logo"><button class="medium blue">发推</button></a>
@@ -94,7 +95,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 
 
-<div style="background-color: #2aa3ef; height: 225px; width: 100%; ">		<!--蓝色状态栏-->
+<div id="bg" style="background-color: #2aa3ef; height: 325px; width: 100%; ">		<!--蓝色状态栏-->
 	
 </div>
 
@@ -115,7 +116,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 </div>
 <script type="text/javascript">
 	//得到所有推文，正在关注，以及关注者信息。
-	var UID = <%= request.getSession().getAttribute("UID")%>;		//可能为null
+	var LogInUID = <%= request.getSession().getAttribute("LogInUID")%>;		//可能为null
+	var LogInusername = '<%= request.getSession().getAttribute("LogInusername")%>';		//注意......这里会真的显示Tom....不是字符串“Tom”，而是就是Tom......
+	document.getElementById("loginusername").innerHTML = LogInusername;
 	var articles = <%= request.getSession().getAttribute("articles")%>;
 	if(articles == null) articles = 0;
 	var focus = <%= request.getSession().getAttribute("focus")%>;
@@ -124,6 +127,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	if(fans == null) fans = 0;
 	var portrait = <%= request.getSession().getAttribute("portrait")%>;
 	if(portrait == null) portrait = "portraits/anonymous.jpg";
+	//var main_page = 
+	var main_page = function(){
+		return "#" + Math.floor(Math.random() * 16777215).toString(16);		//随机颜色生成
+	}
+	document.getElementById("bg").style.backgroundColor = main_page();
 	document.getElementById("articles").innerHTML = articles;
 	document.getElementById("focus").innerHTML = focus;
 	document.getElementById("fans").innerHTML = fans;
