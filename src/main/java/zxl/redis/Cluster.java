@@ -83,34 +83,39 @@ public class Cluster {
 	}
 	
 	//如果成功，返回1  否则返回0
-	public static int add_a_user(User user){	///传入user的除了UID之外的各种属性
+	public static int add_a_user(String username, String pass){	///传入user的除了UID之外的各种属性
 //		jc		//没有事务？？？ 事务无法操纵多个主键。因此只能使用lua脚本。
 		//添加信息到用户名密码数据库中 + 判断是否重复注册。表名：pass		这个判断必须放在所有数据库操作的第一位。因为它必须最先判断。
-		long ret = jc.hsetnx("pass", user.getName(), user.getPass());
+		long ret = jc.hsetnx("pass", username, pass);
 		if(ret == 0){
-			//临退出之前，需要在这个空的user中写入他本身的UID才好，方便外界的user可以重复使用。
-			long user_uid = Long.parseLong(jc.hget("getuser", user.getName()));
-			user.setUID(user_uid);
-			user.setTime(Long.parseLong(jc.hget("user:"+user_uid, "time")));
+			long user_uid = Long.parseLong(jc.hget("getuser", username));
 			return 0;			//此用户名已经存在，已经有此用户了。操作终止。
 		}
 		//写入
 		long UID = jc.incr("UID");
-		user.setUID(UID);
-		user.setTime(System.currentTimeMillis()/1000);
+//		user.setUID(UID);
+//		user.setTime(System.currentTimeMillis()/1000);
 		//添加到name-UID反查库中。表名：getuser	<hash>
-		jc.hset("getuser", user.getName(), String.valueOf(user.getUID()));
+		jc.hset("getuser", username, String.valueOf(UID));
 		//设置user:[UID]，user信息表		//UID不用设置。表的名字即是UID。
-		String keyname = "user:"+user.getUID();
-		jc.hset(keyname, "name", user.getName());
-		jc.hset(keyname, "pass", user.getPass());
-		jc.hset(keyname, "age", String.valueOf(user.getAge()));
-		jc.hset(keyname, "time", String.valueOf(user.getTime()));
-		if(user.getMain_page() != null)	jc.hset(keyname, "main_page", user.getMain_page());
-		if(user.getPortrait_path() != null)	jc.hset(keyname, "portrait_path", user.getPortrait_path());
+		String keyname = "user:"+UID;
+		jc.hset(keyname, "name", username);
+		jc.hset(keyname, "pass", pass);
+		jc.hset(keyname, "time", String.valueOf(System.currentTimeMillis()/1000));
 		//把UID添加到UIDs，用作在“推荐认识的人”那里的uid查询方便......
 		jc.sadd("UIDs", String.valueOf(UID));
 		return 1;
+	}
+	
+	/**
+	 * 更新User的信息。
+	 * @param user
+	 */
+	public static void upgrade_user_settings(User user){
+		String keyname = "user:"+user.getUID();
+		jc.hset(keyname, "age", String.valueOf(user.getAge()));
+		if(user.getMain_page() != null)	jc.hset(keyname, "main_page", user.getMain_page());
+		if(user.getPortrait_path() != null)	jc.hset(keyname, "portrait_path", user.getPortrait_path());
 	}
 	
 	public static void add_an_article(Article article){		//注意，没有加上图片功能。

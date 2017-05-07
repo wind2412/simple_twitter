@@ -45,7 +45,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <div class="grid">
 	
 <!-- ===================================== END HEADER ===================================== -->
-<form action = "/test_client/RegisterServlet" method = "post">
+<form action = "/twitter_proj/RegisterServlet" method = "post">
 <div class="col_12">
 	<div align="center">
 	<h1 style="font-family:YaHeiConsola" >注册页面</h1>	

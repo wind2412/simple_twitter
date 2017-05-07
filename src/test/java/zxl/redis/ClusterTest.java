@@ -62,22 +62,22 @@ public class ClusterTest {
 		User user8 = new User("user8", "123", 18, null, null);
 		User user9 = new User("user9", "123", 19, null, null);
 		User user10 = new User("user10", "123", 20, null, null);
-		Cluster.add_a_user(zxl);	//函数内部会自动赋给zxl一个UID
-		Cluster.add_a_user(zxl);				//***重复添加测试***
-		Cluster.add_a_user(jxc);
-		Cluster.add_a_user(ltg);
-		Cluster.add_a_user(zfy);
-		Cluster.add_a_user(wy);
-		Cluster.add_a_user(user1);
-		Cluster.add_a_user(user2);
-		Cluster.add_a_user(user3);
-		Cluster.add_a_user(user4);
-		Cluster.add_a_user(user5);
-		Cluster.add_a_user(user6);
-		Cluster.add_a_user(user7);
-		Cluster.add_a_user(user8);
-		Cluster.add_a_user(user9);
-		Cluster.add_a_user(user10);
+		Cluster.add_a_user(zxl.getName(), zxl.getPass());	//函数内部会自动赋给zxl一个UID
+		Cluster.add_a_user(zxl.getName(), zxl.getPass());				//***重复添加测试***
+		Cluster.add_a_user(jxc.getName(), jxc.getPass());
+		Cluster.add_a_user(ltg.getName(), ltg.getPass());
+		Cluster.add_a_user(zfy.getName(), zfy.getPass());
+		Cluster.add_a_user(wy.getName(), wy.getPass());
+		Cluster.add_a_user(user1.getName(), user1.getPass());
+		Cluster.add_a_user(user2.getName(), user2.getPass());
+		Cluster.add_a_user(user3.getName(), user3.getPass());
+		Cluster.add_a_user(user4.getName(), user4.getPass());
+		Cluster.add_a_user(user5.getName(), user5.getPass());
+		Cluster.add_a_user(user6.getName(), user6.getPass());
+		Cluster.add_a_user(user7.getName(), user7.getPass());
+		Cluster.add_a_user(user8.getName(), user8.getPass());
+		Cluster.add_a_user(user9.getName(), user9.getPass());
+		Cluster.add_a_user(user10.getName(), user10.getPass());
 		Cluster.add_an_article(new Article("null --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null));		//0参数表示并非转发
 		Cluster.add_an_article(new Article("the second blood! --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null));		//0参数表示并非转发
 		Cluster.add_an_article(new Article("omoshiroi --By jiangxicong.", jxc.getUID(), 0, 0, false, null));

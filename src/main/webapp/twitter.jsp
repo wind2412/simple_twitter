@@ -59,7 +59,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
     function followCallback(){        
 		if(xmlHttp.readyState==4){                  
 			if(xmlHttp.status==200){
-				var info = xmlHttp.responseText.substr(0, 4); 
+				var info = xmlHttp.responseText; 
 			alert(info);      
             	document.getElementById("follow").value=info;                                      
 			}             
