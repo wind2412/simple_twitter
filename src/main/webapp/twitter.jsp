@@ -60,7 +60,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		if(xmlHttp.readyState==4){                  
 			if(xmlHttp.status==200){
 				var info = xmlHttp.responseText; 
-			alert(info);      
             	document.getElementById("follow").value=info;                                      
 			}             
 		}         
@@ -137,6 +136,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	document.getElementById("fans").innerHTML = fans;
 	document.getElementById("protrait").src = portrait;
 	document.getElementById("bighead").src = portrait;
+	
+	var set = <%= request.getAttribute("haha") %>;
+	alert(set.length);
 </script>
 
 

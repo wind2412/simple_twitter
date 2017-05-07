@@ -1,5 +1,6 @@
 package zxl.redis;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -805,6 +806,22 @@ public class Cluster {
 		
 		return ac;
 		
+	}
+	
+	/**
+	 * 我关注的人也关注了他～ 
+	 * @param UID => 我的UID
+	 * @return
+	 */
+	public static List<Long> who_I_focus_also_focus_him(long UID, long dest_UID){
+		List<Long> list = new ArrayList<>();
+		Set<Long> my_focus = change_set_type(get_all_focus(UID));
+		for(long focus : my_focus){
+			if(jc.zscore("focus{"+focus+"}", String.valueOf(dest_UID)) != null){
+				list.add(focus);
+			}
+		}
+		return list;
 	}
 	
 	public static void main(String[] args) {

@@ -60,7 +60,7 @@ public class OtherUserServlet extends HttpServlet {
 		
 		//左方之地
 		request.setAttribute("other_name", username);
-		request.setAttribute("other, o);
+//		request.setAttribute("other, o);
 		
 		
 		request.getRequestDispatcher("/twitter.jsp").forward(request, response);

@@ -125,6 +125,7 @@ public class ClusterTest {
 		
 		Cluster.get_all_keys();
 		
+		//推送可能认识的人
 		System.out.println("***" + Cluster.get_probably_acquaintance(1));
 		
 		Cluster.focus_cancelled_oh_no(1, 2);
@@ -196,6 +197,7 @@ public class ClusterTest {
 
 		Cluster.get_all_keys();
 		
+		//得到所有评论
 		List<List<Article>> all_comments = Cluster.get_article_comments_context(7, 0);
 		for(List<Article> l : all_comments){
 			for(Article a : l){
@@ -204,6 +206,7 @@ public class ClusterTest {
 			System.out.println();
 		}
 		
+		//得到uid的时间线
 		List<TimeLineNode> all_timeline = Cluster.get_timeline_chains(2, 0);
 		for(TimeLineNode tln : all_timeline){
 			if(tln.getType() == 0)  System.out.println("your focus " + tln.getUID() + " posted: " + tln.getTarget_AID());		//少！！修复bug。
@@ -211,6 +214,10 @@ public class ClusterTest {
 			else if(tln.getType() == 2)  System.out.println("your focus " + tln.getUID() + " transed: " + tln.getTarget_AID());
 			else System.out.println("hehe");
 		}
+		
+		//我关注的人也关注了他  这些人都有谁
+		List<Long> who_I_focus_also_focus_him = Cluster.who_I_focus_also_focus_him(1, 7);
+		System.out.println(who_I_focus_also_focus_him);
 		
 	}
 

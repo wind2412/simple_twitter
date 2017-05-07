@@ -46,9 +46,9 @@ public class RegisterServlet extends HttpServlet {
 		if((UID = Cluster.add_a_user(username, password)) != 0){	//数据库没有那个用户名 就可以建立。	
 			request.getSession().setAttribute("LogInUID", UID);		//因为届时会登录一个账号，查看另一个人。因此只用一个uid是不行的。
 			request.getSession().setAttribute("LogInusername", username);
-			request.getSession().setAttribute("articles", 0);		//推文数量
-			request.getSession().setAttribute("focus", 0);			//正在关注数量
-			request.getSession().setAttribute("fans", 0);			//关注者数量
+			request.setAttribute("articles", 0);		//推文数量
+			request.setAttribute("focus", 0);			//正在关注数量
+			request.setAttribute("fans", 0);			//关注者数量
 			request.getRequestDispatcher("/twitter.jsp").forward(request, response);
 		}else{			
 			request.setAttribute("msg", "Your account has been registered! Please reinput or log in!!");

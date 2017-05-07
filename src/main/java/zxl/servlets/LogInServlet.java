@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONObject;
+
 import zxl.redis.Cluster;
 
 /**
@@ -51,10 +53,13 @@ public class LogInServlet extends HttpServlet {
 		}else{
 			request.getSession().setAttribute("LogInUID", UID);
 			request.getSession().setAttribute("LogInusername", username);
-			request.getSession().setAttribute("articles", Cluster.get_user_articles_num(UID));		//推文数量
-			request.getSession().setAttribute("focus", Cluster.get_focus_num(UID));					//正在关注数量
-			request.getSession().setAttribute("fans", Cluster.get_fans_num(UID));					//关注者数量
-			request.getSession().setAttribute("main_page", Cluster.getJC().hget("user:"+UID, "main_page"));			//主页图片
+			request.setAttribute("articles", Cluster.get_user_articles_num(UID));		//推文数量
+			request.setAttribute("focus", Cluster.get_focus_num(UID));					//正在关注数量
+			request.setAttribute("fans", Cluster.get_fans_num(UID));					//关注者数量
+			request.setAttribute("main_page", Cluster.getJC().hget("user:"+UID, "main_page"));			//主页图片
+//			request.setAttribute("haha", Cluster.get_all_fans(5));		//设置Set<Long>进去Attribute中	//连json都不用打！！太棒了！在js端直接会变成数组object对象！
+																		//所以到时候直接var set = <%= request.getAttribute("haha") %>;
+																		//alert(set.length); alert(set[0]);  就好了！！
 			request.getRequestDispatcher("/twitter.jsp").forward(request, response);
 		}
 //		Cookie cookie = new Cookie(username, password);
