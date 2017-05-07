@@ -48,6 +48,10 @@ public class ClusterTest {
 		jc = Cluster.getJC();
 		Cluster.flush_all(); 		//清空测试数据库
 		User zxl = new User("zhengxiaolin");
+			zxl.setAge(20);
+			zxl.setIntroducton("I am a good person. I am a good person. I am a good person.");
+			zxl.setPosition("China");
+			zxl.setWebsite("wind2412.github.io");
 		User jxc = new User("jiangxicong");
 		User ltg = new User("litiange");
 		User zfy = new User("zhangfangyuan");

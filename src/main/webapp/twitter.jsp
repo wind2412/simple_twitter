@@ -49,21 +49,18 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
     		}  
 		}         
 	}          
-    function follow(){                
+    function follow(is_post, url, func){                
     	createXMLHttp(); 
-        xmlHttp.onreadystatechange = followCallback; 
-		var url = "Check.jsp";               
-		xmlHttp.open("GET",url,true);               
+        xmlHttp.onreadystatechange = function(){
+			if(xmlHttp.readyState==4 && xmlHttp.status==200){                  
+				func(xmlHttp.responseText);			//如果成功，执行func函数 
+			}  else {
+				alert("ajax failed!!");
+			}
+		}; 
+		xmlHttp.open(is_post == false ? "GET" : "POST",url,true);               
         xmlHttp.send(null);       
 	}          
-    function followCallback(){        
-		if(xmlHttp.readyState==4){                  
-			if(xmlHttp.status==200){
-				var info = xmlHttp.responseText; 
-            	document.getElementById("follow").value=info;                                      
-			}             
-		}         
-	}
 </script>
 
 
@@ -118,13 +115,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	var LogInUID = <%= request.getSession().getAttribute("LogInUID")%>;		//可能为null
 	var LogInusername = '<%= request.getSession().getAttribute("LogInusername")%>';		//注意......这里会真的显示Tom....不是字符串“Tom”，而是就是Tom......
 	document.getElementById("loginusername").innerHTML = LogInusername;
-	var articles = <%= request.getSession().getAttribute("articles")%>;
+	var articles = <%= request.getAttribute("articles")%>;
 	if(articles == null) articles = 0;
-	var focus = <%= request.getSession().getAttribute("focus")%>;
+	var focus = <%= request.getAttribute("focus")%>;
 	if(focus == null) focus = 0;
-	var fans = <%= request.getSession().getAttribute("fans")%>;
+	var fans = <%= request.getAttribute("fans")%>;
 	if(fans == null) fans = 0;
-	var portrait = <%= request.getSession().getAttribute("portrait")%>;
+	var portrait = <%= request.getAttribute("portrait")%>;
 	if(portrait == null) portrait = "portraits/anonymous.jpg";
 	//var main_page = 
 	var main_page = function(){
@@ -137,11 +134,37 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	document.getElementById("protrait").src = portrait;
 	document.getElementById("bighead").src = portrait;
 	
-	var set = <%= request.getAttribute("haha") %>;
-	alert(set.length);
+	var other_uid_json = <%= request.getAttribute("other_usr_info") %>;
+	alert(other_uid_json);
 </script>
 
+<script type="text/javascript">
+    createXMLHttp(); 
+	function jump(){            
+        xmlHttp.onreadystatechange = jumpCallback; 
+		var url = "/twitter_proj/OtherUserServlet?usr=1";               
+		xmlHttp.open("GET",url,true);               
+        xmlHttp.send(null);       
+	}          
+    function jumpCallback(){        
+		if(xmlHttp.readyState==4){                  
+			if(xmlHttp.status==200){
+				var info = xmlHttp.responseText; 
+            	document.getElementById("follow").value=info;                                      
+			}             
+		}         
+	}
+	
+	function myjump(){
+	alert("haha");
+	
+	alert("haha");
+	}
+	
+	
+</script>
 
+<div><button class="medium blue" onclick="myjump()">haha</button></div>
 
 
 <hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr>

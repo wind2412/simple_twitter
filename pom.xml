@@ -54,6 +54,19 @@
     	<version>1.2.24</version>
     </dependency>
     
+    <dependency>
+	    <groupId>org.directwebremoting</groupId>
+	    <artifactId>dwr</artifactId>
+    <version>3.0.0-RELEASE</version>
+    </dependency>
+    
+    <dependency>  
+        <groupId>commons-logging</groupId>  
+        <artifactId>commons-logging</artifactId>  
+        <version>1.2</version>  
+    </dependency>  
+    
+    
   </dependencies>
 
 </project>

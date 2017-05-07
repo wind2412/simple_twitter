@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONObject;
+
 import zxl.redis.Cluster;
 
 /**
@@ -39,13 +41,12 @@ public class OtherUserServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 //		response.setCharacterEncoding("UTF-8");
-		long UID = Long.parseLong((String)request.getSession().getAttribute("LogInUID"));
+		long UID = Long.parseLong(String.valueOf(request.getSession().getAttribute("LogInUID")));
 		System.out.println(UID);
-		String username = (String)request.getSession().getAttribute("username");		//这次要从session中取出来了。
+		String username = String.valueOf(request.getSession().getAttribute("LogInusername"));		//这次要从session中取出来了。
 		System.out.println(username);
-		String password = (String)request.getSession().getAttribute("password");
-		System.out.println(password);
 		long other_UID = Long.parseLong(request.getParameter("usr"));	//假设点击别人的头像，会跳转为：/OtherUserServlet?usr=xxxx .		//那个usr的头像域中要保存他的UID和name.
+		System.out.println("other_UID: " + other_UID);
 		
 		//保存在request中就好，不用session。
 		//全局
@@ -56,10 +57,12 @@ public class OtherUserServlet extends HttpServlet {
 		request.setAttribute("other_focus", Cluster.get_focus_num(other_UID));									//对方正在关注数量
 		request.setAttribute("other_fans", Cluster.get_fans_num(other_UID));									//对方关注者数量
 		request.setAttribute("other_main_page", Cluster.getJC().hget("user:"+other_UID, "main_page"));			//对方主页图片		(不一定用)
-		request.setAttribute("whether_I_focused", Cluster.focus_or_not(UID, other_UID));						//关注按钮的显示。true/false
+		request.setAttribute("did_I_focused_him", Cluster.focus_or_not(UID, other_UID));						//关注按钮的显示。true/false
 		
 		//左方之地
 		request.setAttribute("other_name", username);
+		System.out.println(JSONObject.toJSONString(Cluster.get_a_user(other_UID)));
+		request.setAttribute("other_usr_info", JSONObject.toJSONString(Cluster.get_a_user(other_UID)));
 //		request.setAttribute("other, o);
 		
 		
