@@ -1,23 +1,26 @@
 package zxl.bean;
 
+import com.alibaba.fastjson.JSONObject;
+
 public class User {
 	
+	//突然发现password是用不到的......因为直接存放在数据库中，直接和数据库交流就可以，这里的User只是临时用于显示[左方之地]效果，因此好像并不需要。
+	
 	private String name;
-	private String pass;
+	
 	private long UID;
-	private int age;
 	private long time;		//user的加入社区时间
 	
-	private String main_page;		//个人主页(的图片)
+	private int age;
+	private String main_page;		//main_page的图片
 	private String portrait_path;	//头像(相对路径)
+	private String introducton;		//自我介绍
+	private String position;		//地点
+	private String website;			//个人主页
 
-	public User(String name, String pass, int age, String main_page, String portrait_path) {
+	public User(String name) {
 		super();
 		this.name = name;
-		this.pass = pass;
-		this.age = age;
-		this.main_page = main_page;
-		this.portrait_path = portrait_path;
 	}
 
 	public String getName() {
@@ -26,14 +29,6 @@ public class User {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getPass() {
-		return pass;
-	}
-
-	public void setPass(String pass) {
-		this.pass = pass;
 	}
 
 	public long getUID() {
@@ -76,7 +71,33 @@ public class User {
 		this.portrait_path = portrait_path;
 	}
 	
-	
+	public String getIntroducton() {
+		return introducton;
+	}
+
+	public void setIntroducton(String introducton) {
+		this.introducton = introducton;
+	}
+
+	public String getPosition() {
+		return position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
+	}
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(String website) {
+		this.website = website;
+	}
+
+	public String toJSON(){
+		return JSONObject.toJSONString(this);
+	}
 	
 	
 }

@@ -52,8 +52,8 @@ public class LogInServlet extends HttpServlet {
 			request.getSession().setAttribute("LogInUID", UID);
 			request.getSession().setAttribute("LogInusername", username);
 			request.getSession().setAttribute("articles", Cluster.get_user_articles_num(UID));		//推文数量
-			request.getSession().setAttribute("focus", Cluster.get_focus_num(UID));			//正在关注数量
-			request.getSession().setAttribute("fans", Cluster.get_fans_num(UID));			//关注者数量
+			request.getSession().setAttribute("focus", Cluster.get_focus_num(UID));					//正在关注数量
+			request.getSession().setAttribute("fans", Cluster.get_fans_num(UID));					//关注者数量
 			request.getSession().setAttribute("main_page", Cluster.getJC().hget("user:"+UID, "main_page"));			//主页图片
 			request.getRequestDispatcher("/twitter.jsp").forward(request, response);
 		}

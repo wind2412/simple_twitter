@@ -47,37 +47,37 @@ public class ClusterTest {
 		//调用Cluster的任一方法时候，Cluster类会初始化，由于static块在最前边，所以会自动运行，即客户端会自动连接。
 		jc = Cluster.getJC();
 		Cluster.flush_all(); 		//清空测试数据库
-		User zxl = new User("zhengxiaolin", "123", 20, null, null);
-		User jxc = new User("jiangxicong", "123", 20, null, null);
-		User ltg = new User("litiange", "123", 19, null, null);
-		User zfy = new User("zhangfangyuan", "123", 19, null, null);
-		User wy = new User("wangyue", "123", 20, null, null);
-		User user1 = new User("user1", "123", 11, null, null);		//加上10个随机用户  测试推荐好友算法
-		User user2 = new User("user2", "123", 12, null, null);
-		User user3 = new User("user3", "123", 13, null, null);
-		User user4 = new User("user4", "123", 14, null, null);
-		User user5 = new User("user5", "123", 15, null, null);
-		User user6 = new User("user6", "123", 16, null, null);
-		User user7 = new User("user7", "123", 17, null, null);
-		User user8 = new User("user8", "123", 18, null, null);
-		User user9 = new User("user9", "123", 19, null, null);
-		User user10 = new User("user10", "123", 20, null, null);
-		Cluster.add_a_user(zxl.getName(), zxl.getPass());	//函数内部会自动赋给zxl一个UID
-		Cluster.add_a_user(zxl.getName(), zxl.getPass());				//***重复添加测试***
-		Cluster.add_a_user(jxc.getName(), jxc.getPass());
-		Cluster.add_a_user(ltg.getName(), ltg.getPass());
-		Cluster.add_a_user(zfy.getName(), zfy.getPass());
-		Cluster.add_a_user(wy.getName(), wy.getPass());
-		Cluster.add_a_user(user1.getName(), user1.getPass());
-		Cluster.add_a_user(user2.getName(), user2.getPass());
-		Cluster.add_a_user(user3.getName(), user3.getPass());
-		Cluster.add_a_user(user4.getName(), user4.getPass());
-		Cluster.add_a_user(user5.getName(), user5.getPass());
-		Cluster.add_a_user(user6.getName(), user6.getPass());
-		Cluster.add_a_user(user7.getName(), user7.getPass());
-		Cluster.add_a_user(user8.getName(), user8.getPass());
-		Cluster.add_a_user(user9.getName(), user9.getPass());
-		Cluster.add_a_user(user10.getName(), user10.getPass());
+		User zxl = new User("zhengxiaolin");
+		User jxc = new User("jiangxicong");
+		User ltg = new User("litiange");
+		User zfy = new User("zhangfangyuan");
+		User wy = new User("wangyue");
+		User user1 = new User("user1");		//加上10个随机用户  测试推荐好友算法
+		User user2 = new User("user2");
+		User user3 = new User("user3");
+		User user4 = new User("user4");
+		User user5 = new User("user5");
+		User user6 = new User("user6");
+		User user7 = new User("user7");
+		User user8 = new User("user8");
+		User user9 = new User("user9");
+		User user10 = new User("user10");
+		Cluster.add_a_user(zxl.getName(), "123");	//函数内部会自动赋给zxl一个UID
+		Cluster.add_a_user(zxl.getName(), "123");				//***重复添加测试***
+		Cluster.add_a_user(jxc.getName(), "123");
+		Cluster.add_a_user(ltg.getName(), "123");
+		Cluster.add_a_user(zfy.getName(), "123");
+		Cluster.add_a_user(wy.getName(), "123");
+		Cluster.add_a_user(user1.getName(), "123");
+		Cluster.add_a_user(user2.getName(), "123");
+		Cluster.add_a_user(user3.getName(), "123");
+		Cluster.add_a_user(user4.getName(), "123");
+		Cluster.add_a_user(user5.getName(), "123");
+		Cluster.add_a_user(user6.getName(), "123");
+		Cluster.add_a_user(user7.getName(), "123");
+		Cluster.add_a_user(user8.getName(), "123");
+		Cluster.add_a_user(user9.getName(), "123");
+		Cluster.add_a_user(user10.getName(), "123");
 		Cluster.add_an_article(new Article("null --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null));		//0参数表示并非转发
 		Cluster.add_an_article(new Article("the second blood! --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null));		//0参数表示并非转发
 		Cluster.add_an_article(new Article("omoshiroi --By jiangxicong.", jxc.getUID(), 0, 0, false, null));

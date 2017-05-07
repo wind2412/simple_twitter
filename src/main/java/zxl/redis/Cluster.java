@@ -88,7 +88,7 @@ public class Cluster {
 		//添加信息到用户名密码数据库中 + 判断是否重复注册。表名：pass		这个判断必须放在所有数据库操作的第一位。因为它必须最先判断。
 		long ret = jc.hsetnx("pass", username, pass);
 		if(ret == 0){
-			long user_uid = Long.parseLong(jc.hget("getuser", username));
+//			long user_uid = Long.parseLong(jc.hget("getuser", username));
 			return 0;			//此用户名已经存在，已经有此用户了。操作终止。
 		}
 		//写入
@@ -113,9 +113,12 @@ public class Cluster {
 	 */
 	public static void upgrade_user_settings(User user){
 		String keyname = "user:"+user.getUID();
-		jc.hset(keyname, "age", String.valueOf(user.getAge()));
-		if(user.getMain_page() != null)	jc.hset(keyname, "main_page", user.getMain_page());
+		if(user.getAge() != 0) 				jc.hset(keyname, "age", String.valueOf(user.getAge()));
+		if(user.getMain_page() != null)		jc.hset(keyname, "main_page", user.getMain_page());
 		if(user.getPortrait_path() != null)	jc.hset(keyname, "portrait_path", user.getPortrait_path());
+		if(user.getIntroducton() != null)	jc.hset(keyname, "introduction", user.getIntroducton());
+		if(user.getWebsite() != null)		jc.hset(keyname, "website", user.getWebsite());
+		if(user.getPosition() != null)		jc.hset(keyname, "position", user.getPosition());
 	}
 	
 	public static void add_an_article(Article article){		//注意，没有加上图片功能。
@@ -465,6 +468,7 @@ public class Cluster {
 		return jc.zrevrangeByScore("fans{"+UID+"}", "+inf", "-inf");
 	}
 	
+	
 	/**
 	 * 把一个时间线事件添加到某一用户的所有fans上	=>   加到timeline:[UID]表中
 	 * @param tln
@@ -656,14 +660,15 @@ public class Cluster {
 	 */
 	public static User get_a_user(long UID){
 		String keyname = "user:"+UID;
-		User user = new User(
-				jc.hget(keyname, "name"), 
-				jc.hget(keyname, "pass"), 
-				Integer.parseInt(jc.hget(keyname, "age")),
-				jc.hget(keyname, "main_page"),
-				jc.hget(keyname, "portrait_path"));
-		user.setTime(Long.parseLong(jc.hget(keyname, "time")));
+		User user = new User(jc.hget(keyname, "name")); 
 		user.setUID(UID);
+		user.setTime(Long.parseLong(jc.hget(keyname, "time")));
+		String age = jc.hget(keyname, "age");	user.setAge(age==null ? 0 : Integer.parseInt(age));
+		user.setMain_page(jc.hget(keyname, "main_page"));
+		user.setPortrait_path(jc.hget(keyname, "portrait_path"));
+		user.setPosition(jc.hget(keyname, "position"));
+		user.setIntroducton(jc.hget(keyname, "introduction"));
+		user.setWebsite(jc.hget(keyname, "website"));
 		return user;
 	}
 	

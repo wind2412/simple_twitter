@@ -102,7 +102,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <div>
 	<nav class="navbar1">
 		
-		<div class="head" style="z-index: 0"><img src="icons/doge.png"></div>
+		<div class="head" style="z-index: 0"><img id="bighead" src="icons/doge.png" style="width: 200px; height: 200px"></div>
 		<a id="logo0"><button class="medium blue">编辑个人资料</button></a>
 		
 		<ul>
@@ -136,6 +136,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	document.getElementById("focus").innerHTML = focus;
 	document.getElementById("fans").innerHTML = fans;
 	document.getElementById("protrait").src = portrait;
+	document.getElementById("bighead").src = portrait;
 </script>
 
 
