@@ -112,17 +112,20 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	//得到登录的用户LogInusername头像		//必须在得到UID的同时才能执行。因为是异步，不知道什么时候才能读取到啊。
 //alert(LogInUID + "..." + other_UID);		//test
 	if(LogInUID != null)
-		Cluster.get_user_portrait(LogInUID, function(src){src==null? src="portraits/anonymous.jpg" :{}; document.getElementById("portrait").src = src;});
-	//得到大头像
-	if(LogInUID != other_UID){//卧槽？？？js里边这src==null?...就少些个等号=，src竟然就变成object了？？？？？
-		if(other_UID != null){
-			Cluster.get_user_portrait(other_UID,function(src){src==null?src="portraits/anonymous.jpg":{}; document.getElementById("bighead").src = src;});
-			document.getElementById("bighead").style.visibility = "visible";		
-		}
-	}else{	
-		document.getElementById("bighead").src = document.getElementById("portrait").src;		
-		document.getElementById("bighead").style.visibility = "visible";		
-	}
+		Cluster.get_user_portrait(LogInUID, function(src){
+			src==null? src="portraits/anonymous.jpg" :{}; 
+			document.getElementById("portrait").src = src;
+			//得到大头像
+			if(LogInUID != other_UID){//卧槽？？？js里边这src==null?...就少些个等号=，src竟然就变成object了？？？？？
+				if(other_UID != null){
+					Cluster.get_user_portrait(other_UID,function(src){src==null?src="portraits/anonymous.jpg":{}; document.getElementById("bighead").src = src;});
+					document.getElementById("bighead").style.visibility = "visible";		
+				}
+			}else{	
+				document.getElementById("bighead").src = document.getElementById("portrait").src;		
+				document.getElementById("bighead").style.visibility = "visible";		
+			}		
+		});
 	
 	//得到[左方之地]=>other_UID所有信息		//如果dwr中得到一个对象obj的话，那么不用调用方法(因为不是方法)，而是直接调用成员变量。比如obj.name。私有的就可以。
 	var other_usr_info;

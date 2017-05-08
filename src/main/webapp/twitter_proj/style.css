@@ -139,6 +139,9 @@ z-index:1000;
 
 
 	.navbar ul{
+	padding: 0em 0.5em 0em 5em;		/*move the element near to center.*/
+	display:inline-block;
+	margin:0;
 	}
 
 		.navbar li{

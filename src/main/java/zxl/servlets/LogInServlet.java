@@ -61,7 +61,7 @@ public class LogInServlet extends HttpServlet {
 //			request.setAttribute("haha", Cluster.get_all_fans(5));		//设置Set<Long>进去Attribute中	//连json都不用打！！太棒了！在js端直接会变成数组object对象！
 																		//所以到时候直接var set = <%= request.getAttribute("haha") %>;
 																		//alert(set.length); alert(set[0]);  就好了！！
-			request.getRequestDispatcher("/twitter.jsp").forward(request, response);
+			request.getRequestDispatcher("/twitter_user.jsp").forward(request, response);
 		}
 //		Cookie cookie = new Cookie(username, password);
 //		cookie.setMaxAge(1000);
