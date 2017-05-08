@@ -65,22 +65,22 @@ public class ClusterTest {
 		User user8 = new User("user8");
 		User user9 = new User("user9");
 		User user10 = new User("user10");
-		Cluster.add_a_user(zxl.getName(), "123");	//函数内部会自动赋给zxl一个UID
+		zxl.setUID(Cluster.add_a_user(zxl.getName(), "123"));	//函数内部会自动赋给zxl一个UID
 		Cluster.add_a_user(zxl.getName(), "123");				//***重复添加测试***
-		Cluster.add_a_user(jxc.getName(), "123");
-		Cluster.add_a_user(ltg.getName(), "123");
-		Cluster.add_a_user(zfy.getName(), "123");
-		Cluster.add_a_user(wy.getName(), "123");
-		Cluster.add_a_user(user1.getName(), "123");
-		Cluster.add_a_user(user2.getName(), "123");
-		Cluster.add_a_user(user3.getName(), "123");
-		Cluster.add_a_user(user4.getName(), "123");
-		Cluster.add_a_user(user5.getName(), "123");
-		Cluster.add_a_user(user6.getName(), "123");
-		Cluster.add_a_user(user7.getName(), "123");
-		Cluster.add_a_user(user8.getName(), "123");
-		Cluster.add_a_user(user9.getName(), "123");
-		Cluster.add_a_user(user10.getName(), "123");
+		jxc.setUID(Cluster.add_a_user(jxc.getName(), "123"));
+		ltg.setUID(Cluster.add_a_user(ltg.getName(), "123"));
+		zfy.setUID(Cluster.add_a_user(zfy.getName(), "123"));			//这些方法全都要改！！因为UID并没有设置！所以new Article(zxl.getUID()的时候getUID就是0了！！！
+		wy.setUID(Cluster.add_a_user(wy.getName(), "123"));
+		user1.setUID(Cluster.add_a_user(user1.getName(), "123"));
+		user2.setUID(Cluster.add_a_user(user2.getName(), "123"));
+		user3.setUID(Cluster.add_a_user(user3.getName(), "123"));
+		user4.setUID(Cluster.add_a_user(user4.getName(), "123"));
+		user5.setUID(Cluster.add_a_user(user5.getName(), "123"));
+		user6.setUID(Cluster.add_a_user(user6.getName(), "123"));
+		user7.setUID(Cluster.add_a_user(user7.getName(), "123"));
+		user8.setUID(Cluster.add_a_user(user8.getName(), "123"));
+		user9.setUID(Cluster.add_a_user(user9.getName(), "123"));
+		user10.setUID(Cluster.add_a_user(user10.getName(), "123"));
 		Cluster.add_an_article(new Article("null --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null));		//0参数表示并非转发
 		Cluster.add_an_article(new Article("the second blood! --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null));		//0参数表示并非转发
 		Cluster.add_an_article(new Article("omoshiroi --By jiangxicong.", jxc.getUID(), 0, 0, false, null));

@@ -681,6 +681,15 @@ public class Cluster {
 	}
 	
 	/**
+	 * 得到一个用户的头像路径
+	 * @param UID
+	 * @return
+	 */
+	public static String get_user_portrait(long UID){
+		return jc.hget("user:"+UID, "portrait");
+	}
+	
+	/**
 	 * 查询一个用户(登录时校验)是否在数据库中。
 	 * 如果在，返回UID，否则返回0.
 	 * @param name

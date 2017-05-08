@@ -57,7 +57,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
 			<li><input type="text" placeholder="搜索 Twitter" style="font-size: 13px; margin-top: -20px"></li>
 			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
-			<li><a ><img src="" style="width: 30px; height: 30px; margin-top: -25px" id="protrait"><font id="loginusername" style="color: black;"></font></a></li>
+			<li><a ><img src="" style="width: 30px; height: 30px; margin-top: -25px" id="portrait"><font id="loginusername" style="color: black;"></font></a></li>
 			</ul>
 
 			<a id="logo"><button class="medium blue">发推</button></a>
@@ -88,26 +88,26 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript">
 	//得到所有推文，正在关注，以及关注者信息。
 	var LogInUID = <%= request.getSession().getAttribute("LogInUID")%>;		//可能为null
+	if(LogInUID == null)	LogInUID = 0;
 	var LogInusername = '<%= request.getSession().getAttribute("LogInusername")%>';		//注意......这里会真的显示Tom....不是字符串“Tom”，而是就是Tom......
 	document.getElementById("loginusername").innerHTML = LogInusername;
-	var articles = <%= request.getAttribute("articles")%>;
-	if(articles == null) articles = 0;
-	var focus = <%= request.getAttribute("focus")%>;
-	if(focus == null) focus = 0;
-	var fans = <%= request.getAttribute("fans")%>;
-	if(fans == null) fans = 0;
-	var portrait = <%= request.getAttribute("portrait")%>;
-	if(portrait == null) portrait = "portraits/anonymous.jpg";
+	var other_UID = <%= request.getParameter("usr") %>;			//得到请求末尾的query.		但是要注意，可能是null。
+	if(other_UID == null)	other_UID = LogInUID;		//这里，默认如果没有?usr=xxx的query参数的话，就是同一人把。
+	//var articles = <%= request.getAttribute("articles")%>;
+	//if(articles == null) articles = 0;
+	//var focus = <%= request.getAttribute("focus")%>;
+	//if(focus == null) focus = 0;
+	//var fans = <%= request.getAttribute("fans")%>;
+	//if(fans == null) fans = 0;
+	//var portrait = <%= request.getAttribute("portrait")%>;
+	//if(portrait == null) portrait = "portraits/anonymous.jpg";
 	//var main_page = 
 	var main_page = function(){
 		return "#" + Math.floor(Math.random() * 16777215).toString(16);		//随机颜色生成
 	}
 	document.getElementById("bg").style.backgroundColor = main_page();
-	document.getElementById("articles").innerHTML = articles;
-	document.getElementById("focus").innerHTML = focus;
-	document.getElementById("fans").innerHTML = fans;
-	document.getElementById("protrait").src = portrait;
-	document.getElementById("bighead").src = portrait;
+	
+	
 	
 	var other_uid_json = <%= request.getAttribute("other_usr_info") %>;
 	alert(other_uid_json);
@@ -118,8 +118,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 <script type="text/javascript">
 	//DWR的js方法直接调用java方法！
-	Cluster.get_user_articles_num(1, function(data){alert(data);});
-	
+	//Cluster.get_user_articles_num(1, function(data){alert(data);});
+	Cluster.get_user_articles_num(LogInUID, function(data){document.getElementById("articles").innerHTML = data;});
+	Cluster.get_focus_num(LogInUID, function(data){document.getElementById("focus").innerHTML = data;});
+	Cluster.get_fans_num(LogInUID, function(data){document.getElementById("fans").innerHTML = data;});
+	Cluster.get_user_portrait(LogInUID, function(src){src==null? src="portraits/anonymous.jpg" :{}; document.getElementById("portrait").src = src; 
+														if(LogInUID == other_UID){document.getElementById("bighead").src = src;} });
+	if(LogInUID != other_UID){
+		Cluster.get_user_portrait(other_UID, function(src){src=null?src="portraits/anonymous.jpg":{}; document.getElementById("bighead").src = src;});
+	}
 </script>
 
 
