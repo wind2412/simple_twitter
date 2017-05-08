@@ -94,12 +94,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	document.getElementById("loginusername").innerHTML = LogInusername;
 	//得到query的username
 	var other_name = '<%= request.getParameter("usr") %>';		//得到请求末尾的query.		但是要注意，可能是null。
-	var other_UID; 
+	var other_UID = null;	//如果这里不设置的话，如果query出错的话，比如?usr=zhengxiaoli 那么if(other_uid==0)之后会other_UID未定义。因为并不会定义other_UID. 
 	//看query是否合法才能向下进行。因此这里必须同步方式。需要关闭ajax异步。
 	dwr.engine.setAsync(false);
 	//1.如果query不空，那就检测是否合法，合法就继续走，不合法直接跳页404  2.query空，看是否已经登录，如果登录过(LogInusername不空)则query设为LogInusername 3.否则“请您登录推特主页吧”
 	if(other_name != "null")	{		//注意这里即便是null，也变成了"null"字符串了...
-		Cluster.is_user_in_DB(other_name, function(other_uid){if(other_uid == 0){  window.location.href = "/twitter_proj/doubi.html";} else {other_UID = other_uid;}})
+		Cluster.is_user_in_DB(other_name, function(other_uid){if(other_uid == 0){window.location.href = "/twitter_proj/doubi.html";} else {other_UID = other_uid;}})
 	}else if(LogInusername != "null")	{
 		window.location.href = "/twitter_proj/twitter_user.jsp?usr="+LogInusername;
 	}else{
@@ -111,18 +111,23 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	document.getElementById("other_head").title = other_name;
 	//得到登录的用户LogInusername头像		//必须在得到UID的同时才能执行。因为是异步，不知道什么时候才能读取到啊。
 //alert(LogInUID + "..." + other_UID);		//test
-	Cluster.get_user_portrait(LogInUID, function(src){src==null? src="portraits/anonymous.jpg" :{}; document.getElementById("portrait").src = src;});
+	if(LogInUID != null)
+		Cluster.get_user_portrait(LogInUID, function(src){src==null? src="portraits/anonymous.jpg" :{}; document.getElementById("portrait").src = src;});
 	//得到大头像
 	if(LogInUID != other_UID){//卧槽？？？js里边这src==null?...就少些个等号=，src竟然就变成object了？？？？？
-		Cluster.get_user_portrait(other_UID,function(src){src==null?src="portraits/anonymous.jpg":{}; document.getElementById("bighead").src = src;});
-		document.getElementById("bighead").style.visibility = "visible";
+		if(other_UID != null){
+			Cluster.get_user_portrait(other_UID,function(src){src==null?src="portraits/anonymous.jpg":{}; document.getElementById("bighead").src = src;});
+			document.getElementById("bighead").style.visibility = "visible";		
+		}
 	}else{	
 		document.getElementById("bighead").src = document.getElementById("portrait").src;		
 		document.getElementById("bighead").style.visibility = "visible";		
 	}
-	//得到[左方之地]=>other_UID所有信息
-	//var other_usr_info;
-	//Cluster.get_a_user_by_UID(other_UID, function(user_obj){alert(user_obj);});
+	
+	//得到[左方之地]=>other_UID所有信息		//如果dwr中得到一个对象obj的话，那么不用调用方法(因为不是方法)，而是直接调用成员变量。比如obj.name。私有的就可以。
+	var other_usr_info;
+	//Cluster.get_a_user_by_UID(other_UID, function(user_obj){alert(user_obj.name);});
+	
 		
 	//赋予随机背景颜色
 	var main_page = function(){

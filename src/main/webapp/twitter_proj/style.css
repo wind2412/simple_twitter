@@ -210,11 +210,13 @@ color:#fff;
 .head{
 	position:absolute;
 	top:-100px;
-	left:150px;
+	left:100px;
 	width: 200px;
 	height: 200px;
 	color:#efefef;
 	z-index: 1000;
+	border: 3px #fff solid;
+	border-radius: 10px;
 }
 
 .callout{
