@@ -130,7 +130,6 @@ public class ClusterTest {
 		
 		//推送可能认识的人
 		System.out.println("***" + Cluster.get_probably_acquaintance(1));
-		
 		Cluster.focus_cancelled_oh_no(1, 2);
 		
 		get_all_scores();

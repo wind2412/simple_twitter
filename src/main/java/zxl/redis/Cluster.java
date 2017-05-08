@@ -715,7 +715,8 @@ public class Cluster {
 	 * @return
 	 */
 	public static long get_user_UID(String name){
-		return Long.parseLong(jc.hget("getuser", name));
+		String uid = jc.hget("getuser", name);
+		return uid == null ? 0 : Long.parseLong(uid);
 	}
 	
 	/**

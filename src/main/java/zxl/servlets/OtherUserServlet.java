@@ -45,14 +45,16 @@ public class OtherUserServlet extends HttpServlet {
 		System.out.println(UID);
 		String username = String.valueOf(request.getSession().getAttribute("LogInusername"));		//这次要从session中取出来了。
 		System.out.println(username);
-		long other_UID = Long.parseLong(request.getParameter("usr"));	//假设点击别人的头像，会跳转为：/OtherUserServlet?usr=xxxx .		//那个usr的头像域中要保存他的UID和name.
+		String other_name = request.getParameter("usr");	//假设点击别人的头像，会跳转为：/OtherUserServlet?usr=xxxx .		//那个usr的头像域中要保存他的UID和name.
+		long other_UID = Cluster.get_user_UID(other_name);
 		System.out.println("other_UID: " + other_UID);
 		
 		//保存在request中就好，不用session。
 		//全局
+		request.setAttribute("other_name", other_name);		
 		request.setAttribute("other_UID", other_UID);		
 		
-		//前方之风
+		//前方之风 
 		request.setAttribute("other_articles", Cluster.get_user_articles_num(other_UID));						//对方推文数量
 		request.setAttribute("other_focus", Cluster.get_focus_num(other_UID));									//对方正在关注数量
 		request.setAttribute("other_fans", Cluster.get_fans_num(other_UID));									//对方关注者数量
