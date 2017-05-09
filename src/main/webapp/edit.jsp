@@ -65,7 +65,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<ul class="icons">	
 	<li align="center"><i class="fa fa-li fa-check"></i> <div><img id="portrait" src="" style="width: 200px; height: 200px; border: 3px #fff solid;
 	border-radius: 20px;"></div> </li><br>
-	<li align="center"><i class="fa fa-li fa-check"></i> <input type="file" name="upload_image" id="up_img" style="width:400px;height=100px"></li><br>
+	<li align="center"><i class="fa fa-li fa-check"></i> <input type="file" onchange="show_pic(this)" name="upload_image" id="up_img" accept="image/png,image/jpg" style="width:400px;height=100px"></li><br>
 	<li align="center"><i class="fa fa-li fa-check"></i> <input type="text" name="username" id="usr" placeholder="新的昵称" style="width:400px;height=100px"></li><br>
 	<li align="center"><i class="fa fa-li fa-check"></i> <input type="text" name="introduction" id="intro" placeholder="个人简介" style="width:400px;height=100px"></li><br>
 	<li align="center"><i class="fa fa-li fa-check"></i> <input type="text" name="nationality" id="nation" placeholder="国家" style="width:400px;height=100px"></li><br>
@@ -76,11 +76,21 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	
 <script type="text/javascript">
 	
+	//ajax异步 得到用户的真·头像  如果没有 显示anonymous。
 	if(LogInUID != null)
 		Cluster.get_user_portrait(LogInUID, function(src){
 			src==null? src="portraits/anonymous.jpg" :{}; 
 			document.getElementById("portrait").src = src;
 		});
+	
+	function show_pic() {
+		if(window.FileReader) {
+			var fileReader = new FileReader();
+			
+		} else {
+			alert("您的游览器不支持上传图片！");
+		}
+	}
 	
 </script>
 	

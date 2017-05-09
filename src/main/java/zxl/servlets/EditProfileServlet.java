@@ -51,18 +51,23 @@ public class EditProfileServlet extends HttpServlet {
 		System.out.println(nationality);
 		String website = request.getParameter("website");										//website
 		System.out.println(website);
-		request.getSession().setAttribute("LogInusername", new_username);	//改成新的username
 		
-		Cluster.change_user_name(UID, old_username, new_username); 		//改名 并且修改数据库所有相关值
-		User new_user = new User(new_username);
-		new_user.setUID(UID);								//别忘了set_UID
-		new_user.setIntroduction(introduction);
-		new_user.setWebsite(website);
-		new_user.setPosition(nationality);
-		Cluster.upgrade_user_settings(new_user);	 		//更新信息
-		
-		
-		request.getRequestDispatcher("/twitter_user.jsp?usr="+new_username).forward(request, response);
+		if(!new_username.equals("")){				//如果用户没有填写这一项的话，那就不改名了。
+			request.getSession().setAttribute("LogInusername", new_username);	//改成新的username
+
+			Cluster.change_user_name(UID, old_username, new_username); 		//改名 并且修改数据库所有相关值
+			User new_user = new User(new_username);
+			new_user.setUID(UID);								//别忘了set_UID
+			new_user.setIntroduction(introduction);
+			new_user.setWebsite(website);
+			new_user.setPosition(nationality);
+			Cluster.upgrade_user_settings(new_user);	 		//更新信息
+
+			request.getRequestDispatcher("/twitter_user.jsp?usr="+new_username).forward(request, response);
+		}
+		else {
+			request.getRequestDispatcher("/twitter_user.jsp?usr="+old_username).forward(request, response);			
+		}
 	}
 
 }

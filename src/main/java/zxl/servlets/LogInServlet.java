@@ -46,7 +46,7 @@ public class LogInServlet extends HttpServlet {
 		String password = request.getParameter("password");
 		System.out.println(password);
 		long UID;
-		if((UID = Cluster.is_user_in_DB(username)) == 0){
+		if((UID = Cluster.is_user_in_DB(username)) == 0 && Cluster.get_user_password(username).equals(password)){
 			request.setAttribute("msg", "Your account is invalid!! Please reinput!!");
 			request.getRequestDispatcher("/login.jsp").forward(request, response);
 		}else{
