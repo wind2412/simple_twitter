@@ -74,7 +74,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<nav class="navbar1">
 		
 		<div class="head" style="z-index: 0"><a id="other_head"><img id="bighead" src="" style="width: 200px; height: 200px; visibility: hidden;"></a></div>
-		<a id="logo0"><button class="medium blue">编辑个人资料</button></a>
+		<a id="logo0"><button class="medium blue" onclick="window.location='/twitter_proj/edit.jsp'">编辑个人资料</button></a>
 		
 		<ul>
 		<li><a href=""><div>推文</div><div id="articles"></div></a></li>
@@ -115,17 +115,29 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		Cluster.get_user_portrait(LogInUID, function(src){
 			src==null? src="portraits/anonymous.jpg" :{}; 
 			document.getElementById("portrait").src = src;
-			//得到大头像
-			if(LogInUID != other_UID){//卧槽？？？js里边这src==null?...就少些个等号=，src竟然就变成object了？？？？？
-				if(other_UID != null){
-					Cluster.get_user_portrait(other_UID,function(src){src==null?src="portraits/anonymous.jpg":{}; document.getElementById("bighead").src = src;});
-					document.getElementById("bighead").style.visibility = "visible";		
-				}
-			}else{	
+			//如果LogInUID和other_UID相等，复制大头像
+			if(LogInUID == other_UID){	
 				document.getElementById("bighead").src = document.getElementById("portrait").src;		
-				document.getElementById("bighead").style.visibility = "visible";		
+				document.getElementById("bighead").style.visibility = "visible";	
+				if(other_UID != 0)
+					get_user_article_msg();	//异步调用ajax获取other_UID的所有推文，正在关注以及关注者信息。
 			}		
 		});
+	if(LogInUID != other_UID)	//卧槽？？？js里边这src==null?...就少些个等号=，src竟然就变成object了？？？？？
+		Cluster.get_user_portrait(other_UID,function(src){
+			src==null? src="portraits/anonymous.jpg" :{}; 
+			document.getElementById("bighead").src = src;
+			document.getElementById("bighead").style.visibility = "visible";		
+			if(other_UID != 0)
+				get_user_article_msg();	//异步调用ajax获取other_UID的所有推文，正在关注以及关注者信息。
+		});
+			
+	//得到query用户所有推文，正在关注，以及关注者信息。
+	function get_user_article_msg(){
+		Cluster.get_user_articles_num(other_UID, function(data){document.getElementById("articles").innerHTML = data;});
+		Cluster.get_focus_num(other_UID, function(data){document.getElementById("focus").innerHTML = data;});
+		Cluster.get_fans_num(other_UID, function(data){document.getElementById("fans").innerHTML = data;});		
+	}
 	
 	//得到[左方之地]=>other_UID所有信息		//如果dwr中得到一个对象obj的话，那么不用调用方法(因为不是方法)，而是直接调用成员变量。比如obj.name。私有的就可以。
 	var other_usr_info;
@@ -144,17 +156,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	
 </script>
 
-<script type="text/javascript">
-	//DWR的js方法直接调用java方法！
-	//Cluster.get_user_articles_num(1, function(data){alert(data);});
 	
-	//得到此用户所有推文，正在关注，以及关注者信息。
-	Cluster.get_user_articles_num(LogInUID, function(data){document.getElementById("articles").innerHTML = data;});
-	Cluster.get_focus_num(LogInUID, function(data){document.getElementById("focus").innerHTML = data;});
-	Cluster.get_fans_num(LogInUID, function(data){document.getElementById("fans").innerHTML = data;});
-	
-</script>
-
 
 
 <hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr>
