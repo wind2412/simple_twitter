@@ -99,7 +99,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	dwr.engine.setAsync(false);
 	//1.如果query不空，那就检测是否合法，合法就继续走，不合法直接跳页404  2.query空，看是否已经登录，如果登录过(LogInusername不空)则query设为LogInusername 3.否则“请您登录推特主页吧”
 	if(other_name != "null")	{		//注意这里即便是null，也变成了"null"字符串了...
-		Cluster.is_user_in_DB(other_name, function(other_uid){if(other_uid == 0){window.location.href = "/twitter_proj/doubi.html";} else {other_UID = other_uid;}})
+		Cluster.is_user_in_DB(other_name, function(other_uid){
+			if(other_uid == 0){
+				window.location.href = "/twitter_proj/doubi.html";
+			} else {
+				other_UID = other_uid;		//赋值给other_UID
+			}
+		})
 	}else if(LogInusername != "null")	{
 		window.location.href = "/twitter_proj/twitter_user.jsp?usr="+LogInusername;
 	}else{
@@ -117,13 +123,16 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			document.getElementById("portrait").src = src;
 			//如果LogInUID和other_UID相等，复制大头像
 			if(LogInUID == other_UID){	
+			//alert("yes!!!");
 				document.getElementById("bighead").src = document.getElementById("portrait").src;		
 				document.getElementById("bighead").style.visibility = "visible";	
 				if(other_UID != 0)
 					get_user_article_msg();	//异步调用ajax获取other_UID的所有推文，正在关注以及关注者信息。
-			}		
+			}	//	else alert("no!!!");
+			//上边的两个alert。ajax太诡异了！开了同步，也会在没同步完的时候所有ajax全都异步调用一遍？？然后同步完之后后边的ajax又会重新调用一遍......
 		});
-	if(LogInUID != other_UID)	//卧槽？？？js里边这src==null?...就少些个等号=，src竟然就变成object了？？？？？
+	if(LogInUID != other_UID && other_UID != null){	//卧槽？？？js里边这src==null?...就少些个等号=，src竟然就变成object了？？？？？
+		alert(other_UID);
 		Cluster.get_user_portrait(other_UID,function(src){
 			src==null? src="portraits/anonymous.jpg" :{}; 
 			document.getElementById("bighead").src = src;
@@ -131,6 +140,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			if(other_UID != 0)
 				get_user_article_msg();	//异步调用ajax获取other_UID的所有推文，正在关注以及关注者信息。
 		});
+	}
 			
 	//得到query用户所有推文，正在关注，以及关注者信息。
 	function get_user_article_msg(){
