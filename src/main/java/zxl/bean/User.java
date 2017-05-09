@@ -12,11 +12,11 @@ public class User {
 	private long time;		//user的加入社区时间
 	
 	private int age;
-	private String main_page;		//main_page的图片
-	private String portrait_path;	//头像(相对路径)
-	private String introducton;		//自我介绍
-	private String position;		//地点
-	private String website;			//个人主页
+	private String main_page = null;		//main_page的图片
+	private String portrait_path = null;	//头像(相对路径)
+	private String introduction = null;		//自我介绍
+	private String position = null;		//地点
+	private String website = null;			//个人主页
 
 	public User(String name) {
 		super();
@@ -71,12 +71,12 @@ public class User {
 		this.portrait_path = portrait_path;
 	}
 	
-	public String getIntroducton() {
-		return introducton;
+	public String getIntroduction() {
+		return introduction;
 	}
 
-	public void setIntroducton(String introducton) {
-		this.introducton = introducton;
+	public void setIntroduction(String introduction) {
+		this.introduction = introduction;
 	}
 
 	public String getPosition() {

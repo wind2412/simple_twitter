@@ -23,7 +23,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/kickstart.js"></script>                                  
 <script type="text/javascript">
 	
-	var username = '<%= request.getAttribute("username")%>';
+	var username = '<%= request.getSession().getAttribute("LogInusername")%>';
 	var msg = "<%= request.getAttribute("msg") %>";		//虽然这里的注释诡异地变成了蓝色。。但是它是对的。。可以消除内部英文一撇被解释成为单引号的问题。。6666！！
 														//太有意思了这里！！！！！卧槽！！！我在msg中设定的是:Sorry...There's not any service here...结果到这里原先写的是
 														//msg='....',结果把一撇的分隔符变成单引号了！！结果js硬是显示不出来。。。	

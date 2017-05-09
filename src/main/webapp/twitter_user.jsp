@@ -131,6 +131,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			}	//	else alert("no!!!");
 			//上边的两个alert。ajax太诡异了！开了同步，也会在没同步完的时候所有ajax全都异步调用一遍？？然后同步完之后后边的ajax又会重新调用一遍......
 		});
+	//所以就因为这种诡异......这里的if里边必须要设置other_UID!=null条件，来防止第一次全规模的全异步调用......
 	if(LogInUID != other_UID && other_UID != null){	//卧槽？？？js里边这src==null?...就少些个等号=，src竟然就变成object了？？？？？
 		alert(other_UID);
 		Cluster.get_user_portrait(other_UID,function(src){
@@ -141,7 +142,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				get_user_article_msg();	//异步调用ajax获取other_UID的所有推文，正在关注以及关注者信息。
 		});
 	}
-			
 	//得到query用户所有推文，正在关注，以及关注者信息。
 	function get_user_article_msg(){
 		Cluster.get_user_articles_num(other_UID, function(data){document.getElementById("articles").innerHTML = data;});

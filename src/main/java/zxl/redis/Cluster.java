@@ -105,17 +105,31 @@ public class Cluster {
 	}
 	
 	/**
+	 * 在更新信息的时候，和upgrade_user_setting一起使用
+	 * @param UID
+	 * @param new_username
+	 */
+	public static void change_user_name(long UID, String old_username, String new_username){
+		jc.hset("user:"+UID, "name", new_username);					//改名
+		jc.hdel("getuser", old_username);							//清除old_username
+		jc.hset("getuser", new_username, String.valueOf(UID));		//设置新的new_username
+		String password = Cluster.get_user_password(old_username);	//得到密码
+		jc.hdel("pass", old_username);								//删除old_username
+		jc.hset("pass", new_username, password);					//添加新的password
+	}
+	
+	/**
 	 * 更新User的信息。
 	 * @param user
 	 */
 	public static void upgrade_user_settings(User user){
 		String keyname = "user:"+user.getUID();
 		if(user.getAge() != 0) 				jc.hset(keyname, "age", String.valueOf(user.getAge()));
-		if(user.getMain_page() != null)		jc.hset(keyname, "main_page", user.getMain_page());
-		if(user.getPortrait_path() != null)	jc.hset(keyname, "portrait_path", user.getPortrait_path());
-		if(user.getIntroducton() != null)	jc.hset(keyname, "introduction", user.getIntroducton());
-		if(user.getWebsite() != null)		jc.hset(keyname, "website", user.getWebsite());
-		if(user.getPosition() != null)		jc.hset(keyname, "position", user.getPosition());
+		if(user.getMain_page() != null && !user.getMain_page().equals(""))		jc.hset(keyname, "main_page", user.getMain_page());		//由网页填写edit.jsp的话，如果啥也不填写，那么得到的各个字段都是""，而不是null！！
+		if(user.getPortrait_path() != null && !user.getPortrait_path().equals(""))	jc.hset(keyname, "portrait_path", user.getPortrait_path());
+		if(user.getIntroduction() != null && !user.getIntroduction().equals(""))	jc.hset(keyname, "introduction", user.getIntroduction());
+		if(user.getWebsite() != null && !user.getWebsite().equals(""))		jc.hset(keyname, "website", user.getWebsite());
+		if(user.getPosition() != null && !user.getPosition().equals(""))		jc.hset(keyname, "position", user.getPosition());
 	}
 	
 	public static void add_an_article(Article article){		//注意，没有加上图片功能。
@@ -187,6 +201,15 @@ public class Cluster {
 				Long.parseLong(jc.hget(keyname, "target_AID")),
 				Long.parseLong(jc.hget(keyname, "time"))
 				);
+	}
+	
+	/**
+	 * 得到用户的密码
+	 * @param username
+	 * @return
+	 */
+	public static String get_user_password(String username){
+		return jc.hget("pass", username);
 	}
 	
 	/**
@@ -664,7 +687,7 @@ public class Cluster {
 		user.setMain_page(jc.hget(keyname, "main_page"));
 		user.setPortrait_path(jc.hget(keyname, "portrait_path"));
 		user.setPosition(jc.hget(keyname, "position"));
-		user.setIntroducton(jc.hget(keyname, "introduction"));
+		user.setIntroduction(jc.hget(keyname, "introduction"));
 		user.setWebsite(jc.hget(keyname, "website"));
 		return user;
 	}

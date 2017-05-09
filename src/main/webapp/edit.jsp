@@ -21,6 +21,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <link rel="stylesheet" type="text/css" href="style.css" media="all" />                          
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript" src="js/kickstart.js"></script>                                  
+
+<!-- DWR script -->
+	<script type='text/javascript' src='/twitter_proj/dwr/engine.js'></script>
+	<script type='text/javascript' src='/twitter_proj/dwr/util.js'></script>
+  	<script type='text/javascript' src='/twitter_proj/dwr/interface/Cluster.js'></script>
+	
+
 <script type="text/javascript">
 	var LogInUID = <%= request.getSession().getAttribute("LogInUID")%>;	
 	var LogInusername = '<%= request.getSession().getAttribute("LogInusername")%>';
@@ -57,7 +64,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
     <br>
 	<ul class="icons">	
 	<li align="center"><i class="fa fa-li fa-check"></i> <div><img id="portrait" src="" style="width: 200px; height: 200px; border: 3px #fff solid;
-	border-radius: 10px;"></div> </li><br>
+	border-radius: 20px;"></div> </li><br>
 	<li align="center"><i class="fa fa-li fa-check"></i> <input type="file" name="upload_image" id="up_img" style="width:400px;height=100px"></li><br>
 	<li align="center"><i class="fa fa-li fa-check"></i> <input type="text" name="username" id="usr" placeholder="新的昵称" style="width:400px;height=100px"></li><br>
 	<li align="center"><i class="fa fa-li fa-check"></i> <input type="text" name="introduction" id="intro" placeholder="个人简介" style="width:400px;height=100px"></li><br>
