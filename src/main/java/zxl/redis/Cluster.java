@@ -1,5 +1,12 @@
 package zxl.redis;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +24,8 @@ import redis.clients.jedis.Tuple;
 import zxl.bean.Article;
 import zxl.bean.TimeLineNode;
 import zxl.bean.User;
+
+import java.util.Base64;
 
 /**
  * 	Jedis不支持集群的事务。
@@ -130,6 +139,28 @@ public class Cluster {
 		if(user.getIntroduction() != null && !user.getIntroduction().equals(""))	jc.hset(keyname, "introduction", user.getIntroduction());
 		if(user.getWebsite() != null && !user.getWebsite().equals(""))		jc.hset(keyname, "website", user.getWebsite());
 		if(user.getPosition() != null && !user.getPosition().equals(""))		jc.hset(keyname, "position", user.getPosition());
+	}
+	
+	/**
+	 * 接收一个图片，并且把它保存到本地。
+	 * @param UID
+	 * @param pic_base64
+	 * @throws IOException 
+	 * @throws URISyntaxException 
+	 */
+	public static void add_user_portrait(long UID, String pic_base64) throws IOException, URISyntaxException{
+//		System.out.println(new File("zxl").exists());
+//		System.out.println(new File(".").exists());
+//		System.out.println(new File(".").getAbsolutePath());
+//		System.out.println(new File("..").getAbsolutePath());
+//		System.out.println(System.getProperty("user.dir"));	//javaweb项目，默认的目录是eclipse的安装目录。。。
+//		System.out.println(Thread.currentThread().getContextClassLoader().getResource(""));
+//		System.out.println(Cluster.class.getClassLoader().getResource("").getPath());		//这个可以对......
+		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(new File(Cluster.class.getClassLoader().getResource("").getPath() + "../../twitter_proj/portraits/head_"+UID+".jpg")));
+		System.out.println(pic_base64);
+		bos.write(Base64.getDecoder().decode(pic_base64.substring(pic_base64.indexOf(',')+1).getBytes()));
+		jc.hset("user:"+UID, "portrait_path", "portraits/head_"+UID+".jpg");
+		bos.close();
 	}
 	
 	public static void add_an_article(Article article){		//注意，没有加上图片功能。
