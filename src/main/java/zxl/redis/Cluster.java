@@ -5,9 +5,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -24,8 +23,6 @@ import redis.clients.jedis.Tuple;
 import zxl.bean.Article;
 import zxl.bean.TimeLineNode;
 import zxl.bean.User;
-
-import java.util.Base64;
 
 /**
  * 	Jedis不支持集群的事务。
@@ -158,7 +155,7 @@ public class Cluster {
 //		System.out.println(Cluster.class.getClassLoader().getResource("").getPath());		//这个可以对......
 		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(new File(Cluster.class.getClassLoader().getResource("").getPath() + "../../twitter_proj/portraits/head_"+UID+".jpg")));
 		System.out.println(pic_base64);
-		bos.write(Base64.getDecoder().decode(pic_base64.substring(pic_base64.indexOf(',')+1).getBytes()));
+		bos.write(Base64.getDecoder().decode(pic_base64.substring(pic_base64.indexOf(',')+1).getBytes()));		//需要去掉头部：“data:image/jpeg;base64,”
 		jc.hset("user:"+UID, "portrait_path", "portraits/head_"+UID+".jpg");
 		bos.close();
 	}
@@ -740,7 +737,7 @@ public class Cluster {
 	 * @return
 	 */
 	public static String get_user_portrait(long UID){
-		return jc.hget("user:"+UID, "portrait");
+		return jc.hget("user:"+UID, "portrait_path");
 	}
 	
 	/**
