@@ -83,10 +83,16 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			document.getElementById("portrait").src = src;
 		});
 	
-	function show_pic() {
+	function show_pic(source) {
 		if(window.FileReader) {
 			var fileReader = new FileReader();
-			
+			pic = source.files[0];
+			if(/^image\/*/.test(pic.type)){		//js的正则表达式匹配  /.../指定一个模式串，^表示以...开头，\表示转义。
+				fileReader.onloadend = function (e) {
+					document.getElementById("portrait").src = e.target.result;
+				}
+				fileReader.readAsDataURL(pic);
+			}
 		} else {
 			alert("您的游览器不支持上传图片！");
 		}

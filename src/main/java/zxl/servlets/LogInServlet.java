@@ -64,11 +64,6 @@ public class LogInServlet extends HttpServlet {
 																										//这样的话，所有的ajax会请求两次。如果碰到不加query后边调用由于某个值是null就会出错的情况，
 																										//服务器会报异常。server error。解决方法就是这里加上username，然后jsp把错误情况过滤掉。
 		}
-//		Cookie cookie = new Cookie(username, password);
-//		cookie.setMaxAge(1000);
-//		response.addCookie(cookie);
-//		response.sendRedirect("chat.jsp");
-//		request.getRequestDispatcher("frame_HTML(2)/index.html").forward(request, response);	//forward不好弄。因为会造成跳转后的页面由于相对路径的原因变得css检索不到。
 	}
 
 }
