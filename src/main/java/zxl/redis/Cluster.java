@@ -820,51 +820,54 @@ public class Cluster {
 	public static Set<Long> get_probably_acquaintance(long UID){
 		//查看是否有缓存～有的话直接取出来～～
 		//注意second的意思是二度查找
-		if(jc.exists("acquaintance_second{"+UID+"}"))	return change_set_type(jc.zrevrange("acquaintance:"+UID, 0, 20));		//返回20个。虽然可能只用得到5个。但是我们不能忽略重复的可能性。
-		
-		//时间倒序查找。每个取20个。		这里的first表示“一度查找”。
-		//[在集群中不是同一个slot不能操作！所以必须把[]改成{}来标记slot！{}中的内容只要一样，就存在同一个slot中！！]
-		//详见：https://my.oschina.net/u/2242064/blog/646771
-		jc.zunionstore("acquaintance_first{"+UID+"}", "focus{"+UID+"}", "voted{"+UID+"}", "commented{"+UID+"}", "trans{"+UID+"}");	//一步操作进行。就是量太大了。其实可以把数量变小。找最新的几人。只不过麻烦，需要额外开辟多个set的副本。
-		jc.expire("acquaintance_first{"+UID+"}", 24*60*60);		//保存一天。
-		
-		Set<Long> first = change_set_type(jc.zrange("acquaintance_first{"+UID+"}", 0, -1));
-		//http://www.oschina.net/question/947956_2192487?p=1
-		String[] argu = new String[first.size()];	//作为变长参数的参数传递。=> 如何把数组中的东西当参数传递给变长参数？=>直接传递数组就好。java会懂你的。～～
-		int j = 0;
-		for(long uid : first){
-			//对于每个一度朋友，都缓存一次这个朋友的一度查找。然后我们会对所有一度朋友的一度查找进行union，形成我的二度查找。即寻找朋友的朋友最牛B的几个人。
-			String uid_string = "acquaintance_first{"+uid+"}";
-			if(!jc.exists(uid_string)){
-				jc.zunionstore(uid_string, "focus{"+uid+"}", "voted{"+uid+"}", "commented{"+uid+"}", "trans{"+uid+"}");	//一步操作进行。就是量太大了。其实可以把数量变小。找最新的几人。只不过麻烦，需要额外开辟多个set的副本。
-				jc.expire(uid_string, 24*60*60);		//保存一天。				
+		//没有的话，就得做啦。 如果有的话，直接跳过if，直接从数据库中取～
+		if(!jc.exists("acquaintance_second{"+UID+"}")) {
+			//时间倒序查找。每个取20个。		这里的first表示“一度查找”。
+			//[在集群中不是同一个slot不能操作！所以必须把[]改成{}来标记slot！{}中的内容只要一样，就存在同一个slot中！！]
+			//详见：https://my.oschina.net/u/2242064/blog/646771
+			jc.zunionstore("acquaintance_first{"+UID+"}", "focus{"+UID+"}", "voted{"+UID+"}", "commented{"+UID+"}", "trans{"+UID+"}");	//一步操作进行。就是量太大了。其实可以把数量变小。找最新的几人。只不过麻烦，需要额外开辟多个set的副本。
+			jc.expire("acquaintance_first{"+UID+"}", 24*60*60);		//保存一天。
+			
+			Set<Long> first = change_set_type(jc.zrange("acquaintance_first{"+UID+"}", 0, -1));
+			//http://www.oschina.net/question/947956_2192487?p=1
+			String[] argu = new String[first.size()];	//作为变长参数的参数传递。=> 如何把数组中的东西当参数传递给变长参数？=>直接传递数组就好。java会懂你的。～～
+			int j = 0;
+			for(long uid : first){
+				//对于每个一度朋友，都缓存一次这个朋友的一度查找。然后我们会对所有一度朋友的一度查找进行union，形成我的二度查找。即寻找朋友的朋友最牛B的几个人。
+				String uid_string = "acquaintance_first{"+uid+"}";
+				if(!jc.exists(uid_string)){
+					jc.zunionstore(uid_string, "focus{"+uid+"}", "voted{"+uid+"}", "commented{"+uid+"}", "trans{"+uid+"}");	//一步操作进行。就是量太大了。其实可以把数量变小。找最新的几人。只不过麻烦，需要额外开辟多个set的副本。
+					jc.expire(uid_string, 24*60*60);		//保存一天。				
+				}
+				argu[j++] = uid_string; 
 			}
-			argu[j++] = uid_string; 
-		}
-		
-		
-		String[] argu2 = new String[first.size()];		//存新的转存的字符串～
-		for(int i = 0; i < argu.length; i ++){
-			//疯狂地从redis中取出
-			Set<Tuple> set = jc.zrangeWithScores(argu[i], 0, -1);
-			//提取uid
-			String uid = argu[i].substring(argu[i].indexOf('{')+1, argu[i].indexOf('}'));
-			//换个名字：
-			argu2[i] = "acquaintance_first:"+uid+"{"+UID+"}";
-			//然后换个名字存进和UID相同的槽中去
-			Map<String, Double> map = new HashMap<String, Double>();
-			for(Tuple t : set){
-				map.put(t.getElement(), t.getScore());
+			
+			
+			String[] argu2 = new String[first.size()];		//存新的转存的字符串～
+			for(int i = 0; i < argu.length; i ++){
+				//疯狂地从redis中取出
+				Set<Tuple> set = jc.zrangeWithScores(argu[i], 0, -1);
+				//提取uid
+				String uid = argu[i].substring(argu[i].indexOf('{')+1, argu[i].indexOf('}'));
+				//换个名字：
+				argu2[i] = "acquaintance_first:"+uid+"{"+UID+"}";
+				//然后换个名字存进和UID相同的槽中去
+				Map<String, Double> map = new HashMap<String, Double>();
+				for(Tuple t : set){
+					map.put(t.getElement(), t.getScore());
+				}
+				if(map.size() != 0)		//其实感觉如果要是map的长度大小是0的话，应该也是可以的。然而，这应该是jedis做的不规范和不完全把。
+					jc.zadd(argu2[i], map);
 			}
-			jc.zadd(argu2[i], map);
+			
+			jc.zunionstore("acquaintance_second{"+UID+"}", argu2);		//数组传递变长参数太棒了！！		//用不了。因为每个用户在不同的槽中，{uid}不同。所以最后一步无法这样。必须手动。、
+			
 		}
-		
-		jc.zunionstore("acquaintance_second{"+UID+"}", argu2);		//数组传递变长参数太棒了！！		//用不了。因为每个用户在不同的槽中，{uid}不同。所以最后一步无法这样。必须手动。、
 		
 		//得到二度查找，不够就扩充。
 		Set<Long> ac = change_set_type(jc.zrevrange("acquaintance_second{"+UID+"}", 0, 20));
 		long user_num = Long.parseLong(jc.get("UID"));		//得到用户总数
-		while(ac.size() < 8){		//设定如果数目太少，那就随机推荐人吧。填充到10个就好了。毕竟全是陌生人。
+		while(ac.size() < 10){		//设定如果数目太少，那就随机推荐人吧。填充到10个就好了。毕竟全是陌生人。
 			//防止随机生成的列表出现focus里边的人+自己的UID，即防止出现已经关注过的人+自己.
 			long random_UID = (long)(Math.random() * (user_num-1)) + 1;		//+1防止出现0这样的UID
 			//无此人 防止日后可能加入删除用户功能
@@ -880,6 +883,7 @@ public class Cluster {
 		//移除自己的focus
 		ac.removeAll(change_set_type(jc.zrange("focus{"+UID+"}", 0, -1)));
 		
+		System.out.println(ac.size());
 		return ac;
 		
 	}

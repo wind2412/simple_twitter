@@ -338,6 +338,7 @@ a:hover{
 <br><br>
 
 <script type="text/javascript">
+//注意：LogInUID不是UID就是0. LogInusername不是真·name就是"null"(带双引号). other_UID一定是正确的. other_name一定是正确的。
 	//得到session中登录用户的UID
 	var LogInUID = <%= request.getSession().getAttribute("LogInUID")%>;		//可能为null
 	if(LogInUID == null)	LogInUID = 0;
@@ -455,21 +456,30 @@ a:hover{
     <div class="follow_topic">
        <div class="recommanded">
   			<div class="rec-header">推荐关注</div>
-				  <div class="rec-container">
-				    <ol class="ol_follow">
-				      <li class="li_follow">
+			<div class="rec-container">
+		    	<ol class="ol_follow" id="recommend_list">
+			    	  <li class="li_follow">
 				        <div><a class="account-group" href=""><img class="image" src="2.jpg"><strong class="userName">&nbsp;Shinobi Ninja</strong>
 				        </a>
 				        <button type="button" class="close" onclick="Iclose()" title="关闭">&times;</button></div>
 				        <div class="follow-container"><button class="but_follow">关注</button></div>
 				      </li>
-				    </ol>
-				  </div>
+		    	</ol>
+		  	</div>
 		</div>
+		
 		<br>
 		
 		<script type="text/javascript">
-				//推荐关注的动态生成		
+				//获得数据
+				if(LogInUID != 0)
+					Cluster.get_probably_acquaintance(LogInUID, function(set){
+						alert(set.length);
+					});
+				//推荐关注的动态生成
+				var rec_num = 10; //实际上应该是在ajax Cluster.get_probably_acquaintance中，set.size
+				var recommend_list = document.getElementById("recommend_list");
+				
 		</script>
 
 		<!-- 下边的趋势可以被舍弃 也可以和时间流匹配 -->

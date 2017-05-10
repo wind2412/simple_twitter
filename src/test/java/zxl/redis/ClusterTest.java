@@ -47,10 +47,6 @@ public class ClusterTest {
 		//调用Cluster的任一方法时候，Cluster类会初始化，由于static块在最前边，所以会自动运行，即客户端会自动连接。
 		Cluster.flush_all(); 		//清空测试数据库
 		User zxl = new User("zhengxiaolin");
-			zxl.setAge(20);
-			zxl.setIntroduction("I am a good person. I am a good person. I am a good person.");
-			zxl.setPosition("China");
-			zxl.setWebsite("wind2412.github.io");
 		User jxc = new User("jiangxicong");
 		User ltg = new User("litiange");
 		User zfy = new User("zhangfangyuan");
@@ -67,6 +63,13 @@ public class ClusterTest {
 		User user10 = new User("user10");
 		zxl.setUID(Cluster.add_a_user(zxl.getName(), "123"));	//函数内部会自动赋给zxl一个UID
 		Cluster.add_a_user(zxl.getName(), "123");				//***重复添加测试***
+		{
+			zxl.setIntroduction("I am a good person. I am a good person. I am a good person.");
+			zxl.setPosition("China");
+			zxl.setWebsite("wind2412.github.io");
+			zxl.setPortrait_path("portraits/head_"+zxl.getUID()+".jpg");
+		}
+		Cluster.upgrade_user_settings(zxl);
 		jxc.setUID(Cluster.add_a_user(jxc.getName(), "123"));
 		ltg.setUID(Cluster.add_a_user(ltg.getName(), "123"));
 		zfy.setUID(Cluster.add_a_user(zfy.getName(), "123"));			//这些方法全都要改！！因为UID并没有设置！所以new Article(zxl.getUID()的时候getUID就是0了！！！
@@ -130,6 +133,7 @@ public class ClusterTest {
 		
 		//推送可能认识的人
 		System.out.println("***" + Cluster.get_probably_acquaintance(1));
+		System.out.println("***" + Cluster.get_probably_acquaintance(2));
 		Cluster.focus_cancelled_oh_no(1, 2);
 		
 		get_all_scores();
