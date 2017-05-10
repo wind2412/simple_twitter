@@ -29,10 +29,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	
 
 <script type="text/javascript">
+	var img_suffix_legal = false;
 	var LogInUID = <%= request.getSession().getAttribute("LogInUID")%>;	
 	var LogInusername = '<%= request.getSession().getAttribute("LogInusername")%>';
 	function check(){
-		if(LogInUID == null || LogInusername == "null")		return false;
+		if(LogInUID == null || LogInusername == "null" || img_suffix_legal == false)		return false;
 		else return true;
 	}
 </script>
@@ -65,7 +66,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<ul class="icons">	
 	<li align="center"><i class="fa fa-li fa-check"></i> <div><img id="portrait" src="" style="width: 200px; height: 200px; border: 3px #fff solid;
 	border-radius: 20px;"></div> </li><br>
-	<li align="center"><i class="fa fa-li fa-check"></i> <input type="file" onchange="show_pic(this)" name="upload_image" id="up_img" accept="image/png,image/jpg,image/JPG" style="width:400px;height=100px"></li><br>
+	<li align="center"><i class="fa fa-li fa-check"></i> <input type="file" onchange="show_pic(this)" accept="image/*" name="upload_image" id="up_img"  style="width:400px;height=100px"></li><br>
 	<li align="center"><i class="fa fa-li fa-check"></i> <input type="text" name="username" id="usr" placeholder="新的昵称" style="width:400px;"></li><br>
 	<li align="center"><i class="fa fa-li fa-check"></i> <input type="text" name="introduction" id="intro" placeholder="个人简介" style="width:400px;"></li><br>
 	<li align="center"><i class="fa fa-li fa-check"></i> <input type="text" name="nationality" id="nation" placeholder="国家" style="width:400px;"></li><br>
@@ -90,6 +91,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			var fileReader = new FileReader();
 			pic = source.files[0];
 			if(/^image\/*/.test(pic.type)){		//js的正则表达式匹配  /.../指定一个模式串，^表示以...开头，\表示转义。
+				img_suffix_legal = true;
 				fileReader.onloadend = function (e) {
 					document.getElementById("portrait").src = e.target.result;
 					Cluster.add_user_portrait(LogInUID, e.target.result);		//添加这个头像到本地。
