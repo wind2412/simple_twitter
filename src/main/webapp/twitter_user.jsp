@@ -4,19 +4,259 @@ String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/"+"twitter_proj/";
 %>
 
+
 <!DOCTYPE html>
+<base href="<%=basePath%>">
 <html>
 <head>
-<base href="<%=basePath%>">
 	<!-- META -->
-	<title>twitter</title>
+	<title>我的关注</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<meta name="description" content="" />
 	
 	<!-- CSS -->
 	<link rel="stylesheet" type="text/css" href="css/kickstart.css" media="all" />
-	<link rel="stylesheet" type="text/css" href="style.css" media="all" /> 
+	<link rel="stylesheet" type="text/css" href="style.css" media="all" />
+    <link rel="stylesheet" href="css_us/focus.css" />
+    <link rel="stylesheet" href="css_us/trend.css" />
+    <style>
+	body{
+		text-align:center;
+	}
+	.headImg {
+			width: 70px;
+			height: 70px;
+			border: 3px #fff solid;
+			border-radius: 10px;
+			top: 80px;
+			left: 30px;
+			position: absolute;
+		}
+		
+		.title {
+			position: absolute;
+			right: 30px;
+		}
+		.title img{
+			height: 30px;
+			width: 30px;
+			
+		}
+		
+		.cueent {
+			
+			background-color: dodgerblue;
+			color: #fff;
+			width: 100px;
+			height: 40px;
+			border: 0px;
+			border-radius: 8px;
+			cursor:pointer;
+		}
+		.name{
+			margin: 0px;
+			font-size: 15px;
+			font-family: "微软雅黑";
+			font-weight:bold;
+			float: left;
+		}
+		
+		.desc{
+			margin-left: 30px;
+			margin-right:30px;
+		}
+		
+		.descp1{
+			color: #333;
+			font-size: 12px;
+			font-weight:normal;
+			clear: both;
+		}
+		.descp2{
+			color: #333;
+			font-size: 15px;
+			font-weight:normal;
+			clear: both;
+		}
+		.sankuai{
+			border-radius:5px;
+			height:330px;
+			width:298px;
+			float:left;
+			margin:5px;
+			background:#FFF;
+		}
+		.zong{
+			width:924px;
+			float:left;
+			/*margin-top:-750px;
+			margin-left:320px;*/
+		}
+	.block{
+		width:300px;
+		float:left;
+		margin-left:100px;
+	}
+	.name{
+		margin: 0px;
+		font-size: 25px;
+		font-family: "微软雅黑";
+		font-weight:bold;
+		float: left;
+	}
+	.dest{
+		text-align:left;
+		color: #8B8378;
+		font-size: 18px;
+		font-weight:normal;
+		clear: both;
+	}
+	.smy{
+		text-align:left;
+		color: #8B8378;
+		font-size: 18px;
+		font-weight:normal;
+		clear: both;
+	}
+	
+	.follow_topic{
+	padding-top:5px;
+	width:300px;
+	height:673px;
+	}
+	.recommanded{
+	background-color: #fff;
+    border: 1px solid #e6ecf0;
+    border-radius: 5px 5px 0 0;
+	width:300px;
+}
+.rec-header{
+	color:#999;
+	height:25px;
+	padding-top:10px;
+	padding-left:10px;
+}
+.rec-container{
+	padding-top:2px;
+	
+}
+ol.ol_follow{
+	margin:0;
+	padding:5px;
+	display:block;
+	list-style: none;
+}
+li.li_follow{
+	height:50px;
+	text-align: inherit;
+    display: list-item;
+	padding:5px;
+	margin-top:12px;
+}
+.account-group:link{
+	text-decoration:none;
+	color: #000;
+	
+}
+.account-group:hover{
+	text-decoration:none;
+	color:#06F;
+	}
+.image{
+	float:left;
+	width: 48px;
+    height: 48px;
+    border-radius: 5px;
+}
+.useName{
+	position: absolute;
+	font-size: 14px;
+	font-weight: bold;
+	width: 120px;
+	height: 18px;
+}
+button.close{
+	text-align:center;
+	margin-top:-8px;
+	float:right;
+	background:transparent;
+	border:0;
+	cursor:pointer;
+}
+.follow-container{
+	
+	width: 51px;
+	height: 18px;
+	padding:1px;
+}
+.but_follow{
+	width:65px;
+	height:20px;
+	margin-left:70px;
+	margin-top:-21px;
+	text-align:center;
+	font-size:13px;
+	padding:0;
+	background-color: #f5f8fa;
+	color: #000;
+	border:1px;
+	border-radius: 5px;
+	cursor:pointer;
+}
+
+.search{
+	font-size:10px;
+	color:#09F;
+}
+
+.topic{
+	text-align:left;
+	background-color: #fff;
+    border: 1px solid #e6ecf0;
+    border-radius: 5px 5px 0 0;
+	width:300px;
+}
+.topic-header{
+	color:#999;
+	height:30px;
+	padding-top:20px;
+	padding-left:10px;
+}
+.topic-container{
+	padding-top:2px;
+	padding-bottom:4px;
+}
+ol.topic_text{
+	margin:0;
+	padding:5px;
+	display:block;
+	list-style: none;
+}
+li.topic_text{
+	height:50px;
+	text-align: inherit;
+    display: list-item;
+	margin-top:8px;
+	height:40px;
+}
+a:link{
+	color:#66C;
+	text-decoration:none;
+}
+a:hover{
+	color:#66C;
+	text-decoration:underline;
+}
+.topic-key{
+    font-size:13px;
+	font-weight:bold;
+}
+.key-num{
+	font-size:10px;
+	color:#999;
+}
+	</style> 
 	
 	<!-- Javascript -->
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -39,31 +279,29 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	</div>
 -->
 
-<div style="z-index: 1001;">
-	<div class="navbar" style="border-bottom-color: black; border-bottom-width:thin">	<!-- 去掉了border-style:solid, 否则会感觉header不在垂直的正中央.-->
-	
-			<ul style="float: left">
-			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
-			<li style=""><a href=""><img src="icons/1.png" height="20px" width="20px"><span>主页</span></a></li>
-			<li><a href=""><img src="icons/2.png" height="20px" width="20px"><span>通知</span></a></li>
-			<li><a href=""><img src="icons/3.png" height="20px" width="20px"><span>私信</span></a></li>
-			</ul>
-			
-			<ul style="float: left">
-			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
-			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
-			<li><a  style="text-align: center"><img src="icons/5.png" style="width: 40px; height: 40px; margin-top: -10px"></a></li>
-			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
-			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
-			<li><input type="text" placeholder="搜索 Twitter" style="font-size: 13px; margin-top: -20px"></li>
-			<li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
-			<li><a ><img src="" style="width: 30px; height: 30px; margin-top: -25px" id="portrait"><font id="loginusername" style="color: black;"></font></a></li>
-			</ul>
-
-			<a id="logo"><button class="medium blue">发推</button></a>
-	</div>
+<div>
+	<nav class="navbar" style="border-bottom-color: black; border-bottom-width:thin">	<!-- 去掉了border-style:solid, 否则会感觉header不在垂直的正中央.-->
+    	<div class="header">
+        	<div class="header-btn-left">
+                <ul>
+                <li></li>
+                <li style=""><a href=""><img src="icons/1.png" height="20px" width="20px"><span>主页</span></a></li>
+                <li><a href=""><img src="icons/2.png" height="20px" width="20px"><span>通知</span></a></li>
+                <li><a href=""><img src="icons/3.png" height="20px" width="20px"><span>私信</span></a></li>
+                </ul>
+            </div>
+            <div class="logo-center"><a id="logo2"><img src="icons/5.png" style="width: 40px; height: 40px; margin-top:7px"></a></div>
+            <div class="header-btn-right">
+                <div class="search-back"><input type="text" placeholder="搜索 Twitter" style="font-size: 16px; margin-top:11px"></div>
+                <div style="float:left; width:54px; height:54px"><a id="logo1"><img src="" style="width: 40px; height: 40px; margin-top:7px" id="portrait"></a></div>
+				<div style="float:left; width:100px; height:54px"><font id="loginusername" style="color: black;"></font></div>               
+                <div style="float:left; width:70px; height:54px"><a id="logo"><button class="medium blue" style="margin-top:11px">发推</button></a></div>
+            <!--<a id="logo3"><input results="s" type="search" placeholder="搜索 Twitter"></a>-->
+    		</div>
+            
+        </div>
+	</nav>
 </div>
-
 
 
 <div id="bg" style="background-color: #2aa3ef; height: 325px; width: 100%; ">		<!--蓝色状态栏-->
@@ -72,19 +310,26 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 <div>
 	<nav class="navbar1">
+		<div class="profile-back">
+			<a id="other_head">
+				<img class="head" id="bighead" src="" style="visibility: hidden;">
+			</a>
 		
-		<div class="head" style="z-index: 0"><a id="other_head"><img id="bighead" src="" style="width: 200px; height: 200px; visibility: hidden;"></a></div>
-		<a id="logo0"><button class="medium blue" onclick="window.location='/twitter_proj/edit.jsp'">编辑个人资料</button></a>
-		
-		<ul>
-		<li><a href=""><div>推文</div><div id="articles"></div></a></li>
-		<li><a href=""><div>正在关注</div><div id="focus"></div></a></li>
-		<li><a href=""><div>关注者</div><div id="fans"></div></a></li>
-		</ul>
+            <ul>
+                <li><a href=""><div>推文</div><div id="articles"></div></a></li>
+                <li><a href=""><div>正在关注</div><div id="focus"></div></a></li>
+                <li><a href=""><div>关注者</div><div id="fans"></div></a></li>
+            </ul>
+            <div class="logo0-back">
+        		<a id="logo0"><button class="medium blue" onclick="window.location='/twitter_proj/edit.jsp'">编辑个人资料</button></a>
+            </div>
+        </div>
 		
 	</nav>
 	
 </div>
+<br><br>
+
 <script type="text/javascript">
 	//得到session中登录用户的UID
 	var LogInUID = <%= request.getSession().getAttribute("LogInUID")%>;		//可能为null
@@ -133,7 +378,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		});
 	//所以就因为这种诡异......这里的if里边必须要设置other_UID!=null条件，来防止第一次全规模的全异步调用......
 	if(LogInUID != other_UID && other_UID != null){	//卧槽？？？js里边这src==null?...就少些个等号=，src竟然就变成object了？？？？？
-		alert(other_UID);
 		Cluster.get_user_portrait(other_UID,function(src){
 			src==null? src="portraits/anonymous.jpg" :{}; 
 			document.getElementById("bighead").src = src;
@@ -166,11 +410,121 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	
 </script>
 
-	
 
+<div style="width:1425px; min-height:30px">
+<div class="block"><!--左侧大的div-->
+	<div>
+    <p class="name">Baby Animals</p>
+    <br>
+    <p class="dest">@Baby Animals</p>
+    <p class="smy">加入于2011年10月</p>
+    </div>
+    
+    <div class="follow_topic">
+       <div class="recommanded">
+  <div class="rec-header">推荐关注</div>
+  <div class="rec-container">
+    <ol class="ol_follow">
+      <li class="li_follow">
+        <div><a class="account-group" href=""><img class="image" src="2.jpg"><strong class="userName">&nbsp;Shinobi Ninja</strong>
+        </a>
+        <button type="button" class="close" onclick="Iclose()" title="关闭">&times;</button></div>
+        <div class="follow-container"><button class="but_follow">关注</button></div>
 
-<hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr>
+      </li>
+      <li class="li_follow">
+        <div><a class="account-group" href=""><img class="image" src="3.jpg"><strong class="userName">&nbsp;用户名</strong>
+        </a>
+        <button type="button" class="close" onclick="Iclose()" title="关闭">&times;</button></div>
+        <div class="follow-container"><button class="but_follow">关注</button></div>
+      </li>
+      <li class="li_follow">
+        <div><a class="account-group" href=""><img class="image" src="4.jpg"><strong class="userName">&nbsp;用户名</strong>
+        </a>
+        <button type="button" class="close" onclick="Iclose()" title="关闭">&times;</button></div>
+        <div class="follow-container"><button class="but_follow">关注</button></div>
+      </li>
+      <li class="li_follow"><div class="search"><a href="">查找好友</a></div></li>
+    </ol>
+  </div>
+</div>
+<br>
 
+<div class="topic">
+  <div class="topic-header">趋势</div>
+  <div class="topic-container">
+    <ol class="topic_text">
+      <li class="topic_text">
+        <div><a class="topic-key" href="">#同棲してる2人の日常</a></div>
+        <div class="key-num">6,091推文</div>
+      </li>
+      <li class="topic_text">
+        <div><a class="topic-key" href="">#seibulions</a></div>
+        <div class="key-num">1.04万推文</div>
+      </li>
+      <li class="topic_text">
+        <div><a class="topic-key" href="">#秋葉原駅</a></div>
+        <div class="key-num">7.68万推文</div>
+      </li>
+      <li class="topic_text">
+        <div><a class="topic-key" href="">#村上佳菜子</a></div>
+        <div class="key-num">1.2万推文</div>
+      </li>
+      <li class="topic_text">
+        <div><a class="topic-key" href="">#sundaysongbook</a></div>
+        <div class="key-num">1,589推文</div>
+      </li>
+    </ol>
+  </div>
+</div>
+<br><br><br>
 
+</div>
+</div>
+
+<div class="zong">
+        <div class="sankuai">
+        <div style="height: 160px;position: relative;">
+			<img style="height: 100px;width: 100%;border-radius:5px;" src="JIM.jpg">
+			<img class="headImg" src="CcXer0_P_400x400.jpg">
+			<p class="title"><button class="medium blue">正在关注</button><img src="QQ图片20170416191834.png"></p>
+		</div>
+		<div class="desc">
+			<p class="name"><span>Jim Carrey</span></p>
+			<img src="QQ图片20170416191034.png" />
+			<p class="descp1"><span>@JimCarry</span></p>
+			<p class="descp2"><span>Actor Jim Carrey</span></p>
+		</div>
+        </div>
+        
+        <div class="sankuai">
+        <div style="height: 160px;position: relative;">
+			<img style="height: 100px;width: 100%;border-radius:5px;" src="ANIMAL.jpg">
+			<img class="headImg" src="s4I7kg-j_400x400.jpg">
+			<p class="title"><button class="medium blue">正在关注</button><img src="QQ图片20170416191834.png"></p>
+		</div>
+		<div class="desc">
+			<p class="name"><span>Baby Animals</span></p>
+			<img src="QQ图片20170416191034.png" />
+			<p class="descp1">@Baby Animals</p>
+			<p class="descp2">Showcasing the amazing animals of the world!</p>
+		</div>
+        </div>
+        
+        <div class="sankuai">
+        <div style="height: 160px;position: relative;">
+			<img style="height: 100px;width: 100%;border-radius:5px;" src="CUTE2.jpg">
+			<img class="headImg" src="CUTE.jpg">
+			<p class="title"><button class="medium blue">正在关注</button><img src="QQ图片20170416191834.png"></p>
+		</div>
+		<div class="desc">
+			<p class="name"><span>Cute Overloads</span></p>
+			<img src="QQ图片20170416191034.png" />
+			<p class="descp1">@Cute Overloads</p>
+			<p class="descp2">we DO NOT own content posted. Everything is submissions. Content will be immediately removed or credited by owners request. Enjoy!</p>
+		</div>
+        </div>
+        </div>
+        </div>
 </body>
 </html>

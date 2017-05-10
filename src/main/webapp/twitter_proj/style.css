@@ -83,46 +83,72 @@ position:fixed;
 top:0;
 left:0;
 width: 100%;
-	height: 54px;
+height: 54px;
 background:#fff;
 color:#fff;
 z-index:1000;
 }
 
+.header{
+	width:100%;
+	min-width:950px;
+	max-width:1620px;
+	height:100%;
+	text-align:center;
+}
+.header-btn-left{
+	max-width:783px;
+	height:100%;
+	float:left;
+	text-align:left;
+}
+.logo-center{
+	height:54px;
+	width:54px;
+	margin:0 auto;
+	display:inline-block;
+}
+.header-btn-right{
+	max-width:783px;
+	height:100%;
+	float:right;
+	margin:0 auto;
+	display:inline-block;
+}
+.search-back{
+	max-width:454px;
+	height:100%;
+	text-align:right;
+	float:left;
+}
+
 	
 
 	.navbar #logo{		/*发推*/
-	position:absolute;
-	top:0;
-	right:0;
-	padding:0.4em 5em;
-	font-size: 1.7em;
 	color:#efefef;
-	display: inline-block;
+	
 	}
 
 	.navbar #logo1{		/*anonymous*/
-	position:absolute;
-	top:0;
-	right:0;
-	padding:0.3em 8em;
-	font-size: 1.7em;
+	
 	color:#efefef;
 	
 	}
 
 	.navbar #logo2{		/*小鸟~~~*/
-	position:absolute;
+	position:relative;
+	width:54px;
+	height:54px;
 	top:0;
 	right:0;
-	padding:0.2em 28em;
 	font-size: 1.7em;
 	color:#efefef;
 	text-decoration:none;
 	}
 
-	.navbar #logo3{		/*搜索栏*/
-	position:absolute;
+	#logo3{		/*搜索栏*/
+	
+	position:relative;
 	top:0;
 	right:0;
 	padding:0.5em 12em;
@@ -171,6 +197,13 @@ background:#fff;
 color:#fff;
 }
 	
+	.profile-back{
+		width:100%;
+		height:100%;
+		min-width:950px;
+		max-width:1620px;
+	}
+	
 	.navbar1 div{
 	color:#6E6D73;
 	font-size: 15px;
@@ -179,7 +212,7 @@ color:#fff;
 	}
 
 	.navbar1 ul{
-	padding: 0em 0.5em 0em 30em;
+	
 	display:inline-block;
 	margin:0;
 	}
@@ -200,12 +233,16 @@ color:#fff;
 		line-height:100%;
 		font-size: 1.2em;
 		}
+		
+		.logo0-back{
+			heidth:100%;
+			float:right;
+		}
 
 		.navbar1 #logo0{		/*发推*/
-		position:absolute;
-		top:0;
-		right:0;
-		padding:0.6em 5em;
+		position:relative;
+		top:15px;
+		right:3px;
 		font-size: 1.7em;
 		color:#efefef;
 		}
@@ -217,7 +254,7 @@ color:#fff;
 	width: 200px;
 	height: 200px;
 	color:#efefef;
-	z-index: 1000;
+	z-index: 900;
 	border: 3px #fff solid;
 	border-radius: 10px;
 }
