@@ -3,6 +3,7 @@ package zxl.servlets;
 
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -49,7 +50,7 @@ public class RegisterServlet extends HttpServlet {
 			request.setAttribute("articles", 0);		//推文数量
 			request.setAttribute("focus", 0);			//正在关注数量
 			request.setAttribute("fans", 0);			//关注者数量
-			request.getRequestDispatcher("/twitter.jsp").forward(request, response);
+			request.getRequestDispatcher("/twitter_user.jsp?usr="+username+"&timestamp="+new Date().getTime()).forward(request, response);
 		}else{			
 			request.setAttribute("msg", "Your account has been registered! Please reinput or log in!!");
 			request.getRequestDispatcher("/register.jsp").forward(request, response);		//详见：http://ask.csdn.net/questions/182199 很漂亮！！

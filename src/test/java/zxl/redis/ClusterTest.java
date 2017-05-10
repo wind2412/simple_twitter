@@ -68,9 +68,16 @@ public class ClusterTest {
 			zxl.setPosition("China");
 			zxl.setWebsite("wind2412.github.io");
 			zxl.setPortrait_path("portraits/head_"+zxl.getUID()+".jpg");
+			Cluster.upgrade_user_settings(zxl);
 		}
-		Cluster.upgrade_user_settings(zxl);
 		jxc.setUID(Cluster.add_a_user(jxc.getName(), "123"));
+		{
+			jxc.setIntroduction("蛤蛤.");
+			jxc.setPosition("欧摩西裸衣市");
+			jxc.setWebsite("youngerJiang.twitter.com");
+			jxc.setPortrait_path("portraits/head_"+jxc.getUID()+".jpg");			
+			Cluster.upgrade_user_settings(jxc);
+		}
 		ltg.setUID(Cluster.add_a_user(ltg.getName(), "123"));
 		zfy.setUID(Cluster.add_a_user(zfy.getName(), "123"));			//这些方法全都要改！！因为UID并没有设置！所以new Article(zxl.getUID()的时候getUID就是0了！！！
 		wy.setUID(Cluster.add_a_user(wy.getName(), "123"));
@@ -134,7 +141,7 @@ public class ClusterTest {
 		//推送可能认识的人
 		System.out.println("***" + Cluster.get_probably_acquaintance(1));
 		System.out.println("***" + Cluster.get_probably_acquaintance(2));
-		Cluster.focus_cancelled_oh_no(1, 2);
+		Cluster.focus_cancelled_oh_no(1, 2);		//取消了一波关注
 		
 		get_all_scores();
 		

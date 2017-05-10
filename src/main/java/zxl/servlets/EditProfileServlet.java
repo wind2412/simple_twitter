@@ -3,6 +3,7 @@ package zxl.servlets;
 
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -63,10 +64,10 @@ public class EditProfileServlet extends HttpServlet {
 			new_user.setPosition(nationality);
 			Cluster.upgrade_user_settings(new_user);	 		//更新信息
 
-			request.getRequestDispatcher("/twitter_user.jsp?usr="+new_username).forward(request, response);
+			response.setHeader("Refresh", "1;URL=/twitter_proj/twitter_user.jsp?usr="+new_username+"&timestamp="+new Date().getTime());
 		}
 		else {
-			request.getRequestDispatcher("/twitter_user.jsp?usr="+old_username).forward(request, response);			
+			response.setHeader("Refresh", "1;URL=/twitter_proj/twitter_user.jsp?usr="+old_username+"&timestamp="+new Date().getTime());
 		}
 	}
 

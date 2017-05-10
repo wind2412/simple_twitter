@@ -4,6 +4,11 @@ String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/"+"twitter_proj/";
 %>
 
+<%
+response.setHeader("Pragma","No-cache");    
+response.setHeader("Cache-Control","no-cache");    
+response.setDateHeader("Expires", -10);   
+%>
 
 <!DOCTYPE html>
 <base href="<%=basePath%>">
@@ -201,7 +206,7 @@ button.close{
 	width:65px;
 	height:20px;
 	margin-left:70px;
-	margin-top:-21px;
+	margin-top:-57px;
 	text-align:center;
 	font-size:13px;
 	padding:0;
@@ -311,8 +316,8 @@ a:hover{
 </div>
 
 
-<div id="bg" style="background-color: #2aa3ef; height: 325px; width: 100%; ">		<!--蓝色状态栏-->
-	
+<div id="bg" style=" height: auto; min-height:380px; width: 100%; ">		<!--蓝色状态栏-->
+	<img id="bg_img" class="the-backgroundpic"  style="width:100%; ">
 </div>
 
 <div>
@@ -338,7 +343,23 @@ a:hover{
 <br><br>
 
 <script type="text/javascript">
-//注意：LogInUID不是UID就是0. LogInusername不是真·name就是"null"(带双引号). other_UID一定是正确的. other_name一定是正确的。
+if (isSafari()) {
+	$(window).bind("pageshow", function (event) {
+		if (event.originalEvent.persisted && $('body').hasClass("no-cache")) {
+			document.body.style.display = "none";
+			window.location.reload();
+		}
+	});
+}
+
+function isSafari() {
+	if (navigator.userAgent.indexOf("Safari") > -1) {
+		return true;
+	}
+	return false;
+}
+
+//注意：LogInUID不是UID就是0. LogInusername不是真·name就是"null"(带双引号). other_UID一定是正确的/异步调用的话需要检查是否为null. other_name一定是正确的/异步调用需要检查是否为"null"。=>因为会并发执行。
 	//得到session中登录用户的UID
 	var LogInUID = <%= request.getSession().getAttribute("LogInUID")%>;		//可能为null
 	if(LogInUID == null)	LogInUID = 0;
@@ -360,7 +381,7 @@ a:hover{
 			}
 		})
 	}else if(LogInusername != "null")	{
-		window.location.href = "/twitter_proj/twitter_user.jsp?usr="+LogInusername;
+		window.location.href = "/twitter_proj/twitter_user.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
 	}else{
 		window.location.href = "/twitter_proj/login.jsp";
 	}
@@ -386,7 +407,7 @@ a:hover{
 		});
 	//所以就因为这种诡异......这里的if里边必须要设置other_UID!=null条件，来防止第一次全规模的全异步调用......
 	if(LogInUID != other_UID && other_UID != null){	//卧槽？？？js里边这src==null?...就少些个等号=，src竟然就变成object了？？？？？
-		Cluster.get_user_portrait(other_UID,function(src){
+		Cluster.get_user_portrait(other_UID, function(src){
 			src==null? src="portraits/anonymous.jpg" :{}; 
 			document.getElementById("bighead").src = src;
 			document.getElementById("bighead").style.visibility = "visible";		
@@ -394,6 +415,15 @@ a:hover{
 				get_user_article_msg();	//异步调用ajax获取other_UID的所有推文，正在关注以及关注者信息。
 		});
 	}
+	//得到other_UID的background。
+	if(other_UID != null){		//由于是异步，所以这里无论如何都会执行。因此，必须设置null把关啊。
+		Cluster.get_user_main_page(other_UID, function(src){
+			if(src != null){		//有就设置，没有就不设置。
+				document.getElementById("bg_img").src = src;
+			}
+		});
+	}
+	
 	//得到query用户所有推文，正在关注，以及关注者信息。
 	function get_user_article_msg(){
 		Cluster.get_user_articles_num(other_UID, function(data){document.getElementById("articles").innerHTML = data;});
@@ -410,7 +440,8 @@ a:hover{
 	var main_page = function(){
 		return "#" + Math.floor(Math.random() * 16777215).toString(16);		//随机颜色生成
 	}
-	document.getElementById("bg").style.backgroundColor = main_page();
+	//alert(document.getElementById("bg_img").src == "");	//如果src这个属性没写，确实是等于""的.
+	document.getElementById("bg").style.backgroundColor = main_page();	//随机设置一个颜色 如果用户有自己的大图片，就覆盖了。
 	
 	
 	
@@ -457,13 +488,14 @@ a:hover{
        <div class="recommanded">
   			<div class="rec-header">推荐关注</div>
 			<div class="rec-container">
-		    	<ol class="ol_follow" id="recommend_list">
-			    	<!--    <li class="li_follow">
+		    	<ol class="ol_follow" id="recommend_list" style="text-align:left;">
+			  <!--  <li class="li_follow">
 				        <div><a class="account-group" href=""><img class="image" src="2.jpg"><strong class="userName">&nbsp;Shinobi Ninja</strong>
 				        </a>
 				        <button type="button" class="close" onclick="Iclose()" title="关闭">&times;</button></div>
 				        <div class="follow-container"><button class="but_follow">关注</button></div>
-				      </li>	  原先的代码	-->	
+				     </li>	 原先的代码！应该改下按钮的	CSS！！ -->  	 	  
+				     
 		    	</ol>
 		  	</div>
 		</div>
@@ -474,10 +506,15 @@ a:hover{
 				//获得数据
 				if(LogInUID != 0)
 					Cluster.get_probably_acquaintance(LogInUID, function(set){
+				//	var str = "";
+				//	for(var i = 0; i < set.length; i ++){
+				//		str += set[i];
+				//		str += " ";
+				//	}
+				//	alert(str);
 						var ptr = 0;		//关注列表一次显示3个。ptr是set的指针。
 						var list_num = 0;	//显示在上边的关注列表的人数。如果叉掉，就少一个。然后点击事件会把list_num-1 然后如果set里边还有，即ptr没到set.length，那么list_num再++，
 						for(; ptr < set.length && list_num < 3; ptr ++){
-						alert(set[ptr]);	//Long还是long?
 							get_an_acquaintance(set[ptr]);
 							ptr ++;
 							list_num ++;
@@ -496,12 +533,13 @@ a:hover{
 					var img = document.createElement("img");
 					img.className = "image";
 					Cluster.get_user_portrait(UID, function(portrait_path){
-						img.src = portrait_path;						
+				//	alert(UID + "..." + portrait_path);
+						img.src = portrait_path == null ? "portraits/anonymous.jpg" : portrait_path;						
 					});
 					var strong = document.createElement("strong");
 					strong.className = "userName";
 					Cluster.get_user_name(UID, function(name){
-						strong.innerHTML = "&nbsp;"+ name;	//?????????????haha待定						
+						strong.innerHTML = "&nbsp;"+ name;					
 					});
 					var button = document.createElement("button");
 					button.className = "close";

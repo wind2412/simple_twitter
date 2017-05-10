@@ -1,5 +1,6 @@
 package zxl.redis;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,6 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.imageio.ImageIO;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
@@ -130,17 +133,16 @@ public class Cluster {
 	 * @param user
 	 */
 	public static void upgrade_user_settings(User user){
+		//portrait_path 和 main_path全在js中直接调用add_user_portrait和add_user_main_page来设置了。
 		String keyname = "user:"+user.getUID();
 		if(user.getAge() != 0) 				jc.hset(keyname, "age", String.valueOf(user.getAge()));
-		if(user.getMain_page() != null && !user.getMain_page().equals(""))		jc.hset(keyname, "main_page", user.getMain_page());		//由网页填写edit.jsp的话，如果啥也不填写，那么得到的各个字段都是""，而不是null！！
-		if(user.getPortrait_path() != null && !user.getPortrait_path().equals(""))	jc.hset(keyname, "portrait_path", user.getPortrait_path());
 		if(user.getIntroduction() != null && !user.getIntroduction().equals(""))	jc.hset(keyname, "introduction", user.getIntroduction());
 		if(user.getWebsite() != null && !user.getWebsite().equals(""))		jc.hset(keyname, "website", user.getWebsite());
 		if(user.getPosition() != null && !user.getPosition().equals(""))		jc.hset(keyname, "position", user.getPosition());
 	}
 	
 	/**
-	 * 接收一个图片，并且把它保存到本地。
+	 * 接收一个用户头像，并且把它保存到本地。
 	 * @param UID
 	 * @param pic_base64
 	 * @throws IOException 
@@ -155,10 +157,38 @@ public class Cluster {
 //		System.out.println(Thread.currentThread().getContextClassLoader().getResource(""));
 //		System.out.println(Cluster.class.getClassLoader().getResource("").getPath());		//这个可以对......
 		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(new File(Cluster.class.getClassLoader().getResource("").getPath() + "../../twitter_proj/portraits/head_"+UID+".jpg")));
-		System.out.println(pic_base64);
+//		System.out.println(pic_base64);
 		bos.write(Base64.getDecoder().decode(pic_base64.substring(pic_base64.indexOf(',')+1).getBytes()));		//需要去掉头部：“data:image/jpeg;base64,”
 		jc.hset("user:"+UID, "portrait_path", "portraits/head_"+UID+".jpg");
 		bos.close();
+	}
+
+	/**
+	 * 接收一个用户主页背景图片，并且把它保存到本地。
+	 * @param UID
+	 * @param pic_base64
+	 * @throws IOException 
+	 * @throws URISyntaxException 
+	 */
+	public static void add_user_main_page(long UID, String pic_base64) throws IOException, URISyntaxException{
+		//因为切大图特别耗时。。。必须防止客户端把原先的大图得到......所以设置了temp
+		File temp = new File(Cluster.class.getClassLoader().getResource("").getPath() + "../../twitter_proj/portraits/page_"+UID+"_temp.jpg");
+		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(temp));
+//		System.out.println(pic_base64);
+		bos.write(Base64.getDecoder().decode(pic_base64.substring(pic_base64.indexOf(',')+1).getBytes()));		//需要去掉头部：“data:image/jpeg;base64,”
+		jc.hset("user:"+UID, "main_page", "portraits/page_"+UID+".jpg");
+		bos.close();
+		//裁成1425*360 => 否决。
+		//按比例来。大概5：1.也就是，如果太宽，就按长度的比例5：1切宽度。如果太长，就按宽度的1：5切长度。 这样可以尽可能保证图片的完整。
+		BufferedImage bi = ImageIO.read(temp);
+		if(bi.getWidth() * 0.29 > bi.getWidth()){
+			bi = bi.getSubimage(0, 0, (int)(bi.getHeight()/0.29), bi.getHeight());			
+		}else{
+			bi = bi.getSubimage(0, 0, bi.getWidth(), (int)(bi.getWidth()*0.29));			
+		}
+		//固定生成JPEG。简单做就好。 然后覆盖
+		ImageIO.write(bi, "JPEG", new File(Cluster.class.getClassLoader().getResource("").getPath() + "../../twitter_proj/portraits/page_"+UID+".jpg"));
+		temp.delete();	//删除temp
 	}
 	
 	public static void add_an_article(Article article){		//注意，没有加上图片功能。
@@ -760,6 +790,15 @@ public class Cluster {
 	}
 	
 	/**
+	 * 得到一个用户的主页大图像  如果设置了的话。
+	 * @param UID
+	 * @return
+	 */
+	public static String get_user_main_page(long UID){
+		return jc.hget("user:"+UID, "main_page");
+	}
+	
+	/**
 	 * 查询一个用户(登录时校验)是否在数据库中。
 	 * 如果在，返回UID，否则返回0.
 	 * @param name
@@ -820,8 +859,8 @@ public class Cluster {
 	public static Set<Long> get_probably_acquaintance(long UID){
 		//查看是否有缓存～有的话直接取出来～～
 		//注意second的意思是二度查找
-		//没有的话，就得做啦。 如果有的话，直接跳过if，直接从数据库中取～
-		if(!jc.exists("acquaintance_second{"+UID+"}")) {
+		//没有的话，就得做啦。 如果有的话，直接跳过if，直接从数据库中取～		//但是其实我发现“关注”这东西好像应该是实时的啊......因为如果取关了，还从缓存中取，那实在是......
+//		if(!jc.exists("acquaintance_second{"+UID+"}")) {	//取消缓存。
 			//时间倒序查找。每个取20个。		这里的first表示“一度查找”。
 			//[在集群中不是同一个slot不能操作！所以必须把[]改成{}来标记slot！{}中的内容只要一样，就存在同一个slot中！！]
 			//详见：https://my.oschina.net/u/2242064/blog/646771
@@ -862,7 +901,7 @@ public class Cluster {
 			
 			jc.zunionstore("acquaintance_second{"+UID+"}", argu2);		//数组传递变长参数太棒了！！		//用不了。因为每个用户在不同的槽中，{uid}不同。所以最后一步无法这样。必须手动。、
 			
-		}
+//		}		//取消缓存。
 		
 		//得到二度查找，不够就扩充。
 		Set<Long> ac = change_set_type(jc.zrevrange("acquaintance_second{"+UID+"}", 0, 20));
