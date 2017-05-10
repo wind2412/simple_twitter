@@ -65,7 +65,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<ul class="icons">	
 	<li align="center"><i class="fa fa-li fa-check"></i> <div><img id="portrait" src="" style="width: 200px; height: 200px; border: 3px #fff solid;
 	border-radius: 20px;"></div> </li><br>
-	<li align="center"><i class="fa fa-li fa-check"></i> <input type="file" onchange="show_pic(this)" name="upload_image" id="up_img" accept="image/png,image/jpg" style="width:400px;height=100px"></li><br>
+	<li align="center"><i class="fa fa-li fa-check"></i> <input type="file" onchange="show_pic(this)" name="upload_image" id="up_img" accept="image/png,image/jpg,image/JPG" style="width:400px;height=100px"></li><br>
 	<li align="center"><i class="fa fa-li fa-check"></i> <input type="text" name="username" id="usr" placeholder="新的昵称" style="width:400px;"></li><br>
 	<li align="center"><i class="fa fa-li fa-check"></i> <input type="text" name="introduction" id="intro" placeholder="个人简介" style="width:400px;"></li><br>
 	<li align="center"><i class="fa fa-li fa-check"></i> <input type="text" name="nationality" id="nation" placeholder="国家" style="width:400px;"></li><br>
@@ -95,6 +95,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					Cluster.add_user_portrait(LogInUID, e.target.result);		//添加这个头像到本地。
 				}
 				fileReader.readAsDataURL(pic);
+			}else{
+				alert("please upload a jpg/png file!");
 			}
 		} else {
 			alert("您的游览器不支持上传图片！");

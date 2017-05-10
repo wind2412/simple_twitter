@@ -38,6 +38,7 @@ public class Cluster {
 	public static final int FOCUS_SCORE = 2160;
 	public static final int ARTICLES_PER_PAGE = 20;
 	public static final int COMMENT_PER_PAGE = 20;
+	public static final int FOCUS_PER_PAGE = 18;		//18个，一排3个，正好6排。
 	
 	public static JedisCluster jc;
 	
@@ -484,10 +485,19 @@ public class Cluster {
 	 * @param UID
 	 * @return
 	 */
-	public static Set<String> get_all_focus(long UID){
-		return jc.zrevrangeByScore("focus{"+UID+"}", "+inf", "-inf");
+	public static Set<Long> get_all_focus(long UID){
+		return change_set_type(jc.zrevrange("focus{"+UID+"}", 0, -1));
 	}
 	
+	/**
+	 * 得到某个用户的所有粉丝列表	=>		按照时间排序
+	 * @param UID
+	 * @return
+	 */
+	public static Set<Long> get_all_fans(long UID){
+		return change_set_type(jc.zrevrangeByScore("fans{"+UID+"}", "+inf", "-inf"));
+	}
+
 	/**
 	 * 得到用户关注的数目
 	 * @param UID
@@ -498,7 +508,7 @@ public class Cluster {
 	}
 	
 	/**
-	 * 得到用户关注的数目
+	 * 得到用户粉丝的数目
 	 * @param UID
 	 * @return
 	 */
@@ -506,14 +516,25 @@ public class Cluster {
 		return jc.zcard("fans{"+UID+"}");
 	}
 	
+	/**
+	 * 按页得到用户关注的列表。  =>		一页18个，共6排。(一排3个)
+	 * @param UID
+	 * @param page
+	 * @return
+	 */
+	public static Set<Long> get_focus_by_page(long UID, int page){
+		if((page-1)*FOCUS_PER_PAGE > jc.zcard("focus{"+UID+"}"))	return null;		//说明已经到了所有页的末尾，后面已经没有了
+		return change_set_type(jc.zrevrange("focus{"+UID+"}", (page-1)*FOCUS_PER_PAGE, page*FOCUS_PER_PAGE-1));
+	}
 	
 	/**
-	 * 得到某个用户的所有粉丝列表	=>		按照时间排序
+	 * 得到某个用户的所有粉丝列表	=>		一页18个，共6排。(一排3个)
 	 * @param UID
 	 * @return
 	 */
-	public static Set<String> get_all_fans(long UID){
-		return jc.zrevrangeByScore("fans{"+UID+"}", "+inf", "-inf");
+	public static Set<Long> get_fans_by_page(long UID, int page){
+		if((page-1)*FOCUS_PER_PAGE > jc.zcard("fans{"+UID+"}"))	return null;		//说明已经到了所有页的末尾，后面已经没有了
+		return change_set_type(jc.zrevrange("fans{"+UID+"}", (page-1)*FOCUS_PER_PAGE, page*FOCUS_PER_PAGE-1));
 	}
 	
 	
@@ -522,10 +543,9 @@ public class Cluster {
 	 * @param tln
 	 */
 	private static void add_action_to_all_fans_timeline(TimeLineNode tln){
-		Set<String> fans_set = get_all_fans(tln.getUID());
-		for(String fans : fans_set){
-			long fan = Long.parseLong(fans);
-			jc.zadd("timeline:"+fan, tln.getTime(), String.valueOf(tln.getTID()));		//添加TID到timeline:[UID]表中
+		Set<Long> fans_set = get_all_fans(tln.getUID());
+		for(long fans : fans_set){
+			jc.zadd("timeline:"+fans, tln.getTime(), String.valueOf(tln.getTID()));		//添加TID到timeline:[UID]表中
 		}
 	}
 	
@@ -544,10 +564,9 @@ public class Cluster {
 	 * @param TID
 	 */
 	private static void rem_action_to_all_fans_timeline(long UID, long TID){
-		Set<String> fans_set = get_all_fans(UID);
-		for(String fans : fans_set){
-			long fan = Long.parseLong(fans);
-			jc.zrem("timeline:"+fan, String.valueOf(TID));		//移除TID从timeline:[UID]表中
+		Set<Long> fans_set = get_all_fans(UID);
+		for(long fans : fans_set){
+			jc.zrem("timeline:"+fans, String.valueOf(TID));		//移除TID从timeline:[UID]表中
 		}		
 	}
 	
@@ -872,7 +891,7 @@ public class Cluster {
 	 */
 	public static List<Long> who_I_focus_also_focus_him(long UID, long dest_UID){
 		List<Long> list = new ArrayList<>();
-		Set<Long> my_focus = change_set_type(get_all_focus(UID));
+		Set<Long> my_focus = get_all_focus(UID);
 		for(long focus : my_focus){
 			if(jc.zscore("focus{"+focus+"}", String.valueOf(dest_UID)) != null){
 				list.add(focus);

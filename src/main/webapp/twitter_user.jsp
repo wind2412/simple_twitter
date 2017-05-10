@@ -119,6 +119,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		font-weight:normal;
 		clear: both;
 	}
+	.smy2{
+		text-align:left;
+		color: #bbbbbbb;
+		font-size: 15px;
+		font-weight:normal;
+		clear: both;
+	}
 	
 	.follow_topic{
 	padding-top:5px;
@@ -413,74 +420,90 @@ a:hover{
 
 <div style="width:1425px; min-height:30px">
 <div class="block"><!--左侧大的div-->
+
+	<!-- 左方之地 -->
 	<div>
-    <p class="name">Baby Animals</p>
+    <p class="name" id="left_name"></p>
     <br>
-    <p class="dest">@Baby Animals</p>
-    <p class="smy">加入于2011年10月</p>
+    <p class="dest" id="left_at"></p>
+    <p class="smy2" id="left_introduction"></p>
+    <p class="smy2" id="left_nationality"></p>
+    <p class="smy2" id="left_website"></p>
+    <p class="smy" id="left_time"></p>
     </div>
+    
+    <script type="text/javascript">
+    	document.getElementById("left_name").innerHTML = other_name;
+    	document.getElementById("left_at").innerHTML = "@"+other_name;
+		Cluster.get_a_user_by_UID(other_UID, function(User){
+			if(User.introduction != null) 	document.getElementById("left_introduction").innerHTML = User.introduction;
+			if(User.position != null)		document.getElementById("left_nationality").innerHTML = User.position;
+			if(User.website != null)		document.getElementById("left_website").innerHTML = User.website;
+			var date = new Date(User.time * 1000);
+			document.getElementById("left_time").innerHTML = "加入于" + date.getFullYear() + "年" + date.getMonth() + "月"
+		});    	
+		
+	//	Cluster.get_article_comments_context(7, 0, function(data){
+	//		alert(data[0][0].UID);
+	//	});	//得到第7篇文章的评论上下文
+		
+		
+    </script>
+    
+    
     
     <div class="follow_topic">
        <div class="recommanded">
-  <div class="rec-header">推荐关注</div>
-  <div class="rec-container">
-    <ol class="ol_follow">
-      <li class="li_follow">
-        <div><a class="account-group" href=""><img class="image" src="2.jpg"><strong class="userName">&nbsp;Shinobi Ninja</strong>
-        </a>
-        <button type="button" class="close" onclick="Iclose()" title="关闭">&times;</button></div>
-        <div class="follow-container"><button class="but_follow">关注</button></div>
+  			<div class="rec-header">推荐关注</div>
+				  <div class="rec-container">
+				    <ol class="ol_follow">
+				      <li class="li_follow">
+				        <div><a class="account-group" href=""><img class="image" src="2.jpg"><strong class="userName">&nbsp;Shinobi Ninja</strong>
+				        </a>
+				        <button type="button" class="close" onclick="Iclose()" title="关闭">&times;</button></div>
+				        <div class="follow-container"><button class="but_follow">关注</button></div>
+				      </li>
+				    </ol>
+				  </div>
+		</div>
+		<br>
+		
+		<script type="text/javascript">
+				//推荐关注的动态生成		
+		</script>
 
-      </li>
-      <li class="li_follow">
-        <div><a class="account-group" href=""><img class="image" src="3.jpg"><strong class="userName">&nbsp;用户名</strong>
-        </a>
-        <button type="button" class="close" onclick="Iclose()" title="关闭">&times;</button></div>
-        <div class="follow-container"><button class="but_follow">关注</button></div>
-      </li>
-      <li class="li_follow">
-        <div><a class="account-group" href=""><img class="image" src="4.jpg"><strong class="userName">&nbsp;用户名</strong>
-        </a>
-        <button type="button" class="close" onclick="Iclose()" title="关闭">&times;</button></div>
-        <div class="follow-container"><button class="but_follow">关注</button></div>
-      </li>
-      <li class="li_follow"><div class="search"><a href="">查找好友</a></div></li>
-    </ol>
+		<!-- 下边的趋势可以被舍弃 也可以和时间流匹配 -->
+		<div class="topic">
+		  <div class="topic-header">趋势</div>
+		  <div class="topic-container">
+		    <ol class="topic_text">
+		      <li class="topic_text">
+		        <div><a class="topic-key" href="">#同棲してる2人の日常</a></div>
+		        <div class="key-num">6,091推文</div>
+		      </li>
+		      <li class="topic_text">
+		        <div><a class="topic-key" href="">#seibulions</a></div>
+		        <div class="key-num">1.04万推文</div>
+		      </li>
+		      <li class="topic_text">
+		        <div><a class="topic-key" href="">#秋葉原駅</a></div>
+		        <div class="key-num">7.68万推文</div>
+		      </li>
+		      <li class="topic_text">
+		        <div><a class="topic-key" href="">#村上佳菜子</a></div>
+		        <div class="key-num">1.2万推文</div>
+		      </li>
+		      <li class="topic_text">
+		        <div><a class="topic-key" href="">#sundaysongbook</a></div>
+		        <div class="key-num">1,589推文</div>
+		      </li>
+		    </ol>
+		  </div>
+		</div>
+		<br><br><br>
+		
+	</div>
   </div>
-</div>
-<br>
-
-<div class="topic">
-  <div class="topic-header">趋势</div>
-  <div class="topic-container">
-    <ol class="topic_text">
-      <li class="topic_text">
-        <div><a class="topic-key" href="">#同棲してる2人の日常</a></div>
-        <div class="key-num">6,091推文</div>
-      </li>
-      <li class="topic_text">
-        <div><a class="topic-key" href="">#seibulions</a></div>
-        <div class="key-num">1.04万推文</div>
-      </li>
-      <li class="topic_text">
-        <div><a class="topic-key" href="">#秋葉原駅</a></div>
-        <div class="key-num">7.68万推文</div>
-      </li>
-      <li class="topic_text">
-        <div><a class="topic-key" href="">#村上佳菜子</a></div>
-        <div class="key-num">1.2万推文</div>
-      </li>
-      <li class="topic_text">
-        <div><a class="topic-key" href="">#sundaysongbook</a></div>
-        <div class="key-num">1,589推文</div>
-      </li>
-    </ol>
-  </div>
-</div>
-<br><br><br>
-
-</div>
-</div>
 
 <div class="zong">
         <div class="sankuai">
