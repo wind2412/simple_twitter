@@ -458,12 +458,12 @@ a:hover{
   			<div class="rec-header">推荐关注</div>
 			<div class="rec-container">
 		    	<ol class="ol_follow" id="recommend_list">
-			    	  <li class="li_follow">
+			    	<!--    <li class="li_follow">
 				        <div><a class="account-group" href=""><img class="image" src="2.jpg"><strong class="userName">&nbsp;Shinobi Ninja</strong>
 				        </a>
 				        <button type="button" class="close" onclick="Iclose()" title="关闭">&times;</button></div>
 				        <div class="follow-container"><button class="but_follow">关注</button></div>
-				      </li>
+				      </li>	  原先的代码	-->	
 		    	</ol>
 		  	</div>
 		</div>
@@ -474,11 +474,58 @@ a:hover{
 				//获得数据
 				if(LogInUID != 0)
 					Cluster.get_probably_acquaintance(LogInUID, function(set){
-						alert(set.length);
+						var ptr = 0;		//关注列表一次显示3个。ptr是set的指针。
+						var list_num = 0;	//显示在上边的关注列表的人数。如果叉掉，就少一个。然后点击事件会把list_num-1 然后如果set里边还有，即ptr没到set.length，那么list_num再++，
+						for(; ptr < set.length && list_num < 3; ptr ++){
+						alert(set[ptr]);	//Long还是long?
+							get_an_acquaintance(set[ptr]);
+							ptr ++;
+							list_num ++;
+						}
 					});
 				//推荐关注的动态生成
-				var rec_num = 10; //实际上应该是在ajax Cluster.get_probably_acquaintance中，set.size
-				var recommend_list = document.getElementById("recommend_list");
+				function get_an_acquaintance(UID) {
+					var ol = document.getElementById("recommend_list");
+					
+					var li = document.createElement("li");
+					li.className = "li_follow";
+					var div = document.createElement("div");
+					var a = document.createElement("a");
+					a.className = "account-group";
+					a.href = "";
+					var img = document.createElement("img");
+					img.className = "image";
+					Cluster.get_user_portrait(UID, function(portrait_path){
+						img.src = portrait_path;						
+					});
+					var strong = document.createElement("strong");
+					strong.className = "userName";
+					Cluster.get_user_name(UID, function(name){
+						strong.innerHTML = "&nbsp;"+ name;	//?????????????haha待定						
+					});
+					var button = document.createElement("button");
+					button.className = "close";
+					button.onclick = "Iclose()";
+					button.title = "关闭";
+					button.innerHTML = "&times";
+					var div2 = document.createElement("div");
+					div2.className = "follow-container";
+					var button2 = document.createElement("button");
+					button2.className = "but_follow";
+					button2.innerHTML = "关注";
+					//联合
+					div2.appendChild(button2);
+					a.appendChild(img);
+					a.appendChild(strong);
+					div.appendChild(a);
+					div.appendChild(button);
+					li.appendChild(div);
+					li.appendChild(div2);
+					
+					//放到<ol>中
+					ol.appendChild(li);				
+				}
+				
 				
 		</script>
 
