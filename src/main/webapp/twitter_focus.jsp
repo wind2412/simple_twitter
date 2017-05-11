@@ -563,8 +563,10 @@ function isSafari() {
 					button2.onclick = function(){
 						if(button2.innerHTML == "正在关注"){
 							button2.innerHTML = "&nbsp;&nbsp;关注&nbsp;&nbsp;";
+							Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
 						}else{
 							button2.innerHTML = "正在关注";							
+							Cluster.focus_a_user(LogInUID, UID);		//关注
 						}
 					}
 					
@@ -681,9 +683,15 @@ function isSafari() {
 				});
 				var p_1 = document.createElement("p");
 				p_1.className = "title";
-					var button = document.createElement("button");
+				var button;
+				if(UID != LogInUID){//如果是自己  不显示按钮
+					button = document.createElement("button");
 					button.className = "medium blue";	//改
-					button.innerHTML = "正在关注";
+					//这里，与关注页面不同的是，因为即使是粉丝，也有可能关注了/没关注。因此这里必须插入一个判断：focus_or_not
+					Cluster.focus_or_not(LogInUID, UID, function(is_focus){
+						if(is_focus == true)	button.innerHTML = "正在关注";
+						else button.innerHTML = "关注";
+					});
 					button.onclick = function(){
 						if(button.innerHTML == "正在关注"){
 							button.innerHTML = "&nbsp;&nbsp;关注&nbsp;&nbsp;";
@@ -693,16 +701,19 @@ function isSafari() {
 							Cluster.focus_a_user(LogInUID, UID);		//关注
 						}
 					}
+				}
 				//连接
 				div_in_1.appendChild(a);
 				div_in_1.appendChild(img_2);
 				div_in_1.appendChild(p_1);
-				p_1.appendChild(button);
+				if(UID != LogInUID){
+					p_1.appendChild(button);
+				}
 				//2nd
 				var div_in_2 = document.createElement("div");
 				div_in_2.className = "desc";
 				var p_2 = document.createElement("p");	p_2.className = "name";
-				var p_3 = document.createElement("p");	p_3.className = "descp1";
+				var p_3 = document.createElement("p");	p_3.className = "dest";
 				Cluster.get_user_name(UID, function(name){
 					a.href = "/twitter_proj/twitter_focus.jsp?usr="+name+"&timestamp="+new Date().getTime();
 					p_2.innerHTML = name;			
