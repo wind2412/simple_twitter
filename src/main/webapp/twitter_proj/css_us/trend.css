@@ -10,7 +10,7 @@
 	color:#999;
 	height:30px;
 	padding-top:20px;
-	padding-left:10px;
+	padding-left:30px;
 }
 .topic-container{
 	padding-top:2px;
@@ -22,11 +22,10 @@ ol{
 	list-style: none;
 }
 li{
-	height:50px;
 	text-align: inherit;
     display: list-item;
 	padding:3px;
-	height:40px;
+	height:10px;
 }
 a:link{
 	color:#66C;

@@ -378,14 +378,14 @@ function isSafari() {
 	//看query是否合法才能向下进行。因此这里必须同步方式。需要关闭ajax异步。
 	dwr.engine.setAsync(false);
 	//1.如果query不空，那就检测是否合法，合法就继续走，不合法直接跳页404  2.query空，看是否已经登录，如果登录过(LogInusername不空)则query设为LogInusername 3.否则“请您登录推特主页吧”
-	if(other_name != "null")	{		//注意这里即便是null，也变成了"null"字符串了...
-		Cluster.is_user_in_DB(other_name, function(other_uid){
+	if(other_name != "null")	{		
+		Cluster.is_user_in_DB(other_name, function(other_uid){		//通过DWR框架直接调用后端判断用户是否注册过的代码
 			if(other_uid == 0){
 				window.location.href = "/twitter_proj/doubi.html";
 			} else {
 				other_UID = other_uid;		//赋值给other_UID
 			}
-		})
+		});
 	}else if(LogInusername != "null")	{
 		window.location.href = "/twitter_proj/twitter_focus.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
 	}else{

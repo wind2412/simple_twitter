@@ -27,11 +27,6 @@ import zxl.bean.Article;
 import zxl.bean.TimeLineNode;
 import zxl.bean.User;
 
-/**
- * 	Jedis不支持集群的事务。
- *  等逻辑写完之后，我会使用lua重写全部。						=> 	 	大坑
- *  time最好不要在这里写。应该放到前端，用户点击的瞬间才好啊。		=>		坑
- */
 public class Cluster {
 	
 	public static String ip = "127.0.0.1";
@@ -188,7 +183,7 @@ public class Cluster {
 		}else{
 			bi = bi.getSubimage(0, 0, bi.getWidth(), (int)(bi.getWidth()*0.29));			
 		}
-		//固定生成JPEG。简单做就好。 然后覆盖
+		//固定生成JPEG。简单做就好。 然后覆盖  //png截完全是黑的，不能使用png
 		ImageIO.write(bi, "JPEG", new File(Cluster.class.getClassLoader().getResource("").getPath() + "../../twitter_proj/portraits/page_"+UID+".jpg"));
 		temp.delete();	//删除temp
 	}

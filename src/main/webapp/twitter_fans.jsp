@@ -385,7 +385,7 @@ function isSafari() {
 			} else {
 				other_UID = other_uid;		//赋值给other_UID
 			}
-		})
+		});
 	}else if(LogInusername != "null")	{
 		window.location.href = "/twitter_proj/twitter_fans.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
 	}else{

@@ -77,6 +77,7 @@ public class ClusterTest {
 			jxc.setPosition("欧摩西裸衣市");
 			jxc.setWebsite("youngerJiang.twitter.com");
 			jxc.setPortrait_path("portraits/head_"+jxc.getUID()+".jpg");			
+			zxl.setMain_page("portraits/page_"+jxc.getUID()+".jpg");
 			Cluster.upgrade_user_settings(jxc);
 		}
 		ltg.setUID(Cluster.add_a_user(ltg.getName(), "123"));
