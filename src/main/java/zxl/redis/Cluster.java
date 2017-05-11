@@ -139,6 +139,8 @@ public class Cluster {
 		if(user.getIntroduction() != null && !user.getIntroduction().equals(""))	jc.hset(keyname, "introduction", user.getIntroduction());
 		if(user.getWebsite() != null && !user.getWebsite().equals(""))		jc.hset(keyname, "website", user.getWebsite());
 		if(user.getPosition() != null && !user.getPosition().equals(""))		jc.hset(keyname, "position", user.getPosition());
+		if(user.getMain_page() != null && !user.getMain_page().equals(""))		jc.hset(keyname, "main_page", "portraits/page_"+user.getUID()+".jpg");
+		if(user.getPortrait_path() != null && !user.getPortrait_path().equals(""))		jc.hset(keyname, "portrait_path", "portraits/head_"+user.getUID()+".jpg");
 	}
 	
 	/**
@@ -486,6 +488,15 @@ public class Cluster {
 	}
 	
 	/**
+	 * 得到一篇文章的点赞数。
+	 * @param AID
+	 * @return
+	 */
+	public static long get_voted_num(long AID){
+		return jc.zcard("get_voted:"+AID);
+	}
+	
+	/**
 	 * 前端调用之前，需要调用focus_or_not()方法检测srcUID和targetUID是不是已经关注了。必须调用！
 	 * @param srcUID
 	 * @param targetUID
@@ -816,6 +827,15 @@ public class Cluster {
 	 */
 	public static String get_user_name(long UID){
 		return jc.hget("user:"+UID, "name");
+	}
+	
+	/**
+	 * 得到用户自我介绍
+	 * @param UID
+	 * @return
+	 */
+	public static String get_user_introduction(long UID){
+		return jc.hget("user:"+UID, "introduction");
 	}
 	
 	/**

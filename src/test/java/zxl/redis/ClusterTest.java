@@ -68,6 +68,7 @@ public class ClusterTest {
 			zxl.setPosition("China");
 			zxl.setWebsite("wind2412.github.io");
 			zxl.setPortrait_path("portraits/head_"+zxl.getUID()+".jpg");
+			zxl.setMain_page("portraits/page_"+zxl.getUID()+".jpg");
 			Cluster.upgrade_user_settings(zxl);
 		}
 		jxc.setUID(Cluster.add_a_user(jxc.getName(), "123"));
@@ -125,6 +126,7 @@ public class ClusterTest {
 		//互相关注一波
 		Cluster.focus_a_user(2, 1);
 		Cluster.focus_a_user(1, 2);
+		Cluster.focus_a_user(1, 9);
 		Cluster.focus_a_user(3, 4);
 		Cluster.focus_a_user(4, 3);
 		Cluster.focus_a_user(1, 5);

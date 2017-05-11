@@ -600,49 +600,165 @@ function isSafari() {
 	</div>
   </div>
 
-<div class="zong">
-        <div class="sankuai">
-        <div style="height: 160px;position: relative;">
-			<img style="height: 100px;width: 100%;border-radius:5px;" src="JIM.jpg">
-			<img class="headImg" src="CcXer0_P_400x400.jpg">
-			<p class="title"><button class="medium blue">正在关注</button><img src="QQ图片20170416191834.png"></p>
-		</div>
-		<div class="desc">
-			<p class="name"><span>Jim Carrey</span></p>
-			<img src="QQ图片20170416191034.png" />
-			<p class="descp1"><span>@JimCarry</span></p>
-			<p class="descp2"><span>Actor Jim Carrey</span></p>
-		</div>
-        </div>
-        
-        <div class="sankuai">
-        <div style="height: 160px;position: relative;">
-			<img style="height: 100px;width: 100%;border-radius:5px;" src="ANIMAL.jpg">
-			<img class="headImg" src="s4I7kg-j_400x400.jpg">
-			<p class="title"><button class="medium blue">正在关注</button><img src="QQ图片20170416191834.png"></p>
-		</div>
-		<div class="desc">
-			<p class="name"><span>Baby Animals</span></p>
-			<img src="QQ图片20170416191034.png" />
-			<p class="descp1">@Baby Animals</p>
-			<p class="descp2">Showcasing the amazing animals of the world!</p>
-		</div>
-        </div>
-        
-        <div class="sankuai">
-        <div style="height: 160px;position: relative;">
-			<img style="height: 100px;width: 100%;border-radius:5px;" src="CUTE2.jpg">
-			<img class="headImg" src="CUTE.jpg">
-			<p class="title"><button class="medium blue">正在关注</button><img src="QQ图片20170416191834.png"></p>
-		</div>
-		<div class="desc">
-			<p class="name"><span>Cute Overloads</span></p>
-			<img src="QQ图片20170416191034.png" />
-			<p class="descp1">@Cute Overloads</p>
-			<p class="descp2">we DO NOT own content posted. Everything is submissions. Content will be immediately removed or credited by owners request. Enjoy!</p>
-		</div>
-        </div>
-        </div>
-        </div>
+<div class="zong" id="my_focus">
+    <!--     <div class="sankuai">
+	        <div style="height: 160px;position: relative;">
+				<div 插入><img style="height: 100px;width: 100%;border-radius:5px;" src="portraits/page_1.jpg"></div>
+				<img class="headImg" src="CcXer0_P_400x400.jpg">
+				<p class="title"><button class="medium blue">正在关注</button></p>
+			</div>
+			<div class="desc">
+				<p class="name"><span>Jim Carrey</span></p>
+				<img src="QQ图片20170416191034.png" />
+				<p class="descp1"><span>@JimCarry</span></p>
+				<p class="descp2"><span>Actor Jim Carrey</span></p>
+			</div>
+        </div>	 -->
+</div>
+
+<script type="text/javascript">
+		
+		dwr.engine.setAsync(false);	//同步
+	
+		var focus_num;		
+		var page_num;		
+		var page_cur = 0;
+
+		Cluster.get_focus_num(other_UID, function(data){
+			focus_num = data;
+			page_num = Math.floor(focus_num/18);	//18是一页的量
+		});
+		Cluster.get_focus_by_page(LogInUID, page_cur, function(set){
+			place_focus_in_grid(set);		//排列出来
+			page_cur ++;
+		});
+		
+		dwr.engine.setAsync(true);	//同步
+		
+		
+		function create_a_focus(UID){
+			var div = document.createElement("div");
+			div.className = "sankuai";
+				//1st
+				var div_in_1 = document.createElement("div");
+				div_in_1.style.height = "160px";
+				div_in_1.style.position = "relative";
+				var div_insert = document.createElement("div");
+				var img_1 = document.createElement("img");
+				img_1.style.height = "100px";
+				img_1.style.width = "100%";
+				img_1.style.borderRadius = "5px";
+				div_insert.appendChild(img_1);
+				Cluster.get_user_main_page(UID, function(main_path){
+					if(main_path != null){
+						img_1.src = main_path;
+					}else{
+						div_insert.style.backgroundColor = main_page();	//随机颜色
+					}
+				});
+				var img_2 = document.createElement("img");
+				img_2.className = "headImg";
+				Cluster.get_user_portrait(UID, function(portrait){
+					img_2.src = (portrait == null) ? "portraits/anonymous.jpg" : portrait;		//改					
+				});
+				var p_1 = document.createElement("p");
+				p_1.className = "title";
+					var button = document.createElement("button");
+					button.className = "medium blue";	//改
+					button.innerHTML = "正在关注";
+					button.onclick = function(){
+						if(button.innerHTML == "正在关注"){
+							button.innerHTML = "&nbsp;&nbsp;关注&nbsp;&nbsp;";
+						}else{
+							button.innerHTML = "正在关注";							
+						}
+					}
+				//连接
+				div_in_1.appendChild(div_insert);
+				div_in_1.appendChild(img_2);
+				div_in_1.appendChild(p_1);
+				p_1.appendChild(button);
+				//2nd
+				var div_in_2 = document.createElement("div");
+				div_in_2.className = "desc";
+				var p_2 = document.createElement("p");	p_2.className = "name";
+				var p_3 = document.createElement("p");	p_3.className = "descp1";
+				Cluster.get_user_name(UID, function(name){
+					p_2.innerHTML = name;			
+					p_3.innerHTML = "@"+name;	
+				});
+				var p_4 = document.createElement("p");	p_4.className = "descp2";
+				Cluster.get_user_introduction(UID, function(intro){
+					p_4.innerHTML = (intro == null) ? "lazy person didn't leave anything :)" : intro;	
+				});
+				//连接
+				div_in_2.appendChild(p_2);
+				div_in_2.appendChild(p_3);
+				div_in_2.appendChild(p_4);
+			//大连接
+			div.appendChild(div_in_1);
+			div.appendChild(div_in_2);
+			return div;
+		}
+		
+		function make_a_line(UID1, UID2, UID3){
+			var div = document.createElement("div");
+			if(UID1 != null){
+				div.appendChild(create_a_focus(UID1));
+			}
+			if(UID2 != null){
+				div.appendChild(create_a_focus(UID2));
+			}
+			if(UID3 != null){
+				div.appendChild(create_a_focus(UID3));
+			}
+			return div;
+		}
+	
+		function append_a_line(line_div) {
+			var div = document.getElementById("my_focus");
+			div.appendChild(line_div);
+		}
+		
+		function place_focus_in_grid(set) {
+		alert(set);
+			var line_num = Math.floor(set.length/3);		//一行3个。
+			var line_cur = 0;		//从第0行开始计数
+			for(; line_cur <= line_num; line_cur ++){
+				if(line_cur == line_num){		//最后一排，可能会只有一行1个/2个
+					var remain_num = set.length - line_cur * 3;
+					if(remain_num == 1){
+						append_a_line(make_a_line(set[line_cur*3], null, null));
+					}else if(remain_num == 2){
+						append_a_line(make_a_line(set[line_cur*3], set[line_cur*3+1], null));
+					}else if(remain_num == 3){
+						append_a_line(make_a_line(set[line_cur*3], set[line_cur*3+1], set[line_cur*3+2]));					
+					}
+				}else{
+					append_a_line(make_a_line(set[line_cur*3], set[line_cur*3+1], set[line_cur*3+2]));
+				}
+			}
+		}
+			
+		//检测到达页面的底部
+		var $document = $(document);//缓存一下$(document)
+	    $(window).scroll(function(){
+	    　　var $this = $(this),
+	            scrollTop = $this.scrollTop(),
+	            scrollHeight = $document.height(),
+	            windowHeight = $this.height();
+	    　　if(scrollTop + windowHeight >= scrollHeight){
+	    		//到达底部		//获取一页focus
+	    		alert(page_cur + "..." + page_num);
+	    		if(page_cur > page_num)	return;		//如果页指针指向最后，那么一定是到达底端而且全部加载出来了。
+				else Cluster.get_focus_by_page(LogInUID, page_cur, function(focus_num){
+					place_focus_in_grid(focus_num);		//排列出来
+					page_cur ++;
+				});
+	    　　}
+	    });
+	
+</script>
+
 </body>
 </html>
