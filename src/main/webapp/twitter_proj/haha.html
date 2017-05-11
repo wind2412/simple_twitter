@@ -1,0 +1,44 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<title>推文页面</title>
+
+
+<link type="text/css" rel="stylesheet" href="css_us/articlepage.css">
+<link rel="stylesheet" type="text/css" href="css_us/iconfont.css">
+
+<script src="css_us/articlepage.js"></script>
+
+
+
+
+<body>
+    <div class="comenting" id="comenting">
+        <div class="article-coment-text-box-back" id="article-coment-text-box-back">
+            <form class="article-coment-text-box-f">
+                <textarea type="text" class="article-coment-text-box" maxlength="140" id="article-coment-text-box" placeholder="发布你的回复" onFocus="coment_write()"></textarea>
+                
+            </form>
+        </div>
+        <div class="coment-btn-back" id="coment-btn-back">
+            <div class="coment-pic-btn-back">
+                <button class="coment-btn" id="add-pic-btn" onMouseOver="coment_btn_on('add-pic-btn')" onMouseOut="coment_btn_out('add-pic-btn')">
+                    <i class="iconfont icon-xiangji"></i>
+                </button>
+                <button class="coment-btn" id="add-gif-btn" onMouseOver="coment_btn_on('add-gif-btn')" onMouseOut="coment_btn_out('add-gif-btn')">
+                    <i class="iconfont icon-gif"></i>
+                </button>
+                <button class="coment-btn" id="add-location-btn" onMouseOver="coment_btn_on('add-location-btn')" onMouseOut="coment_btn_out('add-location-btn')">
+                    <i class="iconfont icon-icon"></i>
+                </button>
+            </div>
+            <div class="coment-up">
+                <button class="coment-up-btn" id="coment-up-btn">发送</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+</html>

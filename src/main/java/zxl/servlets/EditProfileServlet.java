@@ -64,10 +64,10 @@ public class EditProfileServlet extends HttpServlet {
 			new_user.setPosition(nationality);
 			Cluster.upgrade_user_settings(new_user);	 		//更新信息
 
-			response.setHeader("Refresh", "1;URL=/twitter_proj/twitter_user.jsp?usr="+new_username+"&timestamp="+new Date().getTime());
+			response.setHeader("Refresh", "1;URL=/twitter_proj/twitter_focus.jsp?usr="+new_username+"&timestamp="+new Date().getTime());
 		}
 		else {
-			response.setHeader("Refresh", "1;URL=/twitter_proj/twitter_user.jsp?usr="+old_username+"&timestamp="+new Date().getTime());
+			response.setHeader("Refresh", "1;URL=/twitter_proj/twitter_focus.jsp?usr="+old_username+"&timestamp="+new Date().getTime());
 		}
 	}
 
