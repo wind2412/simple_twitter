@@ -381,7 +381,7 @@ function isSafari() {
 			}
 		})
 	}else if(LogInusername != "null")	{
-		window.location.href = "/twitter_proj/twitter_user.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
+		window.location.href = "/twitter_proj/twitter_fans.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
 	}else{
 		window.location.href = "/twitter_proj/login.jsp";
 	}
@@ -697,6 +697,7 @@ function isSafari() {
 				var p_2 = document.createElement("p");	p_2.className = "name";
 				var p_3 = document.createElement("p");	p_3.className = "descp1";
 				Cluster.get_user_name(UID, function(name){
+					div.onclick = "window.location='/twitter_proj/twitter_fans.jsp?usr="+name+"&timestamp="+new Date().getTime();
 					p_2.innerHTML = name;			
 					p_3.innerHTML = "@"+name;	
 				});

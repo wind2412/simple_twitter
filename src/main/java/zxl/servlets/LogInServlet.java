@@ -59,7 +59,7 @@ public class LogInServlet extends HttpServlet {
 //			request.setAttribute("haha", Cluster.get_all_fans(5));		//设置Set<Long>进去Attribute中	//连json都不用打！！太棒了！在js端直接会变成数组object对象！
 																		//所以到时候直接var set = <%= request.getAttribute("haha") %>;
 																		//alert(set.length); alert(set[0]);  就好了！！
-			request.getRequestDispatcher("/twitter_user.jsp?usr="+username+"&timestamp="+new Date().getTime()).forward(request, response);	//如果这里不加上query，那么twitter_user.jsp会由于没有query，会再跳一次页面。
+			request.getRequestDispatcher("/twitter_focus.jsp?usr="+username+"&timestamp="+new Date().getTime()).forward(request, response);	//如果这里不加上query，那么twitter_user.jsp会由于没有query，会再跳一次页面。
 																										//这样的话，所有的ajax会请求两次。如果碰到不加query后边调用由于某个值是null就会出错的情况，
 																										//服务器会报异常。server error。解决方法就是这里加上username，然后jsp把错误情况过滤掉。
 				//注意：加上query时间戳为了防止ajax缓存
