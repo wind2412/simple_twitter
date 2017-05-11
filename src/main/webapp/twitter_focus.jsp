@@ -444,7 +444,17 @@ function isSafari() {
 		
 	//赋予随机背景颜色
 	var main_page = function(){
-		return "#" + Math.floor(Math.random() * 16777215).toString(16);		//随机颜色生成
+		var color_string = Math.floor(Math.random() * 16775680).toString(16);
+		if(color_string.length < 6){
+			var diff = 6 - color_string.length;
+			var str = "";
+			while(diff > 0){
+				str += "E";
+				diff --;
+			}
+			color_string = str + color_string;
+		}
+		return "#" + color_string;		//随机颜色生成
 	}
 	//alert(document.getElementById("bg_img").src == "");	//如果src这个属性没写，确实是等于""的.
 	document.getElementById("bg").style.backgroundColor = main_page();	//随机设置一个颜色 如果用户有自己的大图片，就覆盖了。
