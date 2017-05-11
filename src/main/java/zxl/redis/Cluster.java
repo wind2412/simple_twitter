@@ -926,6 +926,7 @@ public class Cluster {
 		//得到二度查找，不够就扩充。
 		Set<Long> ac = change_set_type(jc.zrevrange("acquaintance_second{"+UID+"}", 0, 20));
 		long user_num = Long.parseLong(jc.get("UID"));		//得到用户总数
+		int test_cnt = 0;		//设置一个防止无限循环的变量。如果所剩的关注太少的话，后台就会出现死循环。在这个size<10这里。
 		while(ac.size() < 10){		//设定如果数目太少，那就随机推荐人吧。填充到10个就好了。毕竟全是陌生人。
 			//防止随机生成的列表出现focus里边的人+自己的UID，即防止出现已经关注过的人+自己.
 			long random_UID = (long)(Math.random() * (user_num-1)) + 1;		//+1防止出现0这样的UID
@@ -934,6 +935,10 @@ public class Cluster {
 			//是个新人，不是UID自身及其关注对象。
 			if(random_UID != UID && jc.zrank("focus{"+UID+"}", String.valueOf(random_UID)) == null){
 				ac.add(random_UID);
+			}
+			test_cnt ++;
+			if(test_cnt == 10){		//如果随机匹配试验了10次还是冲突
+				break;
 			}
 		}
 		
