@@ -546,11 +546,22 @@ function isSafari() {
 					button.onclick = "Iclose()";
 					button.title = "关闭";
 					button.innerHTML = "&times";
+					
+					
+					
 					var div2 = document.createElement("div");
 					div2.className = "follow-container";
 					var button2 = document.createElement("button");
 					button2.className = "but_follow";
 					button2.innerHTML = "关注";
+					button2.onclick = function(){
+						if(button2.innerHTML == "正在关注"){
+							button2.innerHTML = "&nbsp;&nbsp;关注&nbsp;&nbsp;";
+						}else{
+							button2.innerHTML = "正在关注";							
+						}
+					}
+					
 					//联合
 					div2.appendChild(button2);
 					a.appendChild(img);
@@ -669,8 +680,10 @@ function isSafari() {
 					button.onclick = function(){
 						if(button.innerHTML == "正在关注"){
 							button.innerHTML = "&nbsp;&nbsp;关注&nbsp;&nbsp;";
+							Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
 						}else{
 							button.innerHTML = "正在关注";							
+							Cluster.focus_a_user(LogInUID, UID);		//关注
 						}
 					}
 				//连接
