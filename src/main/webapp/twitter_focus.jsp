@@ -328,9 +328,9 @@ a:hover{
 			</a>
 		
             <ul>
-                <li><a href=""><div>推文</div><div id="articles"></div></a></li>
-                <li><a href=""><div>正在关注</div><div id="focus"></div></a></li>
-                <li><a href=""><div>关注者</div><div id="fans"></div></a></li>
+                <li><a href="" id="head_articles"><div>推文</div><div id="articles"></div></a></li>
+                <li><a href="" id="head_focusing"><div>正在关注</div><div id="focus"></div></a></li>
+                <li><a href="" id="head_fansing"><div>关注者</div><div id="fans"></div></a></li>
             </ul>
             <div class="logo0-back">
         		<a id="logo0"><button class="medium blue" onclick="window.location='/twitter_proj/edit.jsp'">编辑个人资料</button></a>
@@ -359,6 +359,7 @@ function isSafari() {
 	return false;
 }
 
+
 //注意：LogInUID不是UID就是0. LogInusername不是真·name就是"null"(带双引号). other_UID一定是正确的/异步调用的话需要检查是否为null. other_name一定是正确的/异步调用需要检查是否为"null"。=>因为会并发执行。
 	//得到session中登录用户的UID
 	var LogInUID = <%= request.getSession().getAttribute("LogInUID")%>;		//可能为null
@@ -368,6 +369,11 @@ function isSafari() {
 	document.getElementById("loginusername").innerHTML = LogInusername;
 	//得到query的username
 	var other_name = '<%= request.getParameter("usr") %>';		//得到请求末尾的query.		但是要注意，可能是null。
+	//设置头的“正在关注”等连接 以及头的头像的链接	
+	document.getElementById("logo1").href = "/twitter_proj/twitter_focus.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
+	document.getElementById("head_articles").href = "";		//未设置????????????????在另一边fans也要设置
+	document.getElementById("head_focusing").href = "/twitter_proj/twitter_focus.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
+	document.getElementById("head_fansing").href = "/twitter_proj/twitter_fans.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
 	var other_UID = null;	//如果这里不设置的话，如果query出错的话，比如?usr=zhengxiaoli 那么if(other_uid==0)之后会other_UID未定义。因为并不会定义other_UID. 
 	//看query是否合法才能向下进行。因此这里必须同步方式。需要关闭ajax异步。
 	dwr.engine.setAsync(false);
@@ -381,7 +387,7 @@ function isSafari() {
 			}
 		})
 	}else if(LogInusername != "null")	{
-		window.location.href = "/twitter_proj/twitter_user.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
+		window.location.href = "/twitter_proj/twitter_focus.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
 	}else{
 		window.location.href = "/twitter_proj/login.jsp";
 	}
@@ -529,7 +535,6 @@ function isSafari() {
 					var div = document.createElement("div");
 					var a = document.createElement("a");
 					a.className = "account-group";
-					a.href = "";
 					var img = document.createElement("img");
 					img.className = "image";
 					Cluster.get_user_portrait(UID, function(portrait_path){
@@ -539,6 +544,7 @@ function isSafari() {
 					var strong = document.createElement("strong");
 					strong.className = "userName";
 					Cluster.get_user_name(UID, function(name){
+						a.href = "/twitter_proj/twitter_focus.jsp?usr="+name+"&timestamp="+new Date().getTime();
 						strong.innerHTML = "&nbsp;"+ name;					
 					});
 					var button = document.createElement("button");
@@ -688,7 +694,7 @@ function isSafari() {
 						}
 					}
 				//连接
-				div_in_1.appendChild(div_insert);
+				div_in_1.appendChild(a);
 				div_in_1.appendChild(img_2);
 				div_in_1.appendChild(p_1);
 				p_1.appendChild(button);
@@ -711,8 +717,8 @@ function isSafari() {
 				div_in_2.appendChild(p_3);
 				div_in_2.appendChild(p_4);
 			//大连接
-			a.appendChild(div_in_1);
-			div.appendChild(a);
+			a.appendChild(div_insert);
+			div.appendChild(div_in_1);
 			div.appendChild(div_in_2);
 			return div;
 		}
@@ -737,7 +743,6 @@ function isSafari() {
 		}
 		
 		function place_focus_in_grid(set) {
-		alert(set);
 			var line_num = Math.floor(set.length/3);		//一行3个。
 			var line_cur = 0;		//从第0行开始计数
 			for(; line_cur <= line_num; line_cur ++){
@@ -765,7 +770,6 @@ function isSafari() {
 	            windowHeight = $this.height();
 	    　　if(scrollTop + windowHeight >= scrollHeight){
 	    		//到达底部		//获取一页focus
-	    		alert(page_cur + "..." + page_num);
 	    		if(page_cur > page_num)	return;		//如果页指针指向最后，那么一定是到达底端而且全部加载出来了。
 				else Cluster.get_focus_by_page(LogInUID, page_cur, function(focus_num){
 					place_focus_in_grid(focus_num);		//排列出来

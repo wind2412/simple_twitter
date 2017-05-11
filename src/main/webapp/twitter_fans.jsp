@@ -15,7 +15,7 @@ response.setDateHeader("Expires", -10);
 <html>
 <head>
 	<!-- META -->
-	<title>我的关注</title>
+	<title>我的粉丝</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<meta name="description" content="" />
@@ -328,9 +328,9 @@ a:hover{
 			</a>
 		
             <ul>
-                <li><a href=""><div>推文</div><div id="articles"></div></a></li>
-                <li><a href=""><div>正在关注</div><div id="focus"></div></a></li>
-                <li><a href=""><div>关注者</div><div id="fans"></div></a></li>
+                <li><a href="" id="head_articles"><div>推文</div><div id="articles"></div></a></li>
+                <li><a href="" id="head_focusing"><div>正在关注</div><div id="focus"></div></a></li>
+                <li><a href="" id="head_fansing"><div>关注者</div><div id="fans"></div></a></li>
             </ul>
             <div class="logo0-back">
         		<a id="logo0"><button class="medium blue" onclick="window.location='/twitter_proj/edit.jsp'">编辑个人资料</button></a>
@@ -359,6 +359,7 @@ function isSafari() {
 	return false;
 }
 
+
 //注意：LogInUID不是UID就是0. LogInusername不是真·name就是"null"(带双引号). other_UID一定是正确的/异步调用的话需要检查是否为null. other_name一定是正确的/异步调用需要检查是否为"null"。=>因为会并发执行。
 	//得到session中登录用户的UID
 	var LogInUID = <%= request.getSession().getAttribute("LogInUID")%>;		//可能为null
@@ -369,6 +370,11 @@ function isSafari() {
 	//得到query的username
 	var other_name = '<%= request.getParameter("usr") %>';		//得到请求末尾的query.		但是要注意，可能是null。
 	var other_UID = null;	//如果这里不设置的话，如果query出错的话，比如?usr=zhengxiaoli 那么if(other_uid==0)之后会other_UID未定义。因为并不会定义other_UID. 
+	//设置头的“正在关注”等连接
+	document.getElementById("logo1").href = "/twitter_proj/twitter_focus.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();		//这里需要改。应该先跳到对方的推文列表。
+	document.getElementById("head_articles").href = "";
+	document.getElementById("head_focusing").href = "/twitter_proj/twitter_focus.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
+	document.getElementById("head_fansing").href = "/twitter_proj/twitter_fans.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
 	//看query是否合法才能向下进行。因此这里必须同步方式。需要关闭ajax异步。
 	dwr.engine.setAsync(false);
 	//1.如果query不空，那就检测是否合法，合法就继续走，不合法直接跳页404  2.query空，看是否已经登录，如果登录过(LogInusername不空)则query设为LogInusername 3.否则“请您登录推特主页吧”
@@ -529,7 +535,6 @@ function isSafari() {
 					var div = document.createElement("div");
 					var a = document.createElement("a");
 					a.className = "account-group";
-					a.href = "";
 					var img = document.createElement("img");
 					img.className = "image";
 					Cluster.get_user_portrait(UID, function(portrait_path){
@@ -539,6 +544,7 @@ function isSafari() {
 					var strong = document.createElement("strong");
 					strong.className = "userName";
 					Cluster.get_user_name(UID, function(name){
+						a.href = "/twitter_proj/twitter_focus.jsp?usr="+name+"&timestamp="+new Date().getTime();
 						strong.innerHTML = "&nbsp;"+ name;					
 					});
 					var button = document.createElement("button");
@@ -635,11 +641,11 @@ function isSafari() {
 		var page_num;		
 		var page_cur = 0;
 
-		Cluster.get_focus_num(other_UID, function(data){
+		Cluster.get_fans_num(other_UID, function(data){		//调用名称改了
 			focus_num = data;
 			page_num = Math.floor(focus_num/18);	//18是一页的量
 		});
-		Cluster.get_focus_by_page(LogInUID, page_cur, function(set){
+		Cluster.get_fans_by_page(other_UID, page_cur, function(set){
 			place_focus_in_grid(set);		//排列出来
 			page_cur ++;
 		});
@@ -650,6 +656,7 @@ function isSafari() {
 		function create_a_focus(UID){
 			var div = document.createElement("div");
 			div.className = "sankuai";
+			var a = document.createElement("a");
 				//1st
 				var div_in_1 = document.createElement("div");
 				div_in_1.style.height = "160px";
@@ -670,13 +677,17 @@ function isSafari() {
 				var img_2 = document.createElement("img");
 				img_2.className = "headImg";
 				Cluster.get_user_portrait(UID, function(portrait){
-					img_2.src = (portrait == null) ? "portraits/anonymous.jpg" : portrait;		//改					
+					img_2.src = (portrait == null) ? "portraits/anonymous.jpg" : portrait;			
 				});
 				var p_1 = document.createElement("p");
 				p_1.className = "title";
 					var button = document.createElement("button");
 					button.className = "medium blue";	//改
-					button.innerHTML = "正在关注";
+					//这里，与关注页面不同的是，因为即使是粉丝，也有可能关注了/没关注。因此这里必须插入一个判断：focus_or_not
+					Cluster.focus_or_not(LogInUID, UID, function(is_focus){
+						if(is_focus == true)	button.innerHTML = "正在关注";
+						else button.innerHTML = "关注";
+					});
 					button.onclick = function(){
 						if(button.innerHTML == "正在关注"){
 							button.innerHTML = "&nbsp;&nbsp;关注&nbsp;&nbsp;";
@@ -687,7 +698,7 @@ function isSafari() {
 						}
 					}
 				//连接
-				div_in_1.appendChild(div_insert);
+				div_in_1.appendChild(a);
 				div_in_1.appendChild(img_2);
 				div_in_1.appendChild(p_1);
 				p_1.appendChild(button);
@@ -697,7 +708,7 @@ function isSafari() {
 				var p_2 = document.createElement("p");	p_2.className = "name";
 				var p_3 = document.createElement("p");	p_3.className = "descp1";
 				Cluster.get_user_name(UID, function(name){
-					div.onclick = "window.location='/twitter_proj/twitter_fans.jsp?usr="+name+"&timestamp="+new Date().getTime();
+					a.href = "/twitter_proj/twitter_focus.jsp?usr="+name+"&timestamp="+new Date().getTime();		//在粉丝中点击某个粉丝，还是会跳到对方的关注页。
 					p_2.innerHTML = name;			
 					p_3.innerHTML = "@"+name;	
 				});
@@ -710,6 +721,7 @@ function isSafari() {
 				div_in_2.appendChild(p_3);
 				div_in_2.appendChild(p_4);
 			//大连接
+			a.appendChild(div_insert);
 			div.appendChild(div_in_1);
 			div.appendChild(div_in_2);
 			return div;
@@ -735,7 +747,6 @@ function isSafari() {
 		}
 		
 		function place_focus_in_grid(set) {
-		alert(set);
 			var line_num = Math.floor(set.length/3);		//一行3个。
 			var line_cur = 0;		//从第0行开始计数
 			for(; line_cur <= line_num; line_cur ++){
@@ -763,9 +774,8 @@ function isSafari() {
 	            windowHeight = $this.height();
 	    　　if(scrollTop + windowHeight >= scrollHeight){
 	    		//到达底部		//获取一页focus
-	    		alert(page_cur + "..." + page_num);
 	    		if(page_cur > page_num)	return;		//如果页指针指向最后，那么一定是到达底端而且全部加载出来了。
-				else Cluster.get_focus_by_page(LogInUID, page_cur, function(focus_num){
+				else Cluster.get_fans_by_page(LogInUID, page_cur, function(focus_num){
 					place_focus_in_grid(focus_num);		//排列出来
 					page_cur ++;
 				});
