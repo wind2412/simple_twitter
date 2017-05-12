@@ -318,18 +318,40 @@ function isSafari() {
             <ol id="stream-items-id" class="stream-items">
               
               
-               <li class="stream-item">
-                 <div class="text" id="all_reply">
-                   
-                 </div>
-               </li>
                
                <script type="text/javascript">
-               var all_reply = document.getElementById("all_reply");
-               		all_reply.appendChild(create_article_zxl());
+               		dwr.engine.setAsync(false);	//同步
+               		
+               		var articles_num;
+               		var page_num;
+               		var page_cur = 0;
+               		
+               		Cluster.get_user_articles_num(other_UID, function(num){
+               			articles_num = num;
+               			page_num = Math.floor(articles_num / 20);		//一页20个 
+               		});
+               		
+               		Cluster.get_user_articles_by_page(other_UID, 0, function(set){
+               			place_articles_in_column(set);
+               			page_cur ++;
+               		});
+               		
+               		dwr.engine.setAsync(true);	//同步
+               		
+               		function place_articles_in_column(set){
+		                var all_reply = document.getElementById("stream-items-id");
+               			for(var i = 0; i < set.length; i ++){	//列出所有文章
+		               		all_reply.appendChild(create_article_zxl(set[i]));  
+               			}
+               		}
+               		
                
-               
-        function create_article_zxl(){
+        function create_article_zxl(AID){
+        	var li = document.createElement("li");
+        	li.className = "stream-item";
+        	var div = document.createElement("div");
+        	div.className = "text";
+
 			var article_others=document.createElement("div");
 			article_others.className="article-others";
 			article_others.setAttribute("id","article-others");
@@ -347,7 +369,10 @@ function isSafari() {
 			var head_pic=document.createElement("img");
 			head_pic.setAttribute("id","head-pic");
 			head_pic.className="head-pic";
-			head_pic.src="head.jpg";
+			Cluster.get_user_portrait(other_UID, function(src){
+				src==null? src="portraits/anonymous.jpg" :{}; 
+				head_pic.src= src;		//全指定为头像
+			});
 			article_left.appendChild(head_pic);
 			
 			article.appendChild(article_left);
@@ -361,23 +386,23 @@ function isSafari() {
 			var article_right_header=document.createElement("div");
 			article_right_header.className="article-right-header";
 			var user_link=document.createElement("a");
-			user_link.src="";
+			user_link.src= "/twitter_proj/twitter_articles.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
 			user_link.style="float:left; cursor:pointer";
 			var article_right_username=document.createElement("div");
 			article_right_username.className="article-right-username";
 			var username=document.createElement("span");
 			username.setAttribute("id","article-nickname");
 			username.style="font-family:'微软雅黑';	color:dodgerblue;";
-			username.innerHTML="欧摩西罗伊";
+			username.innerHTML=other_name;			//全设置为other_name				
 			article_right_username.appendChild(username);
 			
 			var userID=document.createElement("span");
-			userID.className="Aid";
+			userID.className="AID";
 			userID.dir="ltr";
 			userID.innerHTML="ID:";
 			var uid=document.createElement("b");
 			uid.setAttribute("id","article-uid");
-			uid.innerHTML="jxc";
+			uid.innerHTML="@"+other_name;			//全设置为other_name
 			userID.appendChild(uid);
 			article_right_username.appendChild(userID);
 			user_link.appendChild(article_right_username);
@@ -386,7 +411,7 @@ function isSafari() {
 			var article_others_time=document.createElement("div");
 			article_others_time.setAttribute("id","article-others-time");
 			article_others_time.className="article-others-time";
-			article_others_time.innerHTML="11:15  2017/5/12";
+	//		article_others_time.innerHTML="11:15  2017/5/12";		//改
 			article_right_header.appendChild(article_others_time);
 			
 			article_right.appendChild(article_right_header);
@@ -402,7 +427,7 @@ function isSafari() {
 			var article_coment_text=document.createElement("div");
 			article_coment_text.setAttribute("id","article-coment-text");
 			article_coment_text.className="article-coment-text";
-			article_coment_text.innerHTML="うんうん、面白い。<br>(*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；<br>(*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)。";
+	//		article_coment_text.innerHTML="うんうん、面白い。<br>(*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；<br>(*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)。";
 			a.appendChild(article_coment_text);
 			article_right.appendChild(a);
 			
@@ -411,9 +436,18 @@ function isSafari() {
 			article_pic_back.className="article-pic-back";
 			var article_pic=document.createElement("img");
 			article_pic.className="article-pic";
-			article_pic.src="";
+	//		article_pic.src="";
 			article_pic_back.appendChild(article_pic);
 			article_right.appendChild(article_pic_back);
+
+				//后台服务器得到Article
+				Cluster.get_an_article(AID, function(article){
+					var time = new Date(article.time*1000);
+					article_others_time.innerHTML= time.getHours()+":"+time.getMinutes()+"  "+(time.getYear()-100+2000)+"/"+(time.getMonth()+1)+"/"+time.getDate();
+					article_coment_text.innerHTML= article.content;
+					if(article.pics != null){article_pic.src = articles.pics[0];}
+				});
+			
 			
 			//动作按钮
 			var article_action_list=document.createElement("div");
@@ -506,7 +540,10 @@ function isSafari() {
 			article_inner.appendChild(article);
 			article_others.appendChild(article_inner);
 
-			return article_others;
+      		li.appendChild(div);  	
+        	div.appendChild(article_others);
+
+			return li;
 		}
                		
                </script>

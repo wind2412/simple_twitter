@@ -439,12 +439,13 @@ public class Cluster {
 	}
 	
 	/**
-	 * 得到此用户所有推文
+	 * 得到此用户所有推文 一页20个
 	 * @param UID
 	 * @return
 	 */
-	public static Set<String> get_user_articles(long UID){
-		return jc.zrevrangeByScore("all_articles:"+UID, "+inf", "-inf");
+	public static Set<Long> get_user_articles_by_page(long UID, int page){
+		if((page-1)*ARTICLES_PER_PAGE > jc.zcard("all_articles:"+UID))	return null;		//说明已经到了所有页的末尾，后面已经没有了
+		return change_set_type(jc.zrevrange("all_articles:"+UID, (page-1)*ARTICLES_PER_PAGE, page*ARTICLES_PER_PAGE-1));
 	}
 	
 	/**
