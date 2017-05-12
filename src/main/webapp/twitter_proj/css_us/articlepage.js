@@ -129,7 +129,7 @@ function action_btn_ved_cli(){
 */
 //*************************回复框*****************************
 function comment_write(){
-	document.getElementById("article-commenting").style.height="292px";
+	document.getElementById("article-commenting").style.height="256px";
 	document.getElementById("article-comment-text-box-back").style.height="192px";
 	document.getElementById("article-comment-text-box").style.height="168px";
 	document.getElementById("comment-btn-back").style.display="block";

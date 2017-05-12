@@ -29,7 +29,9 @@ response.setDateHeader("Expires", -10);
 	<link rel="stylesheet" type="text/css" href="css_us/iconfont.css" />
 	     <script src="css_us/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="plugin/jquery_danchu/reveal.css" />
-   
+   	
+     <script type="text/javascript" src="my_js/start_up.js"></script>
+     <script type="text/javascript" src="my_js/focus_list.js"></script>
      <script type="text/javascript" src="css_us/article.js"></script>
      <script type="text/javascript" src="css_us/together.js"></script>
      <script type="text/javascript" src="css_us/articlepage.js"></script>
@@ -352,24 +354,8 @@ a:hover{
 <br><br>
 
 <script type="text/javascript">
-if (isSafari()) {
-	$(window).bind("pageshow", function (event) {
-		if (event.originalEvent.persisted && $('body').hasClass("no-cache")) {
-			document.body.style.display = "none";
-			window.location.reload();
-		}
-	});
-}
-
-function isSafari() {
-	if (navigator.userAgent.indexOf("Safari") > -1) {
-		return true;
-	}
-	return false;
-}
-
-
-//注意：LogInUID不是UID就是0. LogInusername不是真·name就是"null"(带双引号). other_UID一定是正确的/异步调用的话需要检查是否为null. other_name一定是正确的/异步调用需要检查是否为"null"。=>因为会并发执行。
+	safari();
+	//注意：LogInUID不是UID就是0. LogInusername不是真·name就是"null"(带双引号). other_UID一定是正确的/异步调用的话需要检查是否为null. other_name一定是正确的/异步调用需要检查是否为"null"。=>因为会并发执行。
 	//得到session中登录用户的UID
 	var LogInUID = <%= request.getSession().getAttribute("LogInUID")%>;		//可能为null
 	if(LogInUID == null)	LogInUID = 0;
@@ -377,123 +363,11 @@ function isSafari() {
 	var LogInusername = '<%= request.getSession().getAttribute("LogInusername")%>';		//注意......这里会真的显示Tom....不是字符串“Tom”，而是就是Tom......
 	document.getElementById("loginusername").innerHTML = LogInusername;
 	//得到query的username   【注意！！网络中url的传输全是ISO-8859-1编码格式！因此要强转为UTF-8！！！】
-	var other_name = '<%= new String(request.getParameter("usr").getBytes("iso-8859-1"), "utf-8" ) %>';		//得到请求末尾的query.		但是要注意，可能是null。
-	//设置头的“正在关注”等连接 以及头的头像的链接	
-	document.getElementById("logo1").href = "/twitter_proj/twitter_focus.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
-	document.getElementById("head_articles").href = "";		//未设置????????????????在另一边fans也要设置
-	document.getElementById("head_focusing").href = "/twitter_proj/twitter_focus.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
-	document.getElementById("head_fansing").href = "/twitter_proj/twitter_fans.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
+	var other_name = '<%= request.getParameter("usr") == null ? null : new String(request.getParameter("usr").getBytes("iso-8859-1"), "utf-8" ) %>';		//得到请求末尾的query.		但是要注意，可能是null。
 	var other_UID = null;	//如果这里不设置的话，如果query出错的话，比如?usr=zhengxiaoli 那么if(other_uid==0)之后会other_UID未定义。因为并不会定义other_UID. 
-	//看query是否合法才能向下进行。因此这里必须同步方式。需要关闭ajax异步。
-	dwr.engine.setAsync(false);
-	//1.如果query不空，那就检测是否合法，合法就继续走，不合法直接跳页404  2.query空，看是否已经登录，如果登录过(LogInusername不空)则query设为LogInusername 3.否则“请您登录推特主页吧”
-	if(other_name != "null")	{		
-		Cluster.is_user_in_DB(other_name, function(other_uid){		//通过DWR框架直接调用后端判断用户是否注册过的代码
-			if(other_uid == 0){
-				window.location.href = "/twitter_proj/doubi.html";
-			} else {
-				other_UID = other_uid;		//赋值给other_UID
-				
-				//得到header的button按钮  为了在自己页面变成关注
-				var a = document.getElementById("logo0");
-				var button = document.createElement("button");
-				button.className = "medium blue";
-				a.appendChild(button);
-				if(other_UID == LogInUID){
-					button.onclick = function(){		//竟然直接设置button.oncick = "window.location='...'"不好使，然而在html中指定onclick是好使的。
-						window.location.href="/twitter_proj/edit.jsp";					
-					}
-					button.innerHTML = "编辑个人资料";
-					button.style.marginRight = "50px";
-				}else{
-					Cluster.focus_or_not(LogInUID, other_uid, function(data){
-						button.style.width = "100px";
-						button.style.marginRight = "50px";
-						if(data == true){//<button class="medium blue" id="edit_or_focus" ></button>
-							button.innerHTML = "正在关注";
-							button.onclick = function(){
-								if(button.innerHTML == "正在关注"){
-									button.innerHTML = "关注";
-									Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
-								}else{
-									button.innerHTML = "正在关注";							
-									Cluster.focus_a_user(LogInUID, UID);		//关注
-								}
-							}
-						}else{
-							button.innerHTML = "关注";
-							button.onclick = function(){
-								if(button.innerHTML == "正在关注"){
-									button.innerHTML = "关注";
-									Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
-								}else{
-									button.innerHTML = "正在关注";							
-									Cluster.focus_a_user(LogInUID, UID);		//关注
-								}
-							}
-						}
-					});
-				}
-			}
-		});
-	}else if(LogInusername != "null")	{
-		window.location.href = "/twitter_proj/twitter_focus.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
-	}else{
-		window.location.href = "/twitter_proj/login.jsp";
-	}
-	//此时已经获取到最重要的other_UID，可以开启异步了。
-	dwr.engine.setAsync(true);
-	//鼠标放到头像上，显示名字
-	document.getElementById("other_head").title = other_name;
-	//得到登录的用户LogInusername头像		//必须在得到UID的同时才能执行。因为是异步，不知道什么时候才能读取到啊。
-//alert(LogInUID + "..." + other_UID);		//test
-	if(LogInUID != null)
-		Cluster.get_user_portrait(LogInUID, function(src){
-			src==null? src="portraits/anonymous.jpg" :{}; 
-			document.getElementById("portrait").src = src;
-			//如果LogInUID和other_UID相等，复制大头像
-			if(LogInUID == other_UID){	
-			//alert("yes!!!");
-				document.getElementById("bighead").src = document.getElementById("portrait").src;		
-				document.getElementById("bighead").style.visibility = "visible";	
-				if(other_UID != 0)
-					get_user_article_msg();	//异步调用ajax获取other_UID的所有推文，正在关注以及关注者信息。
-			}	//	else alert("no!!!");
-			//上边的两个alert。ajax太诡异了！开了同步，也会在没同步完的时候所有ajax全都异步调用一遍？？然后同步完之后后边的ajax又会重新调用一遍......
-		});
-	//所以就因为这种诡异......这里的if里边必须要设置other_UID!=null条件，来防止第一次全规模的全异步调用......
-	if(LogInUID != other_UID && other_UID != null){	//卧槽？？？js里边这src==null?...就少些个等号=，src竟然就变成object了？？？？？
-		Cluster.get_user_portrait(other_UID, function(src){
-			src==null? src="portraits/anonymous.jpg" :{}; 
-			document.getElementById("bighead").src = src;
-			document.getElementById("bighead").style.visibility = "visible";		
-			if(other_UID != 0)
-				get_user_article_msg();	//异步调用ajax获取other_UID的所有推文，正在关注以及关注者信息。
-		});
-	}
-	//得到other_UID的background。
-	if(other_UID != null){		//由于是异步，所以这里无论如何都会执行。因此，必须设置null把关啊。
-		Cluster.get_user_main_page(other_UID, function(src){
-			if(src != null){		//有就设置，没有就不设置。
-				document.getElementById("bg_img").src = src;
-			}
-		});
-	}
 	
-	//得到query用户所有推文，正在关注，以及关注者信息。
-	function get_user_article_msg(){
-		Cluster.get_user_articles_num(other_UID, function(data){document.getElementById("head_t_num").innerHTML = data;});
-		Cluster.get_focus_num(other_UID, function(data){document.getElementById("head_f_num").innerHTML = data;});
-		Cluster.get_fans_num(other_UID, function(data){document.getElementById("head_fd_num").innerHTML = data;});		
-	}
-	
-	//得到[左方之地]=>other_UID所有信息		//如果dwr中得到一个对象obj的话，那么不用调用方法(因为不是方法)，而是直接调用成员变量。比如obj.name。私有的就可以。
-	var other_usr_info;
-	//Cluster.get_a_user_by_UID(other_UID, function(user_obj){alert(user_obj.name);});
-	
-		
 	//赋予随机背景颜色
-	var main_page = function(){
+	function main_page(){
 		var color_string = Math.floor(Math.random() * 16775680).toString(16);
 		if(color_string.length < 6){
 			var diff = 6 - color_string.length;
@@ -506,13 +380,8 @@ function isSafari() {
 		}
 		return "#" + color_string;		//随机颜色生成
 	}
-	//alert(document.getElementById("bg_img").src == "");	//如果src这个属性没写，确实是等于""的.
-	document.getElementById("bg").style.backgroundColor = main_page();	//随机设置一个颜色 如果用户有自己的大图片，就覆盖了。
 	
-	
-	
-	
-	
+	start_up();
 </script>
 
 
@@ -568,126 +437,7 @@ function isSafari() {
 		<br>
 		
 		<script type="text/javascript">
-				//获得数据
-				if(LogInUID != 0)
-					Cluster.get_probably_acquaintance(LogInUID, function(set){
-			//		var str = "";
-			//		for(var i = 0; i < set.length; i ++){
-			//			str += set[i];
-			//			str += " ";
-			//		}
-						var ptr = 0;		//关注列表一次显示3个。ptr是set的指针。
-						var list_num = 0;	//显示在上边的关注列表的人数。如果叉掉，就少一个。然后点击事件会把list_num-1 然后如果set里边还有，即ptr没到set.length，那么list_num再++，
-						var ol = document.getElementById("recommend_list");
-						for(; ptr < set.length && list_num < 3; ptr ++){
-							//放到<ol>中
-							ol.appendChild(get_an_acquaintance(set[ptr], (ptr+1)));
-							list_num ++;
-						}
-						
-						
-						//淡入淡出效果  必须要在js生成之后加载才管用。
-						$(document).ready(function() {
-						    $(".but_follow").mouseenter(function(){//鼠标移至关注变色
-								$(this).css({"background":"dodgerblue","cursor":"hand"});
-							});
-							$(".but_follow").mouseleave(function(){//移开时恢复
-								$(this).css("background","#f5f8fa");  
-							});
-							$(".but_follow").click(function(){//点击关注按钮不聚焦
-								onfocus = this.blur();  
-							});
-							$("#close_1").click(function(){//关闭推荐关注，淡出
-								onfocus = this.blur();
-								$("#f1").fadeOut(500);
-								if(ptr < set.length){
-									ol.replaceChild(get_an_acquaintance(set[ptr++], 1), document.getElementById("f1"));
-									$("#f1").fadeIn(500);
-								}
-							});
-							$("#close_2").click(function(){
-								onfocus = this.blur();
-								$("#f2").fadeOut(500);
-								if(ptr < set.length){
-									ol.replaceChild(get_an_acquaintance(set[ptr++], 2), document.getElementById("f2"));
-									$("#f2").fadeIn(500);
-								}
-							});
-							$("#close_3").click(function(){
-								onfocus = this.blur();
-								$("#f3").fadeOut(500);
-								if(ptr < set.length){
-									ol.replaceChild(get_an_acquaintance(set[ptr++], 3), document.getElementById("f3"));
-									$("#f3").fadeIn(500);
-								}
-							});
-						});
-					});
-				//推荐关注的动态生成
-				function get_an_acquaintance(UID, id) {
-					var big_div = document.createElement("div");
-					big_div.setAttribute("id", "f"+id);
-					var li = document.createElement("li");
-					li.className = "li_follow";
-					var div = document.createElement("div");
-					var a = document.createElement("a");
-					a.className = "account-group";
-					var img = document.createElement("img");
-					img.className = "image";
-					Cluster.get_user_portrait(UID, function(portrait_path){
-				//	alert(UID + "..." + portrait_path);
-						img.src = portrait_path == null ? "portraits/anonymous.jpg" : portrait_path;						
-					});
-					var strong = document.createElement("strong");
-					strong.className = "userName";
-					Cluster.get_user_name(UID, function(name){
-						a.href = "/twitter_proj/twitter_focus.jsp?usr="+name+"&timestamp="+new Date().getTime();
-						strong.innerHTML = "&nbsp;"+ name;					
-					});
-					var button = document.createElement("button");
-					button.setAttribute("id", "close_"+id);
-					button.className = "close";
-					button.onclick = "Iclose()";
-					button.title = "关闭";
-					button.innerHTML = "&times";
-					
-					
-					
-					var div2 = document.createElement("div");
-					div2.className = "follow-container";
-					var button2 = document.createElement("button");
-					button2.className = "but_follow";
-					button2.innerHTML = "关注";
-					button2.onclick = function(){
-						//点击按钮要修改前端静态页面的关注人数哦
-						var focus_div = document.getElementById("head_f_num");		
-						if(button2.innerHTML == "正在关注"){
-							button2.innerHTML = "&nbsp;&nbsp;关注&nbsp;&nbsp;";
-							Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
-							if(other_UID == LogInUID){		//如果是自己的页面才加。
-								focus_div.innerHTML = parseInt(focus_div.innerHTML) - 1;							
-							}
-						}else{
-							button2.innerHTML = "正在关注";							
-							Cluster.focus_a_user(LogInUID, UID);		//关注
-							if(other_UID == LogInUID){		//如果是自己的页面才加。
-								focus_div.innerHTML = parseInt(focus_div.innerHTML) + 1;							
-							}
-						}
-					}
-					
-					//联合
-					big_div.appendChild(li);
-					div2.appendChild(button2);
-					a.appendChild(img);
-					a.appendChild(strong);
-					div.appendChild(a);
-					div.appendChild(button);
-					li.appendChild(div);
-					li.appendChild(div2);
-					
-					return big_div;
-				}
+				focus_list();
 				
 		</script>
 		

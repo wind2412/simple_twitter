@@ -15,7 +15,7 @@ $(document).ready(function() {
 		
 		$("#f1").fadeIn(500);});
 	$("#close_2").click(function(){
-		onfocus = this.blur();alert("123");
+		onfocus = this.blur();
 		$("#f2").fadeOut(500);
 		$("#f2").fadeIn(500);});
 	$("#close_3").click(function(){
