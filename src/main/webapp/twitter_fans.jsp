@@ -575,11 +575,15 @@ function isSafari() {
 						if(button2.innerHTML == "正在关注"){
 							button2.innerHTML = "&nbsp;&nbsp;关注&nbsp;&nbsp;";
 							Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
-							focus_div.innerHTML = parseInt(focus_div.innerHTML) - 1;
+							if(other_UID == LogInUID){		//如果是自己的页面才加。
+								focus_div.innerHTML = parseInt(focus_div.innerHTML) - 1;							
+							}
 						}else{
 							button2.innerHTML = "正在关注";							
 							Cluster.focus_a_user(LogInUID, UID);		//关注
-							focus_div.innerHTML = parseInt(focus_div.innerHTML) + 1;
+							if(other_UID == LogInUID){		//如果是自己的页面才加。
+								focus_div.innerHTML = parseInt(focus_div.innerHTML) + 1;							
+							}
 						}
 					}
 					
@@ -711,11 +715,15 @@ function isSafari() {
 						if(button.innerHTML == "正在关注"){
 							button.innerHTML = "&nbsp;&nbsp;关注&nbsp;&nbsp;";
 							Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
-							focus_div.innerHTML = parseInt(focus_div.innerHTML) - 1;
+							if(other_UID == LogInUID){		//如果是自己的页面才加。
+								focus_div.innerHTML = parseInt(focus_div.innerHTML) - 1;							
+							}
 						}else{
 							button.innerHTML = "正在关注";							
 							Cluster.focus_a_user(LogInUID, UID);		//关注
-							focus_div.innerHTML = parseInt(focus_div.innerHTML) + 1;
+							if(other_UID == LogInUID){		//如果是自己的页面才加。
+								focus_div.innerHTML = parseInt(focus_div.innerHTML) + 1;							
+							}
 						}
 					}
 				}
