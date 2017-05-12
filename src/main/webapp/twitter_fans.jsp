@@ -86,7 +86,7 @@ response.setDateHeader("Expires", -10);
 		}
 		.sankuai{
 			border-radius:5px;
-			height:330px;
+			height:290px;
 			width:298px;
 			float:left;
 			margin:5px;
@@ -95,6 +95,7 @@ response.setDateHeader("Expires", -10);
 		.zong{
 			width:924px;
 			float:left;
+			margin-left: 20px;
 			/*margin-top:-750px;
 			margin-left:320px;*/
 		}
@@ -333,7 +334,7 @@ a:hover{
                 <li><a href="" id="head_fansing"><div>关注者</div><div id="fans"></div></a></li>
             </ul>
             <div class="logo0-back">
-        		<a id="logo0"><button class="medium blue" onclick="window.location='/twitter_proj/edit.jsp'">编辑个人资料</button></a>
+        		<a id="logo0"><!-- <button class="medium blue" onclick="window.location='/twitter_proj/edit.jsp'">编辑个人资料</button> --></a>
             </div>
         </div>
 		
@@ -384,6 +385,47 @@ function isSafari() {
 				window.location.href = "/twitter_proj/doubi.html";
 			} else {
 				other_UID = other_uid;		//赋值给other_UID
+				
+				//得到header的button按钮  为了在自己页面变成关注
+				var a = document.getElementById("logo0");
+				var button = document.createElement("button");
+				button.className = "medium blue";
+				a.appendChild(button);
+				if(other_UID == LogInUID){
+					button.onclick = function(){		//竟然直接设置button.oncick = "window.location='...'"不好使，然而在html中指定onclick是好使的。
+						window.location.href="/twitter_proj/edit.jsp";					
+					}
+					button.innerHTML = "编辑个人资料";
+					button.style.marginRight = "50px";
+				}else{
+					Cluster.focus_or_not(LogInUID, other_uid, function(data){
+						button.style.width = "100px";
+						button.style.marginRight = "50px";
+						if(data == true){//<button class="medium blue" id="edit_or_focus" ></button>
+							button.innerHTML = "正在关注";
+							button.onclick = function(){
+								if(button.innerHTML == "正在关注"){
+									button.innerHTML = "关注";
+									Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
+								}else{
+									button.innerHTML = "正在关注";							
+									Cluster.focus_a_user(LogInUID, UID);		//关注
+								}
+							}
+						}else{
+							button.innerHTML = "关注";
+							button.onclick = function(){
+								if(button.innerHTML == "正在关注"){
+									button.innerHTML = "关注";
+									Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
+								}else{
+									button.innerHTML = "正在关注";							
+									Cluster.focus_a_user(LogInUID, UID);		//关注
+								}
+							}
+						}
+					});
+				}
 			}
 		});
 	}else if(LogInusername != "null")	{
