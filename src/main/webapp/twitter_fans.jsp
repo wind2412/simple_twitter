@@ -488,7 +488,7 @@ function isSafari() {
 			if(User.position != null)		document.getElementById("left_nationality").innerHTML = User.position;
 			if(User.website != null)		document.getElementById("left_website").innerHTML = User.website;
 			var date = new Date(User.time * 1000);
-			document.getElementById("left_time").innerHTML = "加入于" + date.getFullYear() + "年" + date.getMonth() + "月"
+			document.getElementById("left_time").innerHTML = "加入于" + date.getFullYear() + "年" + (date.getMonth()+1) + "月";		//注意月份是从0开始记得，因此要+1.。
 		});    	
 		
 	//	Cluster.get_article_comments_context(7, 0, function(data){
@@ -570,12 +570,16 @@ function isSafari() {
 					button2.className = "but_follow";
 					button2.innerHTML = "关注";
 					button2.onclick = function(){
+						//点击按钮要修改前端静态页面的关注人数哦
+						var focus_div = document.getElementById("focus");	
 						if(button2.innerHTML == "正在关注"){
 							button2.innerHTML = "&nbsp;&nbsp;关注&nbsp;&nbsp;";
 							Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
+							focus_div.innerHTML = parseInt(focus_div.innerHTML) - 1;
 						}else{
 							button2.innerHTML = "正在关注";							
 							Cluster.focus_a_user(LogInUID, UID);		//关注
+							focus_div.innerHTML = parseInt(focus_div.innerHTML) + 1;
 						}
 					}
 					
@@ -702,12 +706,16 @@ function isSafari() {
 						else button.innerHTML = "关注";
 					});
 					button.onclick = function(){
+						//点击按钮要修改前端静态页面的关注人数哦
+						var focus_div = document.getElementById("focus");
 						if(button.innerHTML == "正在关注"){
 							button.innerHTML = "&nbsp;&nbsp;关注&nbsp;&nbsp;";
 							Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
+							focus_div.innerHTML = parseInt(focus_div.innerHTML) - 1;
 						}else{
 							button.innerHTML = "正在关注";							
 							Cluster.focus_a_user(LogInUID, UID);		//关注
+							focus_div.innerHTML = parseInt(focus_div.innerHTML) + 1;
 						}
 					}
 				}

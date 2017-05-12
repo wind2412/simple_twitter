@@ -46,11 +46,11 @@ public class ClusterTest {
 
 		//调用Cluster的任一方法时候，Cluster类会初始化，由于static块在最前边，所以会自动运行，即客户端会自动连接。
 		Cluster.flush_all(); 		//清空测试数据库
-		User zxl = new User("zhengxiaolin");
-		User jxc = new User("jiangxicong");
-		User ltg = new User("litiange");
-		User zfy = new User("zhangfangyuan");
-		User wy = new User("wangyue");
+		User zxl = new User("郑孝林");
+		User jxc = new User("江錫聰");
+		User ltg = new User("李天歌");
+		User zfy = new User("张方圆");
+		User wy = new User("王悦");
 		User user1 = new User("user1");		//加上10个随机用户  测试推荐好友算法
 		User user2 = new User("user2");
 		User user3 = new User("user3");
@@ -74,15 +74,36 @@ public class ClusterTest {
 		jxc.setUID(Cluster.add_a_user(jxc.getName(), "123"));
 		{
 			jxc.setIntroduction("蛤蛤.");
-			jxc.setPosition("欧摩西裸衣市");
+			jxc.setPosition("歐摩西羅伊市");
 			jxc.setWebsite("youngerJiang.twitter.com");
 			jxc.setPortrait_path("portraits/head_"+jxc.getUID()+".jpg");			
 			zxl.setMain_page("portraits/page_"+jxc.getUID()+".jpg");
 			Cluster.upgrade_user_settings(jxc);
 		}
 		ltg.setUID(Cluster.add_a_user(ltg.getName(), "123"));
+		{
+			ltg.setIntroduction("哈哈哈");
+			ltg.setPosition("辽宁 沈阳");
+			ltg.setPortrait_path("portraits/head_"+ltg.getUID()+".jpg");			
+			ltg.setMain_page("portraits/page_"+ltg.getUID()+".jpg");
+			Cluster.upgrade_user_settings(ltg);
+		}
 		zfy.setUID(Cluster.add_a_user(zfy.getName(), "123"));			//这些方法全都要改！！因为UID并没有设置！所以new Article(zxl.getUID()的时候getUID就是0了！！！
+		{
+			zfy.setIntroduction("如果你能带我一起旅行…");
+			zfy.setPosition("捷克共和国--布拉格直辖市");
+			zfy.setPortrait_path("portraits/head_"+zfy.getUID()+".jpg");			
+			zfy.setMain_page("portraits/page_"+zfy.getUID()+".jpg");
+			Cluster.upgrade_user_settings(zfy);			
+		}
 		wy.setUID(Cluster.add_a_user(wy.getName(), "123"));
+		{
+			wy.setIntroduction("T4ks");
+			wy.setPosition("法国");
+			wy.setPortrait_path("portraits/head_"+wy.getUID()+".jpg");			
+			wy.setMain_page("portraits/page_"+wy.getUID()+".jpg");
+			Cluster.upgrade_user_settings(wy);			
+		}
 		user1.setUID(Cluster.add_a_user(user1.getName(), "123"));
 		user2.setUID(Cluster.add_a_user(user2.getName(), "123"));
 		user3.setUID(Cluster.add_a_user(user3.getName(), "123"));
