@@ -367,8 +367,8 @@ function isSafari() {
 	//得到session中登录用户的name
 	var LogInusername = '<%= request.getSession().getAttribute("LogInusername")%>';		//注意......这里会真的显示Tom....不是字符串“Tom”，而是就是Tom......
 	document.getElementById("loginusername").innerHTML = LogInusername;
-	//得到query的username
-	var other_name = '<%= request.getParameter("usr") %>';		//得到请求末尾的query.		但是要注意，可能是null。
+	//得到query的username   【注意！！网络中url的传输全是ISO-8859-1编码格式！因此要强转为UTF-8！！！】
+	var other_name = '<%= new String(request.getParameter("usr").getBytes("iso-8859-1"), "utf-8" ) %>';		//得到请求末尾的query.		但是要注意，可能是null。
 	var other_UID = null;	//如果这里不设置的话，如果query出错的话，比如?usr=zhengxiaoli 那么if(other_uid==0)之后会other_UID未定义。因为并不会定义other_UID. 
 	//设置头的“正在关注”等连接
 	document.getElementById("logo1").href = "/twitter_proj/twitter_focus.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();		//这里需要改。应该先跳到对方的推文列表。

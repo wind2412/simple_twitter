@@ -811,6 +811,7 @@ public class Cluster {
 	 * @return
 	 */
 	public static long is_user_in_DB(String name){
+		System.out.println("require "+name+" is in database?");
 		String UID = jc.hget("getuser", name);
 		return UID == null ? 0 : Long.parseLong(UID);
 	}
