@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   
   <groupId>zxl</groupId>
-  <artifactId>spring1</artifactId>
+  <artifactId>twitter_proj</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>war</packaging>
 

@@ -570,7 +570,7 @@ function isSafari() {
 		<script type="text/javascript">
 				//获得数据
 				if(LogInUID != 0)
-			//		Cluster.get_probably_acquaintance(LogInUID, function(set){
+					Cluster.get_probably_acquaintance(LogInUID, function(set){
 			//		var str = "";
 			//		for(var i = 0; i < set.length; i ++){
 			//			str += set[i];
