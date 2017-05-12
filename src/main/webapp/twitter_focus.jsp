@@ -369,7 +369,6 @@ function isSafari() {
 	document.getElementById("loginusername").innerHTML = LogInusername;
 	//得到query的username   【注意！！网络中url的传输全是ISO-8859-1编码格式！因此要强转为UTF-8！！！】
 	var other_name = '<%= new String(request.getParameter("usr").getBytes("iso-8859-1"), "utf-8" ) %>';		//得到请求末尾的query.		但是要注意，可能是null。
-	alert(other_name);
 	//设置头的“正在关注”等连接 以及头的头像的链接	
 	document.getElementById("logo1").href = "/twitter_proj/twitter_focus.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
 	document.getElementById("head_articles").href = "";		//未设置????????????????在另一边fans也要设置

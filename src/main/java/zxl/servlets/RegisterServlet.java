@@ -3,6 +3,7 @@ package zxl.servlets;
 
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Date;
 
 import javax.servlet.ServletException;
@@ -39,7 +40,7 @@ public class RegisterServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
-		String username = request.getParameter("username");
+		String username = request.getParameter("username");		//这个没有问题，得到的是中文的，不乱码。可能是在文本框输入，加上jsp设置了utf-8，所以直接自动生成了%形式的url了。但是如果js端直接指定跳转的话，就会变成默认西文iso-8859-1.而且是加上%编码的。
 		System.out.println(username);
 		String password = request.getParameter("password");
 		System.out.println(password);
@@ -50,7 +51,7 @@ public class RegisterServlet extends HttpServlet {
 			request.setAttribute("articles", 0);		//推文数量
 			request.setAttribute("focus", 0);			//正在关注数量
 			request.setAttribute("fans", 0);			//关注者数量
-			request.getRequestDispatcher("/twitter_user.jsp?usr="+username+"&timestamp="+new Date().getTime()).forward(request, response);
+			request.getRequestDispatcher("/twitter_user.jsp?usr="+URLEncoder.encode(new String(username.getBytes(), "iso-8859-1"))+"&timestamp="+new Date().getTime()).forward(request, response);
 		}else{			
 			request.setAttribute("msg", "Your account has been registered! Please reinput or log in!!");
 			request.getRequestDispatcher("/register.jsp").forward(request, response);		//详见：http://ask.csdn.net/questions/182199 很漂亮！！
