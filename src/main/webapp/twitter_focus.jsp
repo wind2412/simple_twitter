@@ -26,7 +26,6 @@ response.setDateHeader("Expires", -10);
 	<script type="text/javascript" src="js/kickstart.js"></script>
     <link rel="stylesheet" type="text/css" href="css/kickstart.css" media="all" />
 	<link rel="stylesheet" type="text/css" href="style.css" media="all" /> 
-	<link rel="stylesheet" type="text/css" href="css_us/together.css" media="all" />
 	<link rel="stylesheet" type="text/css" href="css_us/iconfont.css" />
 	     <script src="css_us/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="plugin/jquery_danchu/reveal.css" />
@@ -633,7 +632,7 @@ function isSafari() {
 							button2.innerHTML = "正在关注";							
 							Cluster.focus_a_user(LogInUID, UID);		//关注
 							if(other_UID == LogInUID){		//如果是自己的页面才加。
-								focus_div.innerHTML = parseInt(focus_div.innerHTML) - 1;							
+								focus_div.innerHTML = parseInt(focus_div.innerHTML) + 1;							
 							}
 						}
 					}

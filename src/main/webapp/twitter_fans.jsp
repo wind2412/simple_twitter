@@ -25,7 +25,6 @@ response.setDateHeader("Expires", -10);
 	<script type="text/javascript" src="js/kickstart.js"></script>
     <link rel="stylesheet" type="text/css" href="css/kickstart.css" media="all" />
 	<link rel="stylesheet" type="text/css" href="style.css" media="all" /> 
-	<link rel="stylesheet" type="text/css" href="css_us/together.css" media="all" />
 	<link rel="stylesheet" type="text/css" href="css_us/iconfont.css" />
 	     <script src="css_us/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="plugin/jquery_danchu/reveal.css" />
