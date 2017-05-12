@@ -570,13 +570,12 @@ function isSafari() {
 		<script type="text/javascript">
 				//获得数据
 				if(LogInUID != 0)
-					Cluster.get_probably_acquaintance(LogInUID, function(set){
-				//	var str = "";
-				//	for(var i = 0; i < set.length; i ++){
-				//		str += set[i];
-				//		str += " ";
-				//	}
-				//	alert(str);
+			//		Cluster.get_probably_acquaintance(LogInUID, function(set){
+			//		var str = "";
+			//		for(var i = 0; i < set.length; i ++){
+			//			str += set[i];
+			//			str += " ";
+			//		}
 						var ptr = 0;		//关注列表一次显示3个。ptr是set的指针。
 						var list_num = 0;	//显示在上边的关注列表的人数。如果叉掉，就少一个。然后点击事件会把list_num-1 然后如果set里边还有，即ptr没到set.length，那么list_num再++，
 						for(; ptr < set.length && list_num < 3; ptr ++){

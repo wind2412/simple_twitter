@@ -11,11 +11,15 @@ $(document).ready(function() {
 	});
 	$("#close_1").click(function(){//关闭推荐关注，淡出
 		onfocus = this.blur();
-		$("#f1").fadeOut(500);});
+		$("#f1").fadeOut(500);
+		Cluster.
+		$("#f1").fadeIn(500);});
 	$("#close_2").click(function(){
 		onfocus = this.blur();
-		$("#f2").fadeOut(500);});
+		$("#f2").fadeOut(500);
+		$("#f2").fadeIn(500);});
 	$("#close_3").click(function(){
 		onfocus = this.blur();
-		$("#f3").fadeOut(500);});
+		$("#f3").fadeOut(500);
+		$("#f3").fadeIn(500);});
 });
