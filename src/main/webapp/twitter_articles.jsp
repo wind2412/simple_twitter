@@ -21,6 +21,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
    
      <script type="text/javascript" src="css_us/article.js"></script>
      <script type="text/javascript" src="my_js/focus_list.js"></script>
+     <script type="text/javascript" src="my_js/niconiconi.js"></script>
      <script type="text/javascript" src="css_us/together.js"></script>
      <script type="text/javascript" src="css_us/articlepage.js"></script>
      
@@ -28,6 +29,16 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<script type='text/javascript' src='/twitter_proj/dwr/engine.js'></script>
 	<script type='text/javascript' src='/twitter_proj/dwr/util.js'></script>
   	<script type='text/javascript' src='/twitter_proj/dwr/interface/Cluster.js'></script>
+     
+     <style>
+     	.smy{
+			text-align:left;
+			color: #8B8378;
+			font-size: 18px;
+			font-weight:normal;
+			clear: both;
+		}
+     </style>
      
 <title>我的推文</title>
 
@@ -172,7 +183,7 @@ function isSafari() {
 			}
 		});
 	}else if(LogInusername != "null")	{
-		window.location.href = "/twitter_proj/twitter_focus.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
+		window.location.href = "/twitter_proj/twitter_articles.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
 	}else{
 		window.location.href = "/twitter_proj/login.jsp";
 	}
@@ -265,6 +276,9 @@ function isSafari() {
     <p class="smy2" id="left_nationality"></p>
     <p class="smy2" id="left_website"></p>
     <p class="smy" id="left_time"></p>
+    
+    
+    
     </div>
     
      <script type="text/javascript">
@@ -302,76 +316,201 @@ function isSafari() {
       <div class="stream-container">
          <div class="stream">
             <ol id="stream-items-id" class="stream-items">
+              
+              
                <li class="stream-item">
-                 <div class="text">
-                   
-                   
-                   
-                   <div class="article-others" role="others">
-            <div class="article-inner">
-                <div class="article" style="margin-top:1px">
-                    <div class="article-left">
-                    	<img src="head.jpg" class="head-pic">
-                    </div>
-                    <div class="article-right">
-                    	<div class="article-right-header">
-                        	<a src="" style="float:left; cursor:pointer"><div class="article-right-username">
-                            	<span style="font-family:'微软雅黑';	color:dodgerblue;">欧摩西罗伊</span>
-                                <span class="Aid" dir="ltr">
-                                    ID:
-                                    <b>jxc</b>
-                                </span>
-                            </div></a>
-                            <div class="article-others-time">·21:20 2017/5/8</div>
-                        </div>
-                    	<a style="color:#000000; text-decoration:none" data-reveal-id="myModal" title="点开全文"><div class="article-coment-text">
-                        	うんうん、面白い。<br>
-                            (*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；<br>
-                            (*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)。
-                        </div></a>
-                        <div class="article-pic-back">
-                            	<!--<img onClick="pic_cli()" src="pic.png" class="article-pic" alt>-->
-                                <img src="pic2.jpg" class="article-pic" alt>
-                        </div>
-                        <div class="article-action-list">
-                                <div class="article-action-btn-back">
-                                	<button class="article-action-btn" id="a-action-t" onMouseOver="action_btn_t_on(this)" onMouseOut="action_btn_t_out(this)">
-                                    	<i class="iconfont icon-zhuanfafa"></i>
-                                    	<span>0</span>
-                                    </button>
-                                </div>
-                                <div class="article-action-btn-back">
-                                	<button class="article-action-btn" id="a-action-r" onMouseOver="action_btn_r_on(this)" onMouseOut="action_btn_r_out(this)">
-                                    	<i class="iconfont icon-huifu"></i>
-                                   		<span>0</span>
-                                    </button>
-                                </div>
-                                <div class="article-action-btn-back">
-                                	<button class="article-action-btn" id="a-action-v" onMouseOver="action_btn_v_on(this)" onClick="action_btn_v_cli()" onMouseOut="action_btn_v_out(this)">
-                                        <i class="iconfont icon-jinlingyingcaiwangtubiao24"></i>
-                                        <span>1</span>
-                                    </button>
-                                    <button class="article-action-btn" id="a-action-ved" onClick="action_btn_ved_cli()">
-                                        <i class="iconfont icon-jinlingyingcaiwangtubiao24"></i>
-                                        <span>2</span>
-                                    </button>
-
-                                </div>
-                            </div>
-                        <div class="article-others-footer">
-                        
-                        </div>
-                    </div>
-                   
-                </div>
-            </div>
-        </div>
-                   
-                   
-                   
+                 <div class="text" id="all_reply">
                    
                  </div>
                </li>
+               
+               <script type="text/javascript">
+               var all_reply = document.getElementById("all_reply");
+               		all_reply.appendChild(create_article_zxl());
+               
+               
+        function create_article_zxl(){
+			var article_others=document.createElement("div");
+			article_others.className="article-others";
+			article_others.setAttribute("id","article-others");
+			var article_inner=document.createElement("div");
+			article_inner.className="article-inner";
+			var article=document.createElement("div");
+			
+			article.className="article";
+			article.style="margin-top:1px";
+			
+			//左边的部分。
+			var article_left=document.createElement("div");
+			article_left.className="article-left";
+			article_left.setAttribute("id","article-left")
+			var head_pic=document.createElement("img");
+			head_pic.setAttribute("id","head-pic");
+			head_pic.className="head-pic";
+			head_pic.src="head.jpg";
+			article_left.appendChild(head_pic);
+			
+			article.appendChild(article_left);
+			
+			//右边的部分
+			var article_right=document.createElement("div");
+			article_right.className="article-right";
+			article_right.setAttribute("id","article-right");
+			
+			//右边头部
+			var article_right_header=document.createElement("div");
+			article_right_header.className="article-right-header";
+			var user_link=document.createElement("a");
+			user_link.src="";
+			user_link.style="float:left; cursor:pointer";
+			var article_right_username=document.createElement("div");
+			article_right_username.className="article-right-username";
+			var username=document.createElement("span");
+			username.setAttribute("id","article-nickname");
+			username.style="font-family:'微软雅黑';	color:dodgerblue;";
+			username.innerHTML="欧摩西罗伊";
+			article_right_username.appendChild(username);
+			
+			var userID=document.createElement("span");
+			userID.className="Aid";
+			userID.dir="ltr";
+			userID.innerHTML="ID:";
+			var uid=document.createElement("b");
+			uid.setAttribute("id","article-uid");
+			uid.innerHTML="jxc";
+			userID.appendChild(uid);
+			article_right_username.appendChild(userID);
+			user_link.appendChild(article_right_username);
+			article_right_header.appendChild(user_link);
+			
+			var article_others_time=document.createElement("div");
+			article_others_time.setAttribute("id","article-others-time");
+			article_others_time.className="article-others-time";
+			article_others_time.innerHTML="11:15  2017/5/12";
+			article_right_header.appendChild(article_others_time);
+			
+			article_right.appendChild(article_right_header);
+			
+			//弹出
+			var a = document.createElement("a");
+			a.style.color = "#000000";
+			a.style.textDecoration = "none";
+			a.setAttribute("data-reveal-id", "myModal");
+			a.title = "点开全文";
+			
+			//内容部分
+			var article_coment_text=document.createElement("div");
+			article_coment_text.setAttribute("id","article-coment-text");
+			article_coment_text.className="article-coment-text";
+			article_coment_text.innerHTML="うんうん、面白い。<br>(*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；<br>(*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)。";
+			a.appendChild(article_coment_text);
+			article_right.appendChild(a);
+			
+			//图片
+			var article_pic_back=document.createElement("div");
+			article_pic_back.className="article-pic-back";
+			var article_pic=document.createElement("img");
+			article_pic.className="article-pic";
+			article_pic.src="";
+			article_pic_back.appendChild(article_pic);
+			article_right.appendChild(article_pic_back);
+			
+			//动作按钮
+			var article_action_list=document.createElement("div");
+			article_action_list.className="article-action-list";
+			
+			//转发
+			var trans_action_btn_back=document.createElement("div");
+			trans_action_btn_back.className="article-action-btn-back";
+			var a_action_t=document.createElement("button");
+			a_action_t.className="article-action-btn";
+			a_action_t.setAttribute("id","article-action-t");
+			a_action_t.onmouseover=function(){action_btn_t_on(this);};
+			a_action_t.onmouseout=function(){action_btn_t_out(this);};
+			var t_icon=document.createElement("i");
+			t_icon.className="iconfont icon-zhuanfafa";
+			a_action_t.appendChild(t_icon);
+			var t_num=document.createElement("span");
+			t_num.setAttribute("id", "article-action-t-num");
+			t_num.innerHTML="0";
+			a_action_t.appendChild(t_num);
+			trans_action_btn_back.appendChild(a_action_t);
+			
+			article_action_list.appendChild(trans_action_btn_back);
+			
+			//回复
+			var re_action_btn_back=document.createElement("div");
+			re_action_btn_back.className="article-action-btn-back";
+			var a_action_r=document.createElement("button");
+			a_action_r.className="article-action-btn";
+			a_action_r.setAttribute("id","article-action-r");
+			a_action_r.onmouseover=function(){action_btn_r_on(this);};
+			a_action_r.onmouseout=function(){action_btn_r_out(this);};
+			var r_icon=document.createElement("i");
+			r_icon.className="iconfont icon-huifu";
+			a_action_r.appendChild(r_icon);
+			var r_num=document.createElement("span");
+			r_num.setAttribute("id","article-action-r-num");
+			r_num.innerHTML="0";
+			a_action_r.appendChild(r_num);
+			re_action_btn_back.appendChild(a_action_r);
+			
+			article_action_list.appendChild(re_action_btn_back);
+
+			//点赞
+			var v_action_btn_back=document.createElement("div");
+			v_action_btn_back.className="article-action-btn-back";
+			
+			var a_action_v=document.createElement("button");
+			a_action_v.className="article-action-btn";
+			a_action_v.setAttribute("id","article-action-v");
+			a_action_v.onmouseover=function(){action_btn_v_on(this);};
+			a_action_v.onmouseout=function(){action_btn_v_out(this);};
+			a_action_v.onclick = function(){
+				document.getElementById("article-action-v").style.display="none";
+				document.getElementById("article-action-ved").style.display="block";
+			}
+			var v_icon=document.createElement("i");
+			v_icon.className="iconfont icon-jinlingyingcaiwangtubiao24";
+			a_action_v.appendChild(v_icon);
+			var v_num=document.createElement("span");
+			v_num.setAttribute("id","article-action-v-num");
+			v_num.innerHTML="1";
+
+			var a_action_v_2=document.createElement("button");
+			a_action_v_2.className="article-action-btn";
+			a_action_v_2.setAttribute("id","article-action-ved");
+			a_action_v_2.onmouseover=function(){action_btn_v_on(this);};
+			a_action_v_2.onclick = function(){
+				document.getElementById("article-action-ved").style.display="none";
+				document.getElementById("article-action-v").style.display="block";
+			}
+			var v_icon_2=document.createElement("i");
+			v_icon_2.className="iconfont icon-jinlingyingcaiwangtubiao24";
+			a_action_v_2.appendChild(v_icon_2);
+			var v_num_2=document.createElement("span");
+			v_num_2.setAttribute("id","article-action-v-num_2");
+			v_num_2.innerHTML="2";
+			
+			a_action_v.appendChild(v_num);
+			a_action_v_2.appendChild(v_num_2);
+			v_action_btn_back.appendChild(a_action_v);
+			v_action_btn_back.appendChild(a_action_v_2);
+			
+			article_action_list.appendChild(v_action_btn_back);
+			
+			
+			
+			article_right.appendChild(article_action_list);
+			article.appendChild(article_right);
+			article_inner.appendChild(article);
+			article_others.appendChild(article_inner);
+
+			return article_others;
+		}
+               		
+               </script>
+               
             </ol>
             </div>
          </div>

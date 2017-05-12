@@ -116,12 +116,12 @@ function action_btn_v_out(btn){
 	btn.style.color="rgba(170,184,194,1.00)";
 }
 function action_btn_v_cli(){
-	document.getElementById("a-action-v").style.display="none";
-	document.getElementById("a-action-ved").style.display="block";
+	document.getElementById("article-action-v").style.display="none";
+	document.getElementById("article-action-ved").style.display="block";
 }
 function action_btn_ved_cli(){
-	document.getElementById("a-action-ved").style.display="none";
-	document.getElementById("a-action-v").style.display="block";
+	document.getElementById("article-action-ved").style.display="none";
+	document.getElementById("article-action-v").style.display="block";
 }
 
 /*
