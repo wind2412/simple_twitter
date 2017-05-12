@@ -40,6 +40,7 @@ public class EditProfileServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
+		response.setCharacterEncoding("UTF-8");
 		String old_username = (String)request.getSession().getAttribute("LogInusername");		//旧的username
 		System.out.println(old_username);
 		long UID = Long.parseLong(String.valueOf(request.getSession().getAttribute("LogInUID")));		//UID
@@ -67,6 +68,12 @@ public class EditProfileServlet extends HttpServlet {
 			response.setHeader("Refresh", "1;URL=/twitter_proj/twitter_focus.jsp?usr="+new_username+"&timestamp="+new Date().getTime());
 		}
 		else {
+			User old_user = new User(old_username);
+			old_user.setUID(UID);								//别忘了set_UID
+			old_user.setIntroduction(introduction);
+			old_user.setWebsite(website);
+			old_user.setPosition(nationality);
+			Cluster.upgrade_user_settings(old_user);
 			response.setHeader("Refresh", "1;URL=/twitter_proj/twitter_focus.jsp?usr="+old_username+"&timestamp="+new Date().getTime());
 		}
 	}
