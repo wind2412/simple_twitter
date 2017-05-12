@@ -102,6 +102,29 @@ z-index:1000;
 	float:left;
 	text-align:left;
 }
+.under_head_m,.under_head_i,.under_head_c{
+	border:0;
+	width:70px;
+	height:5px;
+	margin-left:16px;
+	margin-top:-5px;
+	background:#0084B4;
+	position:absolute;
+	display:none;
+	
+}
+.under_center_t,.under_center_f,.under_center_fd{
+	border:0;
+	width:70px;
+	height:5px;
+	margin-top:-10px;
+	background:#0084B4;
+	position:absolute;
+	display:none;
+}
+.under_center_t{margin-left:8px;}
+.under_center_f{width:80px;margin-left:16px;}
+.under_center_fd{width:75px;}
 .logo-center{
 	height:54px;
 	width:54px;
@@ -254,7 +277,7 @@ color:#fff;
 	width: 200px;
 	height: 200px;
 	color:#efefef;
-	z-index: 900;
+	z-index: 99;
 	border: 3px #fff solid;
 	border-radius: 10px;
 }

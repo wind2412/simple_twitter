@@ -21,10 +21,18 @@ response.setDateHeader("Expires", -10);
 	<meta name="description" content="" />
 	
 	<!-- CSS -->
-	<link rel="stylesheet" type="text/css" href="css/kickstart.css" media="all" />
-	<link rel="stylesheet" type="text/css" href="style.css" media="all" />
-    <link rel="stylesheet" href="css_us/focus.css" />
-    <link rel="stylesheet" href="css_us/trend.css" />
+	<script type="text/javascript" src="js/jquery1-9-1.min.js"></script>		<!-- 每个库所需要的jquery必须精确地放在其之前！！多个jquery库也遵循这个规则！ -->
+	<script type="text/javascript" src="js/kickstart.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/kickstart.css" media="all" />
+	<link rel="stylesheet" type="text/css" href="style.css" media="all" /> 
+	<link rel="stylesheet" type="text/css" href="css_us/together.css" media="all" />
+	<link rel="stylesheet" type="text/css" href="css_us/iconfont.css" />
+	     <script src="css_us/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="plugin/jquery_danchu/reveal.css" />
+    <script type="text/javascript" src="css_us/focus.js"></script>
+     <script type="text/javascript" src="css_us/article.js"></script>
+     <script type="text/javascript" src="css_us/together.js"></script>
+     <script type="text/javascript" src="css_us/articlepage.js"></script>
     <style>
 	body{
 		text-align:center;
@@ -114,7 +122,7 @@ response.setDateHeader("Expires", -10);
 	.dest{
 		text-align:left;
 		color: #8B8378;
-		font-size: 18px;
+		/*font-size: 18px;*/
 		font-weight:normal;
 		clear: both;
 	}
@@ -272,8 +280,8 @@ a:hover{
 	</style> 
 	
 	<!-- Javascript -->
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-	<script type="text/javascript" src="js/kickstart.js"></script>
+	<!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>  -->
+	
 	
 	<!-- DWR script -->
 	<script type='text/javascript' src='/twitter_proj/dwr/engine.js'></script>
@@ -298,9 +306,9 @@ a:hover{
         	<div class="header-btn-left">
                 <ul>
                 <li></li>
-                <li style=""><a href=""><img src="icons/1.png" height="20px" width="20px"><span>主页</span></a></li>
-                <li><a href=""><img src="icons/2.png" height="20px" width="20px"><span>通知</span></a></li>
-                <li><a href=""><img src="icons/3.png" height="20px" width="20px"><span>私信</span></a></li>
+                <li style=""><a href=""><img src="icons/1.png" height="20px" width="20px"><span id="head_m">主页</span></a><div class="under_head_m"></div></li>
+                <li><a href=""><img src="icons/2.png" height="20px" width="20px"><span id="head_i">通知</span></a><div class="under_head_i"></div></li>
+                <li><a href=""><img src="icons/3.png" height="20px" width="20px"><span id="head_c">私信</span></a><div class="under_head_c"></div></li>
                 </ul>
             </div>
             <div class="logo-center"><a id="logo2"><img src="icons/5.png" style="width: 40px; height: 40px; margin-top:7px"></a></div>
@@ -329,9 +337,9 @@ a:hover{
 			</a>
 		
             <ul>
-                <li><a href="" id="head_articles"><div>推文</div><div id="articles"></div></a></li>
-                <li><a href="" id="head_focusing"><div>正在关注</div><div id="focus"></div></a></li>
-                <li><a href="" id="head_fansing"><div>关注者</div><div id="fans"></div></a></li>
+                <li><a href="" id="head_articles"><div id="head_t">推文</div><div id="head_t_num"></div></a><div class="under_center_t"></div></li>
+                <li><a href="" id="head_focusing"><div id="head_f">正在关注</div><div id="head_f_num"></div></a><div class="under_center_f"></div></li>
+                <li><a href="" id="head_fansing"><div id="head_fd">关注者</div><div id="head_fd_num"></div></a><div class="under_center_fd" style="margin-left:12px"></div></li>
             </ul>
             <div class="logo0-back">
         		<a id="logo0"><!-- <button class="medium blue" onclick="window.location='/twitter_proj/edit.jsp'">编辑个人资料</button> --></a>
@@ -474,9 +482,9 @@ function isSafari() {
 	
 	//得到query用户所有推文，正在关注，以及关注者信息。
 	function get_user_article_msg(){
-		Cluster.get_user_articles_num(other_UID, function(data){document.getElementById("articles").innerHTML = data;});
-		Cluster.get_focus_num(other_UID, function(data){document.getElementById("focus").innerHTML = data;});
-		Cluster.get_fans_num(other_UID, function(data){document.getElementById("fans").innerHTML = data;});		
+		Cluster.get_user_articles_num(other_UID, function(data){document.getElementById("head_t_num").innerHTML = data;});
+		Cluster.get_focus_num(other_UID, function(data){document.getElementById("head_f_num").innerHTML = data;});
+		Cluster.get_fans_num(other_UID, function(data){document.getElementById("head_fd_num").innerHTML = data;});		
 	}
 	
 	//得到[左方之地]=>other_UID所有信息		//如果dwr中得到一个对象obj的话，那么不用调用方法(因为不是方法)，而是直接调用成员变量。比如obj.name。私有的就可以。
@@ -613,7 +621,7 @@ function isSafari() {
 					button2.innerHTML = "关注";
 					button2.onclick = function(){
 						//点击按钮要修改前端静态页面的关注人数哦
-						var focus_div = document.getElementById("focus");	
+						var focus_div = document.getElementById("head_f_num");	
 						if(button2.innerHTML == "正在关注"){
 							button2.innerHTML = "&nbsp;&nbsp;关注&nbsp;&nbsp;";
 							Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
@@ -745,6 +753,7 @@ function isSafari() {
 				var button;
 				if(UID != LogInUID){//如果是自己  不显示按钮
 					button = document.createElement("button");
+					button.style.width = "100px";
 					button.className = "medium blue";	//改
 					//这里，与关注页面不同的是，因为即使是粉丝，也有可能关注了/没关注。因此这里必须插入一个判断：focus_or_not
 					Cluster.focus_or_not(LogInUID, UID, function(is_focus){
@@ -753,7 +762,7 @@ function isSafari() {
 					});
 					button.onclick = function(){
 						//点击按钮要修改前端静态页面的关注人数哦
-						var focus_div = document.getElementById("focus");
+						var focus_div = document.getElementById("head_f_num");
 						if(button.innerHTML == "正在关注"){
 							button.innerHTML = "&nbsp;&nbsp;关注&nbsp;&nbsp;";
 							Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
@@ -780,7 +789,7 @@ function isSafari() {
 				var div_in_2 = document.createElement("div");
 				div_in_2.className = "desc";
 				var p_2 = document.createElement("p");	p_2.className = "name";
-				var p_3 = document.createElement("p");	p_3.className = "dest";
+				var p_3 = document.createElement("p");	p_3.className = "dest"; p_3.style.marginTop = "20px";
 				p_2.appendChild(document.createElement("br"));
 				Cluster.get_user_name(UID, function(name){
 					a.href = "/twitter_proj/twitter_focus.jsp?usr="+name+"&timestamp="+new Date().getTime();		//在粉丝中点击某个粉丝，还是会跳到对方的关注页。
