@@ -10,12 +10,12 @@ $(document).ready(function() {
 		onfocus = this.blur();  
 	});
 	$("#close_1").click(function(){//关闭推荐关注，淡出
-		onfocus = this.blur();
 		$("#f1").fadeOut(500);
-		Cluster.
+		onfocus = this.blur();
+		
 		$("#f1").fadeIn(500);});
 	$("#close_2").click(function(){
-		onfocus = this.blur();
+		onfocus = this.blur();alert("123");
 		$("#f2").fadeOut(500);
 		$("#f2").fadeIn(500);});
 	$("#close_3").click(function(){

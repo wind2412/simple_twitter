@@ -29,7 +29,7 @@ response.setDateHeader("Expires", -10);
 	<link rel="stylesheet" type="text/css" href="css_us/iconfont.css" />
 	     <script src="css_us/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="plugin/jquery_danchu/reveal.css" />
-    <script type="text/javascript" src="css_us/focus.js"></script>
+   
      <script type="text/javascript" src="css_us/article.js"></script>
      <script type="text/javascript" src="css_us/together.js"></script>
      <script type="text/javascript" src="css_us/articlepage.js"></script>
@@ -578,16 +578,55 @@ function isSafari() {
 			//		}
 						var ptr = 0;		//关注列表一次显示3个。ptr是set的指针。
 						var list_num = 0;	//显示在上边的关注列表的人数。如果叉掉，就少一个。然后点击事件会把list_num-1 然后如果set里边还有，即ptr没到set.length，那么list_num再++，
+						var ol = document.getElementById("recommend_list");
 						for(; ptr < set.length && list_num < 3; ptr ++){
-							get_an_acquaintance(set[ptr]);
-							ptr ++;
+							//放到<ol>中
+							ol.appendChild(get_an_acquaintance(set[ptr], (ptr+1)));
 							list_num ++;
 						}
+						
+						
+						//淡入淡出效果  必须要在js生成之后加载才管用。
+						$(document).ready(function() {
+						    $(".but_follow").mouseenter(function(){//鼠标移至关注变色
+								$(this).css({"background":"dodgerblue","cursor":"hand"});
+							});
+							$(".but_follow").mouseleave(function(){//移开时恢复
+								$(this).css("background","#f5f8fa");  
+							});
+							$(".but_follow").click(function(){//点击关注按钮不聚焦
+								onfocus = this.blur();  
+							});
+							$("#close_1").click(function(){//关闭推荐关注，淡出
+								onfocus = this.blur();
+								$("#f1").fadeOut(500);
+								if(ptr < set.length){
+									ol.replaceChild(get_an_acquaintance(set[ptr++], 1), document.getElementById("f1"));
+									$("#f1").fadeIn(500);
+								}
+							});
+							$("#close_2").click(function(){
+								onfocus = this.blur();
+								$("#f2").fadeOut(500);
+								if(ptr < set.length){
+									ol.replaceChild(get_an_acquaintance(set[ptr++], 2), document.getElementById("f2"));
+									$("#f2").fadeIn(500);
+								}
+							});
+							$("#close_3").click(function(){
+								onfocus = this.blur();
+								$("#f3").fadeOut(500);
+								if(ptr < set.length){
+									ol.replaceChild(get_an_acquaintance(set[ptr++], 3), document.getElementById("f3"));
+									$("#f3").fadeIn(500);
+								}
+							});
+						});
 					});
 				//推荐关注的动态生成
-				function get_an_acquaintance(UID) {
-					var ol = document.getElementById("recommend_list");
-					
+				function get_an_acquaintance(UID, id) {
+					var big_div = document.createElement("div");
+					big_div.setAttribute("id", "f"+id);
 					var li = document.createElement("li");
 					li.className = "li_follow";
 					var div = document.createElement("div");
@@ -606,6 +645,7 @@ function isSafari() {
 						strong.innerHTML = "&nbsp;"+ name;					
 					});
 					var button = document.createElement("button");
+					button.setAttribute("id", "close_"+id);
 					button.className = "close";
 					button.onclick = "Iclose()";
 					button.title = "关闭";
@@ -637,6 +677,7 @@ function isSafari() {
 					}
 					
 					//联合
+					big_div.appendChild(li);
 					div2.appendChild(button2);
 					a.appendChild(img);
 					a.appendChild(strong);
@@ -645,12 +686,12 @@ function isSafari() {
 					li.appendChild(div);
 					li.appendChild(div2);
 					
-					//放到<ol>中
-					ol.appendChild(li);				
+					return big_div;
 				}
 				
-				
 		</script>
+		
+				 
 
 		<!-- 下边的趋势可以被舍弃 也可以和时间流匹配 -->
 		<div class="topic">
