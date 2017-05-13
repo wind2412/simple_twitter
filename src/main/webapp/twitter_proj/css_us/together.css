@@ -659,17 +659,19 @@ a{
 	border:0;
 	background:inherit;
 }
-#a-action-r{
-	
-}
-#a-action-v{
-	display:none ;
-}
-#a-action-ved{
-	display:block ;
-	color:#EB2462 ;
+/************************************修改于2017/5/13   16:44***********/
+.article_action-v-btn:hover{
+	color:#EB2462;
 }
 
+.article_action-r-btn:hover{
+	color:#40DB48;
+}
+
+.article_action-t-btn:hover{
+	color:#1FA3DB;
+}
+/*********************************************/
 .commenting{
 	width:100%;
 	height:102px;

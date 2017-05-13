@@ -1,5 +1,38 @@
 // JavaScript Document
+
+
+function exit_article(aid){
+	//document.getElementsByClassName("article-container")[0].style.display="none";
+	//document.getElementById("article-container").style.display="none";
+	//document.getElementById(id+"-miss").style.display="none";
+	
+	//将所有改变id的标签全都改回去。
+	document.getElementById("comment-c").innerHTML="";
+	document.getElementById("comment-t").innerHTML="";
+	document.getElementById("article:"+aid+"-main").setAttribute("id","article-main");//主框
+	document.getElementById("head:"+aid+ "-pic").setAttribute("id","head-pic");//头像
+	document.getElementById("article:"+aid+ "-nickname").setAttribute("id","article-nickname");//名字
+	document.getElementById("article:"+aid+"-uid").setAttribute("id","article-uid");//uid
+	document.getElementById("article:"+aid+"-text-content").setAttribute("id","article-text-content");//内容
+	document.getElementById("article:"+aid+"-t-num").setAttribute("id","aritcle-t-num");//转发数的框
+	document.getElementById("article:"+aid+"-v-num").setAttribute("id","article-v-num");//点赞数的框
+	document.getElementById("article:"+aid+"-timer").setAttribute("id","article-timer");//时间
+	document.getElementById("article:"+aid+"-action-v-num").setAttribute("id","article-action-v-num");//点赞按钮
+	document.getElementById("article:"+aid+"-action-v").setAttribute("id","article-action-v");
+	document.getElementById("article:"+aid+"-action-t-num").setAttribute("id","article-action-t-num");//转发按钮
+	document.getElementById("article:"+aid+"-action-t").setAttribute("id","article-action-t");
+	document.getElementById("article:"+aid+"-action-r-num").setAttribute("id","article-action-r-num");//评论按钮
+	document.getElementById("article:"+aid+"-action-r").setAttribute("id","article-action-r");
+}
+
+
 $(document).ready(function(){
+	
+	/*$("#myModal").keydown(function(event){ 
+		alert("key:"+event.which);
+	    //$("div").html("Key: " + event.which);
+	});*/
+	
 	//头部的js效果
 	$("span#head_m,span#head_i,span#head_c,#head_t,#head_f,#head_fd,#head_t_num,#head_f_num,#head_fd_num").mouseenter(function(){
 		$(this).css("color","#0084B4")});
@@ -157,7 +190,9 @@ $(document).ready(function(){
 						}, options.animationspeed/2, function() {
 							modal.css({'top':topMeasure, 'opacity' : 1, 'visibility' : 'hidden'});
 							unlockModal();
-						});					
+						});		
+						var AID=document.getElementById("article-container").getAttribute("aid");
+						exit_article(AID);
 					}  	
 					if(options.animation == "fade") {
 						modalBG.delay(options.animationspeed).fadeOut(options.animationspeed);

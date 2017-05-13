@@ -2,9 +2,10 @@
 /*
     ***********************关闭*******************************
 */
-function exit_article(aid){
+
+/*function exit_article(aid){
 	//document.getElementsByClassName("article-container")[0].style.display="none";
-	document.getElementById("article-container").style.display="none";
+	//document.getElementById("article-container").style.display="none";
 	//document.getElementById(id+"-miss").style.display="none";
 	
 	//将所有改变id的标签全都改回去。
@@ -18,7 +19,7 @@ function exit_article(aid){
 	document.getElementById("article:"+aid+"-timer").setAttribute("id","article-timer");//时间
 	document.getElementById("article:"+aid+"-action-t-num").setAttribute("id","article-action-t-num");//转发按钮
 	document.getElementById("article:"+aid+"-action-r-num").setAttribute("id","article-action-r-num");//评论按钮
-}
+}*/
 //***********************************************************
 
 /*
@@ -115,10 +116,7 @@ function action_btn_v_out(btn){
 	//document.getElementById("a-action-v")
 	btn.style.color="rgba(170,184,194,1.00)";
 }
-function action_btn_v_cli(){
-	document.getElementById("article-action-v").style.display="none";
-	document.getElementById("article-action-ved").style.display="block";
-}
+
 function action_btn_ved_cli(){
 	document.getElementById("article-action-ved").style.display="none";
 	document.getElementById("article-action-v").style.display="block";

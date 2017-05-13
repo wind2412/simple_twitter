@@ -313,8 +313,8 @@ a:hover{
             <div class="logo-center"><a id="logo2"><img src="icons/5.png" style="width: 40px; height: 40px; margin-top:7px"></a></div>
             <div class="header-btn-right">
                 <div class="search-back"><input type="text" placeholder="搜索 Twitter" style="font-size: 16px; margin-top:11px"></div>
-                <div style="float:left; width:54px; height:54px"><a id="logo1"><img src="" style="width: 40px; height: 40px; margin-top:7px" id="portrait"></a></div>
-				<div style="float:left; width:100px; height:54px"><font id="loginusername" style="color: black;"></font></div>               
+                <div style="float:left; width:54px; height:54px"><a id="logo1"><img src="" style="width: 40px; height: 40px; margin-top:7px;border-radius: 90px;" id="portrait"></a></div>
+				<div style="float:left; width:100px; height:41px; margin-top: 13px;"><font id="loginusername" style="color: black;"></font></div>               
                 <div style="float:left; width:70px; height:54px"><a id="logo"><button class="medium blue" style="margin-top:11px">发推</button></a></div>
             <!--<a id="logo3"><input results="s" type="search" placeholder="搜索 Twitter"></a>-->
     		</div>
@@ -527,7 +527,13 @@ function isSafari() {
 	document.getElementById("bg").style.backgroundColor = main_page();	//随机设置一个颜色 如果用户有自己的大图片，就覆盖了。
 	
 	
-	
+	</script>
+
+
+<script>
+	function id(a){
+		return document.getElementById(a);
+	}
 	
 	
 </script>

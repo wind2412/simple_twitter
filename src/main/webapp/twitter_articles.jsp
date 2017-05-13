@@ -60,8 +60,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
             <div class="logo-center"><a id="logo2"><img src="icons/5.png" style="width: 40px; height: 40px; margin-top:7px"></a></div>
             <div class="header-btn-right">
                 <div class="search-back"><input type="text" placeholder="搜索 Twitter" style="font-size: 16px; margin-top:11px"></div>
-                <div style="float:left; width:54px; height:54px"><a id="logo1"><img src="" style="width: 40px; height: 40px; margin-top:7px" id="portrait"></a></div>
-				<div style="float:left; width:100px; height:54px"><font id="loginusername" style="color: black;"></font></div>               
+                <div style="float:left; width:54px; height:54px"><a id="logo1"><img src="" style="width: 40px; height: 40px; margin-top:7px;border-radius: 90px;" id="portrait"></a></div>
+				<div style="float:left; width:100px; height:41px; margin-top: 13px;"><font id="loginusername" style="color: black;"></font></div>               
                  <div style="float:left; width:70px; height:54px"><a id="logo" data-reveal-id="myModal"><button class="medium blue" style="margin-top:11px" onclick="announce()">发推</button></a></div>
             <!--<a id="logo3"><input results="s" type="search" placeholder="搜索 Twitter"></a>-->
     		</div>
@@ -272,7 +272,13 @@ function isSafari() {
 	//alert(document.getElementById("bg_img").src == "");	//如果src这个属性没写，确实是等于""的.
 	document.getElementById("bg").style.backgroundColor = main_page();	//随机设置一个颜色 如果用户有自己的大图片，就覆盖了。
 	
-	
+	</script>
+
+
+<script>
+	function id(a){
+		return document.getElementById(a);
+	}
 	
 
 	
@@ -376,7 +382,7 @@ function isSafari() {
 
 			var article_others=document.createElement("div");
 			article_others.className="article-others";
-			article_others.setAttribute("id","article-others");
+			article_others.setAttribute("id","article-others:"+AID);
 			var article_inner=document.createElement("div");
 			article_inner.className="article-inner";
 			var article=document.createElement("div");
@@ -387,9 +393,9 @@ function isSafari() {
 			//左边的部分。
 			var article_left=document.createElement("div");
 			article_left.className="article-left";
-			article_left.setAttribute("id","article-left")
+			article_left.setAttribute("id","article-left:"+AID)
 			var head_pic=document.createElement("img");
-			head_pic.setAttribute("id","head-pic");
+			head_pic.setAttribute("id","head-pic:"+AID);
 			head_pic.className="head-pic";
 			Cluster.get_user_portrait(other_UID, function(src){
 				src==null? src="portraits/anonymous.jpg" :{}; 
@@ -402,7 +408,7 @@ function isSafari() {
 			//右边的部分
 			var article_right=document.createElement("div");
 			article_right.className="article-right";
-			article_right.setAttribute("id","article-right");
+			article_right.setAttribute("id","article-right:"+AID);
 			
 			//右边头部
 			var article_right_header=document.createElement("div");
@@ -413,7 +419,7 @@ function isSafari() {
 			var article_right_username=document.createElement("div");
 			article_right_username.className="article-right-username";
 			var username=document.createElement("span");
-			username.setAttribute("id","article-nickname");
+			username.setAttribute("id","article-nickname:"+AID);
 			username.style="font-family:'微软雅黑';	color:dodgerblue;";
 			username.innerHTML=other_name;			//全设置为other_name				
 			article_right_username.appendChild(username);
@@ -421,9 +427,9 @@ function isSafari() {
 			var userID=document.createElement("span");
 			userID.className="AID";
 			userID.dir="ltr";
-			userID.innerHTML="ID:";
+			userID.innerHTML="";
 			var uid=document.createElement("b");
-			uid.setAttribute("id","article-uid");
+			uid.setAttribute("id","article-uid:"+AID);
 			uid.innerHTML="@"+other_name;			//全设置为other_name
 			userID.appendChild(uid);
 			article_right_username.appendChild(userID);
@@ -431,7 +437,7 @@ function isSafari() {
 			article_right_header.appendChild(user_link);
 			
 			var article_others_time=document.createElement("div");
-			article_others_time.setAttribute("id","article-others-time");
+			article_others_time.setAttribute("id","article-others-time:"+AID);
 			article_others_time.className="article-others-time";
 	//		article_others_time.innerHTML="11:15  2017/5/12";		//改
 			article_right_header.appendChild(article_others_time);
@@ -443,11 +449,12 @@ function isSafari() {
 			a.style.color = "#000000";
 			a.style.textDecoration = "none";
 			a.setAttribute("data-reveal-id", "myModal");
+			a.onclick=function(){complete(AID);};
 			a.title = "点开全文";
 			
 			//内容部分
 			var article_coment_text=document.createElement("div");
-			article_coment_text.setAttribute("id","article-coment-text");
+			article_coment_text.setAttribute("id","article-coment-text:"+AID);
 			article_coment_text.className="article-coment-text";
 	//		article_coment_text.innerHTML="うんうん、面白い。<br>(*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；<br>(*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)。";
 			a.appendChild(article_coment_text);
@@ -479,15 +486,15 @@ function isSafari() {
 			var trans_action_btn_back=document.createElement("div");
 			trans_action_btn_back.className="article-action-btn-back";
 			var a_action_t=document.createElement("button");
-			a_action_t.className="article-action-btn";
-			a_action_t.setAttribute("id","article-action-t");
-			a_action_t.onmouseover=function(){action_btn_t_on(this);};
-			a_action_t.onmouseout=function(){action_btn_t_out(this);};
+			a_action_t.className="article-action-btn article_action-t-btn";
+			a_action_t.setAttribute("id","article-action-t:"+AID);
+			//a_action_t.onmouseover=function(){action_btn_t_on(this);};
+			//a_action_t.onmouseout=function(){action_btn_t_out(this);};
 			var t_icon=document.createElement("i");
 			t_icon.className="iconfont icon-zhuanfafa";
 			a_action_t.appendChild(t_icon);
 			var t_num=document.createElement("span");
-			t_num.setAttribute("id", "article-action-t-num");
+			t_num.setAttribute("id", "article-action-t-num:"+AID);
 			t_num.innerHTML="0";
 			a_action_t.appendChild(t_num);
 			trans_action_btn_back.appendChild(a_action_t);
@@ -496,17 +503,17 @@ function isSafari() {
 			
 			//回复
 			var re_action_btn_back=document.createElement("div");
-			re_action_btn_back.className="article-action-btn-back";
+			re_action_btn_back.className="article-action-btn-back";		
 			var a_action_r=document.createElement("button");
-			a_action_r.className="article-action-btn";
-			a_action_r.setAttribute("id","article-action-r");
-			a_action_r.onmouseover=function(){action_btn_r_on(this);};
-			a_action_r.onmouseout=function(){action_btn_r_out(this);};
+			a_action_r.className="article-action-btn article_action-r-btn";
+			a_action_r.setAttribute("id","article-action-r:"+AID);
+			//a_action_r.onmouseover=function(){action_btn_r_on(this);};
+			//a_action_r.onmouseout=function(){action_btn_r_out(this);};
 			var r_icon=document.createElement("i");
 			r_icon.className="iconfont icon-huifu";
 			a_action_r.appendChild(r_icon);
 			var r_num=document.createElement("span");
-			r_num.setAttribute("id","article-action-r-num");
+			r_num.setAttribute("id","article-action-r-num:"+AID);
 			r_num.innerHTML="0";
 			a_action_r.appendChild(r_num);
 			re_action_btn_back.appendChild(a_action_r);
@@ -518,21 +525,31 @@ function isSafari() {
 			v_action_btn_back.className="article-action-btn-back";
 			
 			var a_action_v=document.createElement("button");
-			a_action_v.className="article-action-btn";
-			a_action_v.setAttribute("id","article-action-v");
-			a_action_v.onmouseover=function(){action_btn_v_on(this);};
-			a_action_v.onmouseout=function(){action_btn_v_out(this);};
-			a_action_v.onclick = function(){
+			a_action_v.className="article-action-btn article_action-v-btn";
+			a_action_v.setAttribute("id","article-action-v:"+AID);
+			//a_action_v.onmouseover=function(){action_btn_v_on(this);};
+			//a_action_v.onmouseout=function(){action_btn_v_out(this);};
+			a_action_v.onclick=function(){action_btn_v_cli(this,AID)};             //修改
+			/* a_action_v.onclick = function(){
 				document.getElementById("article-action-v").style.display="none";
 				document.getElementById("article-action-ved").style.display="block";
-			}
+			} */
 			var v_icon=document.createElement("i");
 			v_icon.className="iconfont icon-jinlingyingcaiwangtubiao24";
 			a_action_v.appendChild(v_icon);
 			var v_num=document.createElement("span");
-			v_num.setAttribute("id","article-action-v-num");
-			v_num.innerHTML="1";
-
+			v_num.setAttribute("id","article-action-v:"+AID+"-num");
+			//v_num.innerHTML="1";
+			
+			Cluster.get_voted_num(AID,function(data){                            //获得点赞数
+				v_num.innerHTML=data;
+			});
+			
+			Cluster.judge_voted(LogInUID,AID,function(data){
+				if(data==true){
+					a_action_v.style.color="#EB2462";
+				}
+			});
 			/* var a_action_v_2=document.createElement("button");
 			a_action_v_2.className="article-action-btn";
 			a_action_v_2.setAttribute("id","article-action-ved");
@@ -623,10 +640,16 @@ function isSafari() {
 </div>
 
 <div id="myModal" class="reveal-modal">
- <div class="article-container">
+ <div class="article-container" id="article-container">
         <div class="article-miss"  id="article-miss" onclick="exit_article()">
+        			<i class="iconfont icon-guanbi"></i>
                 </div>
         		<div class="article-main" role="main" id="article-main">
+        			<div id="comment-t">
+        			
+        			</div>
+        		
+        			
                 	<div class="article" id="main-article">
                         	<div class="article-header">
                             	<div class="user-link-in-a">
@@ -691,26 +714,23 @@ function isSafari() {
                             </div> 
                             <div class="article-action-list">
                                 <div class="article-action-btn-back">
-                                	<button class="article-action-btn" id="a-action-t" onMouseOver="action_btn_t_on(this)" onMouseOut="action_btn_t_out(this)">
+                                	<button class="article-action-btn article_action-t-btn" id="article-action-t" >
                                     	<i class="iconfont icon-zhuanfafa"></i>
                                     	<span id="article-action-t-num">0</span>
                                     </button>
                                 </div>
                                 <div class="article-action-btn-back">
-                                	<button class="article-action-btn" id="a-action-r" onMouseOver="action_btn_r_on(this)" onMouseOut="action_btn_r_out(this)">
+                                	<button class="article-action-btn article_action-r-btn" id="article-action-r">
                                     	<i class="iconfont icon-huifu"></i>
                                    		<span id="article-action-r-num">0</span>
                                     </button>
                                 </div>
                                 <div class="article-action-btn-back">
-                                	<button class="article-action-btn" id="a-action-v" onMouseOver="action_btn_v_on(this)" onClick="action_btn_v_cli()" onMouseOut="action_btn_v_out(this)">
+                                	<button class="article-action-btn article_action-v-btn" id="article-action-v" >
                                         <i class="iconfont icon-jinlingyingcaiwangtubiao24"></i>
-                                        <span>1</span>
+                                        <span id="article-action-v-num">1</span>
                                     </button>
-                                    <button class="article-action-btn" id="a-action-ved" onClick="action_btn_ved_cli()">
-                                        <i class="iconfont icon-jinlingyingcaiwangtubiao24"></i>
-                                        <span>2</span>
-                                    </button>
+                                    
 
                                 </div>
                             </div>
@@ -746,14 +766,19 @@ function isSafari() {
                                     	<button class="comment-up-btn" id="comment-up-btn" onclick="send()">发送</button>
                                     </div>
                                 </div>
-                            </div>
                             <!--                    *********没有内容***********     -->
                             
                             
 					                            
                         </div>
                         <!--                        *********      评论        ***********                             -->
-                        
+                        <div id="comment-c">
+                		
+                		
+                		</div>
+                </div>
+                
+                	<div class="article-footer" style="height:30px">
                 
                 </div>
     </div>
@@ -767,7 +792,418 @@ function isSafari() {
 			<a class="close-reveal-modal">&#215;</a>
 </div>-->
 
+<script>
+//                                ************ 修改于2017/5/13    16:48********
+function action_btn_v_cli(btn,aid){
+	//alert(btn.innerHTML);
+	Cluster.judge_voted(LogInUID,aid,function(data){
+		if(data==false){
+			Cluster.vote_an_article(LogInUID,aid,function(){});
+			btn.style.color="#EB2462";
+			id(btn.id+"-num").innerHTML=parseInt(id(btn.id+"-num").innerHTML)+1;
+			//id("article:"+aid+"-action-v-num").innerHTML=parseInt(id("article:"+aid+"-action-v-num").innerHTML)+1;
+		}
+		else{
+			Cluster.vote_cancelled_oh_no(LogInUID,aid,function(){});
+			btn.style.color="rgba(170,184,194,1.00)";
+			id(btn.id+"-num").innerHTML=parseInt(id(btn.id+"-num").innerHTML)-1;
+			//id("article:"+aid+"-action-v-num").innerHTML=parseInt(id("article:"+aid+"-action-v-num").innerHTML)-1;
+		}
+	});
+	
+}
 
+function id(i){
+	return document.getElementById(i);
+}
+
+function create_another_article(aid,location){
+	
+	var article_others=document.createElement("div");
+	article_others.className="article-others";
+	article_others.setAttribute("id","article:"+aid+"-others");     //
+	var article_inner=document.createElement("div");
+	article_inner.className="article-inner";
+	var article=document.createElement("div");
+	
+	article.className="article";
+	article.style="margin-top:1px";
+	
+	//左边的部分。
+	var article_left=document.createElement("div");
+	article_left.className="article-left";
+	article_left.setAttribute("id","article:"+aid+"-left")       //
+	var head_pic=document.createElement("img");
+	head_pic.setAttribute("id","head:"+aid+"-pic");
+	head_pic.className="head-pic";                              //
+	head_pic.src="head.jpg";
+	article_left.appendChild(head_pic);
+	
+	article.appendChild(article_left);
+	
+	//右边的部分
+	var article_right=document.createElement("div");
+	article_right.className="article-right";
+	article_right.setAttribute("id","article:"+aid+"-right");            //
+	
+	//右边头部
+	var article_right_header=document.createElement("div");
+	article_right_header.className="article-right-header";
+	var user_link=document.createElement("a");
+	user_link.src="";
+	user_link.style="float:left; cursor:pointer";
+	var article_right_username=document.createElement("div");
+	article_right_username.className="article-right-username";
+	var username=document.createElement("span");
+	username.setAttribute("id","article:"+aid+"-nickname");                   //
+	username.style="font-family:'微软雅黑';	color:dodgerblue;";
+	username.innerHTML="欧摩西罗伊";
+	article_right_username.appendChild(username);
+	
+	var userID=document.createElement("span");
+	userID.className="Aid";
+	userID.dir="ltr";
+	userID.innerHTML="ID:";
+	var uid=document.createElement("b");
+	uid.setAttribute("id","article:"+aid+"-uid");                                     //
+	uid.innerHTML="jxc";
+	userID.appendChild(uid);
+	article_right_username.appendChild(userID);
+	user_link.appendChild(article_right_username);
+	article_right_header.appendChild(user_link);
+	
+	var article_others_time=document.createElement("div");
+	article_others_time.setAttribute("id","article:"+aid+"-others-time");                     //
+	article_others_time.className="article-others-time";
+	article_others_time.innerHTML="11:15  2017/5/12";
+	article_right_header.appendChild(article_others_time);
+	
+	article_right.appendChild(article_right_header);
+	
+	//内容部分
+	var article_coment_text=document.createElement("div");
+	article_coment_text.setAttribute("id","article:"+aid+"-coment-text");                             //
+	article_coment_text.className="article-coment-text";
+	article_coment_text.innerHTML="うんうん、面白い。<br>(*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；<br>(*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)。";
+	article_right.appendChild(article_coment_text);
+	
+	//图片
+	var article_pic_back=document.createElement("div");
+	article_pic_back.className="article-pic-back";
+	var article_pic=document.createElement("img");
+	article_pic.className="article-pic";
+	article_pic.src="";
+	article_pic_back.appendChild(article_pic);
+	article_right.appendChild(article_pic_back);
+	
+	//动作按钮
+	var article_action_list=document.createElement("div");
+	article_action_list.className="article-action-list";
+	
+	//转发
+	var trans_action_btn_back=document.createElement("div");
+	trans_action_btn_back.className="article-action-btn-back";
+	var a_action_t=document.createElement("button");
+	a_action_t.className="article-action-btn  article_action-t-btn";
+	a_action_t.setAttribute("id","article"+aid+"-action-t");                                    //
+	//a_action_t.onmouseover=function(){action_btn_t_on(this);};
+	//a_action_t.onmouseout=function(){action_btn_t_out(this);};
+	var t_icon=document.createElement("i");
+	t_icon.className="iconfont icon-zhuanfafa";
+	a_action_t.appendChild(t_icon);
+	var t_num=document.createElement("span");
+	t_num.setAttribute("id", "article:"+aid+"-action-t-num");                                  //
+	t_num.innerHTML="0";
+	a_action_t.appendChild(t_num);
+	trans_action_btn_back.appendChild(a_action_t);
+	
+	article_action_list.appendChild(trans_action_btn_back);
+	
+	//回复
+	var re_action_btn_back=document.createElement("div");
+	re_action_btn_back.className="article-action-btn-back";
+	var a_action_r=document.createElement("button");
+	a_action_r.className="article-action-btn article_action-r-btn";
+	a_action_r.setAttribute("id","article"+aid+"-action-r");                                  //
+	//a_action_r.onmouseover=function(){action_btn_r_on(this);};
+	//a_action_r.onmouseout=function(){action_btn_r_out(this);};
+	var r_icon=document.createElement("i");
+	r_icon.className="iconfont icon-huifu";
+	a_action_r.appendChild(r_icon);
+	var r_num=document.createElement("span");
+	r_num.setAttribute("id","article:"+aid+"-action-r-num");                                        //
+	r_num.innerHTML="0";
+	a_action_r.appendChild(r_num);
+	re_action_btn_back.appendChild(a_action_r);
+	
+	article_action_list.appendChild(re_action_btn_back);
+	
+	//点赞
+	
+	var v_action_btn_back=document.createElement("div");
+	v_action_btn_back.className="article-action-btn-back";
+	var a_action_v=document.createElement("button");
+	a_action_v.className="article-action-btn article_action-v-btn";
+	a_action_v.setAttribute("id","article:"+aid+"-action-v");                                   //
+	//a_action_v.onmouseover=function(){action_btn_v_on(this);};
+	a_action_v.onclick=function(){action_btn_v_cli(this,aid)};
+	
+	var v_icon=document.createElement("i");
+	v_icon.className="iconfont icon-jinlingyingcaiwangtubiao24";
+	a_action_v.appendChild(v_icon);
+	var v_num=document.createElement("span");
+	v_num.setAttribute("id","article:"+aid+"-action-v-num");
+	v_num.innerHTML="0";
+	a_action_v.appendChild(v_num);
+	v_action_btn_back.appendChild(a_action_v);
+	
+	article_action_list.appendChild(v_action_btn_back);
+	
+	
+	
+	
+	Cluster.get_an_article(aid, function(article){
+		var time = new Date(article.time*1000);
+		article_others_time.innerHTML= time.getHours()+":"+time.getMinutes()+"  "+(time.getYear()-100+2000)+"/"+(time.getMonth()+1)+"/"+time.getDate();
+		article_coment_text.innerHTML= article.content;
+		if(article.pics[0] != null){article_pic.src = article.pics[0];}
+	});
+	
+	article_right.appendChild(article_action_list);
+	article.appendChild(article_right);
+	article_inner.appendChild(article);
+	article_others.appendChild(article_inner);
+	if(location===0){
+		document.getElementById("comment-t").appendChild(article_others);     //
+	//alert(aid+" "+location);
+	}
+	else{
+		document.getElementById("comment-c").appendChild(article_others);
+	}
+}
+
+function show_another_article(aid,location){
+	
+	//dwr.engine.setAsync(false);
+	//alert(aid);
+	create_another_article(aid,location);
+	//alert(id("article:"+aid+"-others").innerHTML);
+	Cluster.get_an_article(aid,function(atc){
+		//id("article-others").setAttribute("id","article:"+aid+"-others"); //主框
+		//id("article-left").setAttribute("id","article:"+aid+"-left"); //左框
+		//id("head-pic").setAttribute("id","head:"+aid+"-pic");//头像
+		Cluster.get_user_portrait(atc.UID,function(data){
+			id("head:"+aid+"-pic").src=data;
+		});
+		//id("article-right").setAttribute("id","article:"+aid+"-right"); //右框
+		//var nick=id("article-nickname");
+		//nick.setAttribute("id","article:"+aid+"-nickname");//名字
+		//alert(nick.getAttribute("id"));
+		Cluster.get_a_user_by_UID(atc.UID,function(data){
+			id("article:" +aid+ "-nickname").innerHTML=data.name;
+		});
+		/*Cluster.get_a_user_by_UID(data.UID,function(data){
+			id("article:" +aid+ "-nickname").innerHTML=data.name;
+		});*/
+		//id("article-uid").setAttribute("id","article:"+aid+"-uid");//uid
+		id("article:"+aid+"-uid").innerHTML=atc.UID;
+		//id("article-others-time").setAttribute("id","article:"+aid+"-others-time");//时间
+		//id("article:"+aid+"-others-time").innerHTML=" ·"+atc.time;
+		//id("article-coment-text").setAttribute("id","article:"+aid+"-coment-text");//内容
+		//id("article:"+aid+"-coment-text").innerHTML=atc.content.replace("\r\n","<br>");
+		
+		//id("article-action-t-num").setAttribute("id","article:"+aid+"-action-t-num");//转发按钮
+		//
+		//id("article-action-r-num").setAttribute("id","article:"+aid+"-action-r-num");//回复按钮
+		
+		
+		var i=0;
+		var count=0;
+		var isbottom=0;
+		                  // 获得评论数 ，已完成。
+		dwr.engine.setAsync(false);
+		while(true){
+			Cluster.get_article_comments_context(aid,i,function(data){
+		
+				if(data.length==0){
+					isbottom=1;
+				}
+				if(i==0){
+					for(var j=1;j<data.length;j++){
+						count+=data[j].length;
+					}
+				}
+				else{
+					for(var j=0;j<data.length;j++){
+						count+=data[j].length
+					}
+				}
+			});
+			i++;
+			if(isbottom==1)
+				break;
+		}
+		id("article:"+aid+"-action-r-num").innerHTML=count;
+		dwr.engine.setAsync(true);
+		
+		Cluster.get_voted_num(aid,function(data){
+			id("article:"+aid+"-action-v-num").innerHTML=data;
+		});
+		
+		Cluster.judge_voted(2,aid,function(data){
+			if(data==true){
+				id("article:"+aid+"-action-v").style.color="#EB2462";
+			}
+		});
+		
+		//alert("finish "+aid);
+	});
+		//dwr.engine.setAsync(true);
+		return;
+}
+
+function complete(aid){
+	
+	var art="article:"+aid;
+	var i=0;
+	Cluster.get_an_article(aid,function(data){
+		//document.getElementById("article-container").setAttribute("id",aid+"-container");
+		document.getElementById("article-container").setAttribute("aid",aid);
+		document.getElementById("article-miss").onclick=function(){exit_article(aid);};
+		id("article-main").setAttribute("id","article:"+aid+"-main");//主框
+		
+		id("head-pic").setAttribute("id","head:"+aid+ "-pic");//头像
+		Cluster.get_user_portrait(data.UID,function(data){
+			id("head:"+aid+ "-pic").src=data;
+		});
+		
+		id("article-nickname").setAttribute("id","article:" +aid+ "-nickname");//名字
+		Cluster.get_a_user_by_UID(data.UID,function(data){
+			id("article:" +aid+ "-nickname").innerHTML=data.name;
+		});
+		id("article-uid").setAttribute("id","article:"+aid+"-uid");//uid
+		id("article:"+aid+"-uid").innerHTML=data.UID;
+		
+		/*            
+						关注按钮 先不写。               
+		*/
+		
+		id("article-text-content").setAttribute("id","article:"+aid+"-text-content");//内容
+		id("article:"+aid+"-text-content").innerHTML=data.content.replace("\r\n","<br>");
+		
+		//              图片，未完成.
+		//id("article-pic").setAttribute("id","article:"+aid+"-pic");
+		//id("article:"+aid+"-pic").src=
+		
+		id("aritcle-t-num").setAttribute("id","article:"+aid+"-t-num");//转发数的框
+		//    转发数，还有一句没写。
+		
+		
+		
+		id("article-v-num").setAttribute("id",art+"-v-num");//点赞数的框
+		Cluster.get_voted_num(aid,function(data){
+			id(art+"-v-num").innerHTML=data;
+			
+		});
+		
+		
+		id("article-timer").setAttribute("id",art+"-timer");//时间
+		id(art+"-timer").innerHTML=data.time;
+		alert(id("article-action-t"));
+		id("article-action-t-num").setAttribute("id","article:"+aid+"-action-t-num");//转发按钮
+		id("article-action-t").setAttribute("id","article:"+aid+"-action-t");
+		//同上转发数框
+		
+		id("article-action-r-num").setAttribute("id","article:"+aid+"-action-r-num");//评论按钮
+		id("article-action-r").setAttribute("id","article:"+aid+"-action-r");
+		
+		i=0;
+		var count=0;
+		var isbottom=0;
+		                  // 获得评论数 ，已完成。
+		dwr.engine.setAsync(false);
+		while(true){
+			Cluster.get_article_comments_context(aid,i,function(data){
+				if(data.length==0){
+					isbottom=1;
+				}
+				if(i==0){
+					for(var j=1;j<data.length;j++){
+						count+=data[j].length;
+					}
+				}
+				else{
+					for(var j=0;j<data.length;j++){
+						count+=data[j].length
+					}
+				}
+			});
+			i++;
+			if(isbottom==1)
+				break;
+		}
+		id(art+"-action-r-num").innerHTML=count;
+		dwr.engine.setAsync(true);
+		
+		id("article-action-v-num").setAttribute("id","article:"+aid+"-action-v-num");//点赞按钮
+		id("article-action-v").setAttribute("id","article:"+aid+"-action-v");
+		Cluster.judge_voted(LogInUID,aid,function(data){
+			if(data==true){
+				id("article:"+aid+"-action-v").style.color="#EB2462";
+			}
+		});
+		id("article:"+aid+"-action-v").onclick=function(){action_btn_v_cli(this,aid);};
+		
+		
+		Cluster.get_voted_num(aid,function(data){
+			id("article:"+aid+"-action-v-num").innerHTML=data;
+		});
+		
+		
+	});
+	//var c_set;
+	//dwr.engine.setAsync(false);
+	Cluster.get_article_comments_context(aid, 0,function(c_set){
+		//c_set=data;
+		for(var i=0;i<c_set.length;i++){
+			if(i==0){
+				for(var j=0;j<c_set[i].length-1;j++){
+					//alert(c_set[i][j].AID);
+					show_another_article(c_set[i][j].AID,0);
+				}
+			}
+			else{
+				for(var j=0;j<c_set[i].length;j++){
+					//alert(c_set[i][j].AID);
+					show_another_article(c_set[i][j].AID,1);
+				}
+			}
+		}
+	});
+	
+	//dwr.engine.setAsync(true);
+	/*for(var i=1;i<c_set.length;i++){
+		
+		for(var j=0;j<c_set[i].length;j++){
+			alert(c_set[i][j].AID);
+			show_another_article(c_set[i][j].AID);
+		}
+		
+	}*/
+	
+	//document.getElementById("article-container").style.display="block";
+	//show_comment_box(aid)
+	
+	//show_another_article(5);
+	//show_another_article(7);
+	//show_another_article(9);
+	// show_another_article(6);
+	//document.getElementById(aid+"-miss").style.display="block";
+	
+	
+}
+
+</script>
 
 <script>
 	function announce(){

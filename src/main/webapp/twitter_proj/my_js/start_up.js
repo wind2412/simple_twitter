@@ -159,3 +159,7 @@ function start_up(){
 	
 }
 
+
+function id(a){
+	return document.getElementById(a);
+}
