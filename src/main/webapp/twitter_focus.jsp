@@ -303,14 +303,14 @@ a:hover{
 -->
 
 <div>
-	<nav class="navbar" style="border-bottom-color: black; border-bottom-width:thin">	<!-- 去掉了border-style:solid, 否则会感觉header不在垂直的正中央.-->
+	<nav class="navbar" style="border-bottom: 2px solid rgba(0,0,0,0.15)">	<!-- 去掉了border-style:solid, 否则会感觉header不在垂直的正中央.-->
     	<div class="header">
         	<div class="header-btn-left">
                 <ul>
                 <li></li>
-                <li style=""><a href=""><img src="icons/1.png" height="20px" width="20px"><span id="head_m">主页</span></a><div class="under_head_m"></div></li>
-                <li><a href=""><img src="icons/2.png" height="20px" width="20px"><span id="head_i">通知</span></a><div class="under_head_i"></div></li>
-                <li><a href=""><img src="icons/3.png" height="20px" width="20px"><span id="head_c">私信</span></a><div class="under_head_c"></div></li>
+                <li id="head_m"><a href=""><img src="icons/1.png" height="20px" width="20px"><span id="head_m">主页</span></a><div class="under_head_m"></div></li>
+                <li id="head_i"><a href=""><img src="icons/2.png" height="20px" width="20px"><span id="head_i">通知</span></a><div class="under_head_i"></div></li>
+                <li id="head_c"><a href=""><img src="icons/3.png" height="20px" width="20px"><span id="head_c">私信</span></a><div class="under_head_c"></div></li>
                 </ul>
             </div>
             <div class="logo-center"><a id="logo2"><img src="icons/5.png" style="width: 40px; height: 40px; margin-top:7px"></a></div>
@@ -339,9 +339,9 @@ a:hover{
 			</a>
 		
             <ul>
-                <li><a href="" id="head_articles"><div id="head_t">推文</div><div id="head_t_num"></div></a><div class="under_center_t"></div></li>
-                <li><a href="" id="head_focusing"><div id="head_f">正在关注</div><div id="head_f_num"></div></a><div class="under_center_f"></div></li>
-                <li><a href="" id="head_fansing"><div id="head_fd">关注者</div><div id="head_fd_num"></div></a><div class="under_center_fd" style="margin-left:12px"></div></li>
+                <li id="head_t"><a href="" id="head_articles"><div id="head_t">推文</div><div id="head_t_num"></div></a><div class="under_center_t"></div></li>
+                <li id="head_f"><a href="" id="head_focusing"><div id="head_f" style="color:#2aa3ef">正在关注</div><div id="head_f_num"  style="color:#2aa3ef"></div></a><div class="under_center_f"></div></li>
+                <li id="head_fd"><a href="" id="head_fansing"><div id="head_fd">关注者</div><div id="head_fd_num"></div></a><div class="under_center_fd" style="margin-left:12px"></div></li>
             </ul>
             <div class="logo0-back">
         		<a id="logo0"></a>		<!-- 编辑个人资料的按钮 -->
@@ -354,6 +354,7 @@ a:hover{
 <br><br>
 
 <script type="text/javascript">
+	var this_page = 2;	//focus界面是2号。
 	safari();
 	//注意：LogInUID不是UID就是0. LogInusername不是真·name就是"null"(带双引号). other_UID一定是正确的/异步调用的话需要检查是否为null. other_name一定是正确的/异步调用需要检查是否为"null"。=>因为会并发执行。
 	//得到session中登录用户的UID
