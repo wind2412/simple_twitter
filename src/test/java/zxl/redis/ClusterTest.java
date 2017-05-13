@@ -185,7 +185,7 @@ public class ClusterTest {
 //		assert Cluster.judge_voted(1, 1) == true;
 //		assert Cluster.judge_voted(2, 1) == false;
 		
-		int sleepsec = 1;		//更改这个就可以修改时间间隔。一般如果想要时间间隔，因为内部时间time是除以1000的，因此设置为1000就好。
+		int sleepsec = 1000;		//更改这个就可以修改时间间隔。一般如果想要时间间隔，因为内部时间time是除以1000的，因此设置为1000就好。
 		
 		//开始评论
 		Cluster.add_an_article("comment myself article~~ --By zhengxiaolin", 1, 1, 1, false, null);	//7号文章回复1号

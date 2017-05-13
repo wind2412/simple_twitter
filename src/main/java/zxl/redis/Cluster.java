@@ -230,7 +230,7 @@ public class Cluster {
 //		for(int i = 0; i < pics.length; i ++){
 //			jc.lpush("pictures:"+AID, pics[i]);
 //		}
-		if(!pics[0].equals("")){
+		if(pics != null && !pics[0].equals("")){
 			jc.lpush("pictures:"+AID, pics[0]);
 		}
 		//添加到user的all_articles:[UID]表。	=>	user写的文章。

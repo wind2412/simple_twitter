@@ -787,7 +787,7 @@ function isSafari() {
 	function send(){
 	alert("haha");
 		var pics = new Array();
-		pics[0] = (document.getElementById("hidden_aid").value == "") ? "" : document.getElementById("hidden_aid").value;
+		pics[0] = (document.getElementById("hidden_aid").value == "") ? "" : "pictures/pic_"+document.getElementById("hidden_aid").value+".jpg";
 		/* var my_article = {
 			content: "123",
 			UID: LogInUID,
