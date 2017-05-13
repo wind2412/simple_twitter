@@ -379,7 +379,7 @@ function isSafari() {
 	var other_UID = null;	//如果这里不设置的话，如果query出错的话，比如?usr=zhengxiaoli 那么if(other_uid==0)之后会other_UID未定义。因为并不会定义other_UID. 
 	//设置头的“正在关注”等连接
 	document.getElementById("logo1").href = "/twitter_proj/twitter_focus.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();		//这里需要改。应该先跳到对方的推文列表。
-	document.getElementById("head_articles").href = "";
+	document.getElementById("head_articles").href = "/twitter_proj/twitter_articles.jsp?usr="+other_name+"&timestamp="+new Date().getTime();;
 	document.getElementById("head_focusing").href = "/twitter_proj/twitter_focus.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
 	document.getElementById("head_fansing").href = "/twitter_proj/twitter_fans.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
 	//看query是否合法才能向下进行。因此这里必须同步方式。需要关闭ajax异步。

@@ -126,7 +126,7 @@ function isSafari() {
 	var other_name = '<%= request.getParameter("usr") == null ? null : new String(request.getParameter("usr").getBytes("iso-8859-1"), "utf-8" ) %>';	//得到请求末尾的query.		但是要注意，可能是null。
 	//设置头的“正在关注”等连接 以及头的头像的链接	
 	document.getElementById("logo1").href = "/twitter_proj/twitter_focus.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
-	document.getElementById("head_articles").href = "";		//未设置????????????????在另一边fans也要设置
+	document.getElementById("head_articles").href = "/twitter_proj/twitter_articles.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
 	document.getElementById("head_focusing").href = "/twitter_proj/twitter_focus.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
 	document.getElementById("head_fansing").href = "/twitter_proj/twitter_fans.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
 	var other_UID = null;	//如果这里不设置的话，如果query出错的话，比如?usr=zhengxiaoli 那么if(other_uid==0)之后会other_UID未定义。因为并不会定义other_UID. 
@@ -445,7 +445,7 @@ function isSafari() {
 					var time = new Date(article.time*1000);
 					article_others_time.innerHTML= time.getHours()+":"+time.getMinutes()+"  "+(time.getYear()-100+2000)+"/"+(time.getMonth()+1)+"/"+time.getDate();
 					article_coment_text.innerHTML= article.content;
-					if(article.pics != null){article_pic.src = articles.pics[0];}
+					if(article.pics[0] != null){article_pic.src = article.pics[0];}
 				});
 			
 			
@@ -701,8 +701,7 @@ function isSafari() {
                         	<div class="commenting" id="article-commenting">
                                 <div class="article-comment-text-box-back" id="article-comment-text-box-back">
                                     <form class="article-comment-text-box-f">
-                                        <img src="head.jpg" class="article-commenter-head">
-                                        <textarea type="text" class="article-comment-text-box" maxlength="140" id="article-comment-text-box" placeholder="发布你的回复" onFocus="comment_write()" onBlur="comment_text_box_blur()"></textarea>
+                                        <textarea type="text" class="article-comment-text-box" style="margin-left: -20px" maxlength="140" id="article-comment-text-box" placeholder="发布你的回复" onFocus="comment_write()" onBlur="comment_text_box_blur()"></textarea>
                                         
                                     </form>
                                 </div>
@@ -718,10 +717,11 @@ function isSafari() {
                                         	<i class="iconfont icon-icon" onclick="getFile()"></i>
                                         </button>
                                         <!-- 隐藏的文件选择框 -->
-                                        <input type="file" onchange="show_pic(this)" accept="image/*"  id="file"  style="width:400px;visibility: hidden;" title="头像">
+                                        <input type="file" onchange="upload_page(this)" accept="image/*"  id="file"  style="width:400px;visibility: hidden;" title="头像">
+                                    	<input type="text" style="visibility: hidden;" id="hidden_aid">
                                     </div>
                                     <div class="comment-up">
-                                    	<button class="comment-up-btn" id="comment-up-btn">发送</button>
+                                    	<button class="comment-up-btn" id="comment-up-btn" onclick="send()">发送</button>
                                     </div>
                                 </div>
                             </div>
@@ -762,7 +762,42 @@ function isSafari() {
 		$("#file").trigger("click"); 
 	}
 	
+	function upload_page(source) {
+		if(window.FileReader) {
+			var fileReader = new FileReader();
+			pic = source.files[0];
+			if(/^image\/*/.test(pic.type)){		//js的正则表达式匹配  /.../指定一个模式串，^表示以...开头，\表示转义。
+				fileReader.onloadend = function (e) {
+					Cluster.add_article_an_img(e.target.result, function(future_AID){
+						document.getElementById("hidden_aid").value = future_AID;		//放到隐藏的文本框当中
+					});
+				}
+				fileReader.readAsDataURL(pic);
+			}else{
+				img_suffix_legal = false;		//有两个图片控制img_suffix_legal变量，只需要变个思路，因为两个只要有一个false，就无法上传，不如就直接设成false啦！
+				alert("please upload a jpg/png file!");
+			}
+		} else {
+			alert("您的游览器不支持上传图片！");
+		}
 		
+	}
+	
+	function send(){
+		var pic = (document.getElementById("hidden_aid").value == "") ? "" : document.getElementById("hidden_aid").value;
+		alert("haha");
+		var my_article = {
+			time: 0,
+			content: "123",
+			UID: LogInUID,
+			AID: 0,
+			type: 0,
+			trans_AID: 0,
+			pics: [pic],
+			TID: 0,
+		};
+		Cluster.add_an_article(my_article);		//添加这个头像到本地。
+	}
 		
 </script>
 

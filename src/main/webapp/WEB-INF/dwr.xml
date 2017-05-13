@@ -3,7 +3,8 @@
 	<dwr>
 	  <allow>
 	  
-	  	<convert converter="bean" match="zxl.bean.*"/>
+	  	<convert converter="bean" match="zxl.bean.Article"/>
+	  	<convert converter="bean" match="zxl.bean.User"/>
 	  	
 	    <!-- <create creator="new" javascript="User">
 	      <param name="class" value="zxl.bean.User"/>

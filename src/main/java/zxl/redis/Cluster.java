@@ -161,6 +161,22 @@ public class Cluster {
 	}
 
 	/**
+	 * 发推的过程中上传一个图片  返回未来的AID号码  ******线程不安全********
+	 * @param pic_base64
+	 * @throws IOException 
+	 */
+	public static long add_article_an_img(String pic_base64) throws IOException{
+		long this_AID = Long.parseLong(jc.get("AID")) + 1;
+		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(new File(Cluster.class.getClassLoader().getResource("").getPath() + "../../twitter_proj/pictures/pic_"+this_AID+".jpg")));
+//		System.out.println(pic_base64);
+		bos.write(Base64.getDecoder().decode(pic_base64.substring(pic_base64.indexOf(',')+1).getBytes()));		//需要去掉头部：“data:image/jpeg;base64,”
+		jc.del("pictures:"+this_AID);		//可能有用户上传完图片就取消的情况！结果AID并没有真的+1！！但是pic已经+1了！
+		jc.lpush("pictures:"+this_AID, "portrait_path", "pictures/pic_"+this_AID+".jpg");
+		bos.close();
+		return this_AID;
+	}
+	
+	/**
 	 * 接收一个用户主页背景图片，并且把它保存到本地。
 	 * @param UID
 	 * @param pic_base64
@@ -201,8 +217,8 @@ public class Cluster {
 		jc.hset(keyname, "isPrivate", String.valueOf(article.isPrivate()));
 		//设置文章article的pictures:[AID]表的pics路径。
 		if(article.getPics() != null)
-		for(int i = 0; i < article.getPics().size(); i ++){
-			jc.lpush("pictures:"+AID, article.getPics().get(i));
+		for(int i = 0; i < article.getPics().length; i ++){
+			jc.lpush("pictures:"+AID, article.getPics()[i]);
 		}
 		//添加到user的all_articles:[UID]表。	=>	user写的文章。
 		jc.zadd("all_articles:"+article.getUID(), article.getTime(), String.valueOf(article.getAID()));
@@ -709,7 +725,8 @@ public class Cluster {
 					list.add(0, trans_AID);
 					if(type == 2)	break;
 				}
-				type = Long.parseLong(jc.hget("article:"+trans_AID, "type"));				
+				type = Long.parseLong(jc.hget("article:"+trans_AID, "type"));	
+				AID = trans_AID;
 			}else{		//type是0，返回空列表。因为上游是空的。
 				break;
 			}
@@ -750,7 +767,7 @@ public class Cluster {
 				Long.parseLong(jc.hget(keyname, "type")), 
 				Long.parseLong(jc.hget(keyname, "trans_AID")), 
 				Boolean.parseBoolean(jc.hget(keyname, "isPrivate")),
-				jc.lrange("pictures:"+AID, 0, -1));
+				jc.lrange("pictures:"+AID, 0, -1).toArray(new String[1]));
 		art.setTime(Long.parseLong(jc.hget(keyname, "time")));
 		art.setAID(AID);
 		art.setTID(Long.parseLong(jc.hget(keyname, "TID")));

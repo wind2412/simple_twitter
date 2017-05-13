@@ -168,7 +168,6 @@ public class ClusterTest {
 		Cluster.focus_cancelled_oh_no(1, 2);		//取消了一波关注
 		
 		get_all_scores();
-		
 		//test
 		assert Cluster.focus_or_not(1, 2) == false;
 		assert Cluster.focus_or_not(2, 1) == true;
