@@ -30,30 +30,63 @@ function focus_list(){
 							});
 							$("#close_1").click(function(){//关闭推荐关注，淡出
 								onfocus = this.blur();
-								$("#f1").fadeOut(500);
+								$("#f1").fadeOut(300);
 								if(ptr < set.length){
-									ol.replaceChild(get_an_acquaintance(set[ptr++], 1), document.getElementById("f1"));
-									$("#f1").fadeIn(500);
+									$("#f1").fadeIn(400);
+									sleep(300);
+									get_portrait(set[ptr], 1);
+									get_name(set[ptr], 1);
+									ptr ++;
 								}
 							});
 							$("#close_2").click(function(){
 								onfocus = this.blur();
-								$("#f2").fadeOut(500);
+								$("#f2").fadeOut(300);
 								if(ptr < set.length){
-									ol.replaceChild(get_an_acquaintance(set[ptr++], 2), document.getElementById("f2"));
-									$("#f2").fadeIn(500);
+									$("#f2").fadeIn(400);
+									sleep(300);
+									get_portrait(set[ptr], 2);
+									get_name(set[ptr], 2);
+									ptr ++;
 								}
 							});
 							$("#close_3").click(function(){
 								onfocus = this.blur();
-								$("#f3").fadeOut(500);
+								$("#f3").fadeOut(300);
 								if(ptr < set.length){
-									ol.replaceChild(get_an_acquaintance(set[ptr++], 3), document.getElementById("f3"));
-									$("#f3").fadeIn(500);
+									$("#f3").fadeIn(400);
+									sleep(300);
+									get_portrait(set[ptr], 3);
+									get_name(set[ptr], 3);
+									ptr ++;
 								}
 							});
 						});
 					});
+				
+				function get_portrait(UID, id){
+					Cluster.get_user_portrait(UID, function(portrait_path){
+					//	alert(UID + "..." + portrait_path);
+						document.getElementById("img_"+id).src = portrait_path == null ? "portraits/anonymous.jpg" : portrait_path;						
+					});
+				}
+				
+				function get_name(UID, id){
+					Cluster.get_user_name(UID, function(name){
+						document.getElementById("link_"+id).href = "/twitter_proj/twitter_focus.jsp?usr="+name+"&timestamp="+new Date().getTime();
+						document.getElementById("name_"+id).innerHTML = "&nbsp;"+ name;					
+					});
+				}
+				
+				function sleep(numberMillis) { 
+					var now = new Date(); 
+					var exitTime = now.getTime() + numberMillis; 
+					while (true) { 
+						now = new Date(); 
+						if (now.getTime() > exitTime) return; 
+					} 
+				}
+				
 				//推荐关注的动态生成
 				function get_an_acquaintance(UID, id) {
 					var big_div = document.createElement("div");
@@ -63,14 +96,17 @@ function focus_list(){
 					var div = document.createElement("div");
 					var a = document.createElement("a");
 					a.className = "account-group";
+					a.setAttribute("id", "link_"+id);
 					var img = document.createElement("img");
 					img.className = "image";
+					img.setAttribute("id", "img_"+id);
 					Cluster.get_user_portrait(UID, function(portrait_path){
 				//	alert(UID + "..." + portrait_path);
 						img.src = portrait_path == null ? "portraits/anonymous.jpg" : portrait_path;						
 					});
 					var strong = document.createElement("strong");
 					strong.className = "userName";
+					strong.setAttribute("id", "name_"+id);
 					Cluster.get_user_name(UID, function(name){
 						a.href = "/twitter_proj/twitter_focus.jsp?usr="+name+"&timestamp="+new Date().getTime();
 						strong.innerHTML = "&nbsp;"+ name;					

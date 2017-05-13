@@ -10,9 +10,8 @@ $(document).ready(function() {
 		onfocus = this.blur();  
 	});
 	$("#close_1").click(function(){//关闭推荐关注，淡出
-		$("#f1").fadeOut(500);
 		onfocus = this.blur();
-		
+		$("#f1").fadeOut(500);
 		$("#f1").fadeIn(500);});
 	$("#close_2").click(function(){
 		onfocus = this.blur();
