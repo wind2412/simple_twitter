@@ -88,7 +88,7 @@ public class ClusterTest {
 			ltg.setMain_page("portraits/page_"+ltg.getUID()+".jpg");
 			Cluster.upgrade_user_settings(ltg);
 		}
-		zfy.setUID(Cluster.add_a_user(zfy.getName(), "123"));			//这些方法全都要改！！因为UID并没有设置！所以new Article(zxl.getUID()的时候getUID就是0了！！！
+		zfy.setUID(Cluster.add_a_user(zfy.getName(), "123"));			//这些方法全都要改！！因为UID并没有设置！所以zxl.getUID()的时候getUID就是0了！！！
 		{
 			zfy.setIntroduction("如果你能带我一起旅行…");
 			zfy.setPosition("捷克共和国--布拉格直辖市");
@@ -114,12 +114,12 @@ public class ClusterTest {
 		user8.setUID(Cluster.add_a_user(user8.getName(), "123"));
 		user9.setUID(Cluster.add_a_user(user9.getName(), "123"));
 		user10.setUID(Cluster.add_a_user(user10.getName(), "123"));
-		Cluster.add_an_article(new Article("null --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null));		//0参数表示并非转发
-		Cluster.add_an_article(new Article("the second blood! --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null));		//0参数表示并非转发
-		Cluster.add_an_article(new Article("omoshiroi --By jiangxicong.", jxc.getUID(), 0, 0, false, null));
-		Cluster.add_an_article(new Article("mouth can't hold ouch!! --By litiange.", ltg.getUID(), 0, 0, false, null));
-		Cluster.add_an_article(new Article("if U can take me with the trip~ --By zhangfangyuan.", zfy.getUID(), 0, 0, false, null));
-		Cluster.add_an_article(new Article("T4ks --By wangyue.", wy.getUID(), 0, 0, false, null));
+		Cluster.add_an_article("null --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null);		//0参数表示并非转发
+		Cluster.add_an_article("the second blood! --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null);		//0参数表示并非转发
+		Cluster.add_an_article("omoshiroi --By jiangxicong.", jxc.getUID(), 0, 0, false, null);
+		Cluster.add_an_article("mouth can't hold ouch!! --By litiange.", ltg.getUID(), 0, 0, false, null);
+		Cluster.add_an_article("if U can take me with the trip~ --By zhangfangyuan.", zfy.getUID(), 0, 0, false, null);
+		Cluster.add_an_article("T4ks --By wangyue.", wy.getUID(), 0, 0, false, null);
 		Cluster.get_all_keys();
 		get_all_scores();
 	}
@@ -188,15 +188,15 @@ public class ClusterTest {
 		int sleepsec = 1;		//更改这个就可以修改时间间隔。一般如果想要时间间隔，因为内部时间time是除以1000的，因此设置为1000就好。
 		
 		//开始评论
-		Cluster.add_an_article(new Article("comment myself article~~ --By zhengxiaolin", 1, 1, 1, false, null));	//7号文章回复1号
+		Cluster.add_an_article("comment myself article~~ --By zhengxiaolin", 1, 1, 1, false, null);	//7号文章回复1号
 		get_all_scores();
 		Thread.sleep(sleepsec);		//间隔一秒钟，模拟时间的不同。否则zrevrange里边的时间都是一样。。只能按照字典排序了。。。
 		
-		Cluster.add_an_article(new Article("comment your comment. --By jiangxicong", 2, 1, 7, false, null));		//8号文章回复7号
+		Cluster.add_an_article("comment your comment. --By jiangxicong", 2, 1, 7, false, null);		//8号文章回复7号
 		get_all_scores();
 		Thread.sleep(sleepsec);
 		
-		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 8, false, null));		//9号文章回复8号
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 8, false, null);		//9号文章回复8号
 		get_all_scores();
 		Thread.sleep(sleepsec);
 		
@@ -204,27 +204,27 @@ public class ClusterTest {
 //		get_all_scores();
 		
 		//开始转发
-		Cluster.add_an_article(new Article("trans myself article~~ --By zhengxiaolin", 1, 2, 1, false, null));		//10号文章转发1号
+		Cluster.add_an_article("trans myself article~~ --By zhengxiaolin", 1, 2, 1, false, null);		//10号文章转发1号
 		get_all_scores();
 		Thread.sleep(sleepsec);
 		
-		Cluster.add_an_article(new Article("trans jxc's article. --By litinage", 3, 2, 8, false, null));			//11号文章转发8号
+		Cluster.add_an_article("trans jxc's article. --By litinage", 3, 2, 8, false, null);			//11号文章转发8号
 		get_all_scores();
 		Thread.sleep(sleepsec);
 
-		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 7, false, null));		//12号文章回复7号
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 7, false, null);		//12号文章回复7号
 		Thread.sleep(sleepsec);
-		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 12, false, null));		//13号文章回复12号
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 12, false, null);		//13号文章回复12号
 		Thread.sleep(sleepsec);
 
-		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 7, false, null));		//14号文章回复7号
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 7, false, null);		//14号文章回复7号
 		Thread.sleep(sleepsec);
-		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 14, false, null));		//15号文章回复14号
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 14, false, null);		//15号文章回复14号
 		Thread.sleep(sleepsec);
-		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 14, false, null));		//16号文章回复14号
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 14, false, null);		//16号文章回复14号
 		Thread.sleep(sleepsec);
 		
-		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 7, false, null));		//17号文章回复7号
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 7, false, null);		//17号文章回复7号
 		Thread.sleep(sleepsec);
 
 		

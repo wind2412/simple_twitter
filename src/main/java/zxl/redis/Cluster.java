@@ -204,47 +204,46 @@ public class Cluster {
 		temp.delete();	//删除temp
 	}
 	
-	public static void add_an_article(Article article){		//注意，没有加上图片功能。
+	public static void add_an_article(String content, long UID, long type, long trans_AID, boolean isPrivate, String[] pics){		//注意，没有加上图片功能。
 		long AID = jc.incr("AID");
-		article.setAID(AID);
-		String keyname = "article:"+article.getAID();
-		article.setTime(System.currentTimeMillis()/1000);
+		String keyname = "article:"+AID;
+		long time = System.currentTimeMillis()/1000;
 		//设置文章article的article:[AID]表。
-		jc.hset(keyname, "content", article.getContent());
-		jc.hset(keyname, "UID",  String.valueOf(article.getUID()));
-		jc.hset(keyname, "type", String.valueOf(article.getType()));
-		jc.hset(keyname, "time", String.valueOf(article.getTime()));
-		jc.hset(keyname, "isPrivate", String.valueOf(article.isPrivate()));
+		jc.hset(keyname, "content", content);
+		jc.hset(keyname, "UID",  String.valueOf(UID));
+		jc.hset(keyname, "type", String.valueOf(type));
+		jc.hset(keyname, "time", String.valueOf(time));
+		jc.hset(keyname, "isPrivate", String.valueOf(isPrivate));
 		//设置文章article的pictures:[AID]表的pics路径。
-		if(article.getPics() != null)
-		for(int i = 0; i < article.getPics().length; i ++){
-			jc.lpush("pictures:"+AID, article.getPics()[i]);
+		if(pics != null)
+		for(int i = 0; i < pics.length; i ++){
+			jc.lpush("pictures:"+AID, pics[i]);
 		}
 		//添加到user的all_articles:[UID]表。	=>	user写的文章。
-		jc.zadd("all_articles:"+article.getUID(), article.getTime(), String.valueOf(article.getAID()));
+		jc.zadd("all_articles:"+UID, time, String.valueOf(AID));
 		//添加此文章AID到score表。填入内容为Unix时间。
-		jc.zadd("score", article.getTime(), String.valueOf(article.getAID()));
+		jc.zadd("score", time, String.valueOf(AID));
 		//对于[回复和/转发]进行额外的工作		=>	get_commented/get_transed:trans_AID
-		if(article.getType() == 1)	{			//如果是正在[回复]别人的[文章/回复/转发]
+		if(type == 1)	{			//如果是正在[回复]别人的[文章/回复/转发]
 			//设置此article:AID表的trans_AID属性。
-			jc.hset(keyname, "trans_AID", String.valueOf(article.getTrans_AID()));
+			jc.hset(keyname, "trans_AID", String.valueOf(trans_AID));
 			//设置get_commented:[AID]表。
-			jc.zadd("get_commented:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));		//被回复的文章被回复次数+1，加到被回复文章的get_commented的zset中。
+			jc.zadd("get_commented:"+trans_AID, time, String.valueOf(AID));		//被回复的文章被回复次数+1，加到被回复文章的get_commented的zset中。
 			//给被回复的文章加分		//改？？？？？应该改成给所有链上的文章加分。。。
 			add_score_to_article_chains_and_user(AID, REPLY_SCORE);
 			//加到score:reply:[trans_AID]表中。
-			jc.zadd("score:reply:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));
+			jc.zadd("score:reply:"+trans_AID, time, String.valueOf(AID));
 			//加到commented:[UID]表中
-			jc.zadd("commented{"+article.getUID()+"}", article.getTime(), String.valueOf(article.getAID()));
-		} else if(article.getType() == 2) {		//如果是正在[转发]别人的[文章/回复/转发]
+			jc.zadd("commented{"+UID+"}", time, String.valueOf(AID));
+		} else if(type == 2) {		//如果是正在[转发]别人的[文章/回复/转发]
 			//设置此article:AID表的trans_AID属性。
-			jc.hset(keyname, "trans_AID", String.valueOf(article.getTrans_AID()));
+			jc.hset(keyname, "trans_AID", String.valueOf(trans_AID));
 			//设置get_transed:[AID]表。		=>	被转发文章的所有转发列表
-			jc.zadd("get_transed:"+article.getTrans_AID(), article.getTime(), String.valueOf(article.getAID()));		//被转发的文章被转发次数+1，加到被转发文章的get_transed的zset中。
+			jc.zadd("get_transed:"+trans_AID, time, String.valueOf(AID));		//被转发的文章被转发次数+1，加到被转发文章的get_transed的zset中。
 			//给被转发的文章加分		//改？？？？？应该改成给所有链上的文章加分。。。
 			add_score_to_article_chains_and_user(AID, TRANS_SCORE);
 			//加到transed:[UID]表中
-			jc.zadd("transed{"+article.getUID()+"}", article.getTime(), String.valueOf(article.getAID()));
+			jc.zadd("transed{"+UID+"}", time, String.valueOf(AID));
 		} else{		//type == 0
 			//设置此article:AID表的trans_AID属性。
 			jc.hset(keyname, "trans_AID", String.valueOf(0));		//也要设置。如果仅仅因为没有trans_AID就不设置，那么到get_an_article方法里，Long.parseLong应该会崩溃吧。		
@@ -252,16 +251,15 @@ public class Cluster {
 		//添加到所有fans的timeline中。
 		long TID = jc.incr("TID");		//把时间线ID=>TID+1.
 		jc.hset(keyname, "TID", String.valueOf(TID)); 		//设置为文章属性。
-		article.setTID(TID); 			//设置到文章之中。
 		///这里千万注意！！如果是type==0，那就是某个UID发了一篇文章，无可挑剔。但是如果是type==2，3的话，那么这篇文章在timeline表中还是“此UID发的文章”。所以，
 		///如果要产生“XX分钟前XXX转发了XXX的一篇文章”的话，因为这里tln记录的是转发后的哪篇新文章AID，因此还需要通过此AID找到trans_AID来继续跳查一步才行！！
-		TimeLineNode tln = new TimeLineNode(TID, article.getUID(), article.getType(), article.getAID(), article.getTime());	
+		TimeLineNode tln = new TimeLineNode(TID, UID, type, AID, time);	
 		add_action_message(tln);
 		add_action_to_all_fans_timeline(tln);
 		//添加到timeline总表中，于是这个总表可以当成流API来用了。
 		jc.zadd("timeline", tln.getTime(), String.valueOf(tln.getTID()));	
 		//如果不是私有的，就添加TID信息到文章中
-		if(article.isPrivate() == false)	jc.hset("article:"+article.getAID(), "TID", String.valueOf(tln.getTID()));
+		if(isPrivate == false)	jc.hset("article:"+AID, "TID", String.valueOf(tln.getTID()));
 	}
 	
 	private static TimeLineNode get_a_timeLineNode(long TID){

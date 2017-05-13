@@ -701,7 +701,7 @@ function isSafari() {
                         	<div class="commenting" id="article-commenting">
                                 <div class="article-comment-text-box-back" id="article-comment-text-box-back">
                                     <form class="article-comment-text-box-f">
-                                        <textarea type="text" class="article-comment-text-box" style="margin-left: -20px" maxlength="140" id="article-comment-text-box" placeholder="发布你的回复" onFocus="comment_write()" onBlur="comment_text_box_blur()"></textarea>
+                                        <textarea type="text" class="article-comment-text-box" style="margin-left: -20px" maxlength="140" id="article-comment-text-box" placeholder="发布你的回复" onFocus="comment_write()" ></textarea>
                                         
                                     </form>
                                 </div>
@@ -784,19 +784,18 @@ function isSafari() {
 	}
 	
 	function send(){
-		var pic = (document.getElementById("hidden_aid").value == "") ? "" : document.getElementById("hidden_aid").value;
-		alert("haha");
-		var my_article = {
-			time: 0,
+	alert("haha");
+		var pics = new Array();
+		pics[0] = (document.getElementById("hidden_aid").value == "") ? "" : document.getElementById("hidden_aid").value;
+		/* var my_article = {
 			content: "123",
 			UID: LogInUID,
-			AID: 0,
 			type: 0,
 			trans_AID: 0,
-			pics: [pic],
-			TID: 0,
-		};
-		Cluster.add_an_article(my_article);		//添加这个头像到本地。
+			isPrivate: false,
+			pics: [pic]
+		}; */
+		Cluster.add_an_article(document.getElementById("article-comment-text-box").value, LogInUID, 0, 0, false, pics);		//添加这个头像到本地。
 	}
 		
 </script>
