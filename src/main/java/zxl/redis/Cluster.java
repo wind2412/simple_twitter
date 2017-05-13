@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -204,7 +205,17 @@ public class Cluster {
 		temp.delete();	//删除temp
 	}
 	
-	public static void add_an_article(String content, long UID, long type, long trans_AID, boolean isPrivate, String[] pics){		//注意，没有加上图片功能。
+	/**
+	 * 添加一篇文章  由于DWR的原因，不能传递Article对象了。 
+	 * @param content
+	 * @param UID
+	 * @param type
+	 * @param trans_AID
+	 * @param isPrivate
+	 * @param pics
+	 * @return article_AID
+	 */
+	public static long add_an_article(String content, long UID, long type, long trans_AID, boolean isPrivate, String[] pics){		//注意，没有加上图片功能。
 		long AID = jc.incr("AID");
 		String keyname = "article:"+AID;
 		long time = System.currentTimeMillis()/1000;
@@ -215,9 +226,12 @@ public class Cluster {
 		jc.hset(keyname, "time", String.valueOf(time));
 		jc.hset(keyname, "isPrivate", String.valueOf(isPrivate));
 		//设置文章article的pictures:[AID]表的pics路径。
-		if(pics != null)
-		for(int i = 0; i < pics.length; i ++){
-			jc.lpush("pictures:"+AID, pics[i]);
+//		if(pics != null)
+//		for(int i = 0; i < pics.length; i ++){
+//			jc.lpush("pictures:"+AID, pics[i]);
+//		}
+		if(!pics[0].equals("")){
+			jc.lpush("pictures:"+AID, pics[0]);
 		}
 		//添加到user的all_articles:[UID]表。	=>	user写的文章。
 		jc.zadd("all_articles:"+UID, time, String.valueOf(AID));
@@ -260,6 +274,7 @@ public class Cluster {
 		jc.zadd("timeline", tln.getTime(), String.valueOf(tln.getTID()));	
 		//如果不是私有的，就添加TID信息到文章中
 		if(isPrivate == false)	jc.hset("article:"+AID, "TID", String.valueOf(tln.getTID()));
+		return AID;
 	}
 	
 	private static TimeLineNode get_a_timeLineNode(long TID){
@@ -289,8 +304,8 @@ public class Cluster {
 	 * @return
 	 */
 	public static List<TimeLineNode> get_timeline_chains(long UID, int page){
-		if((page-1)*ARTICLES_PER_PAGE > jc.zcard("timeline:"+UID))	return null;		//说明已经到了所有页的末尾，后面已经没有了
-		Set<String> TIDs = jc.zrevrange("timeline:"+UID, (page-1)*ARTICLES_PER_PAGE, page*ARTICLES_PER_PAGE-1);
+		if(page*ARTICLES_PER_PAGE > jc.zcard("timeline:"+UID))	return null;		//说明已经到了所有页的末尾，后面已经没有了
+		Set<String> TIDs = jc.zrevrange("timeline:"+UID, page*ARTICLES_PER_PAGE, (page+1)*ARTICLES_PER_PAGE-1);
 		List<TimeLineNode> action_list = new LinkedList<>();
 		for(String tid : TIDs){
 			action_list.add(get_a_timeLineNode(Long.parseLong(tid)));
@@ -458,8 +473,8 @@ public class Cluster {
 	 * @return
 	 */
 	public static Set<Long> get_user_articles_by_page(long UID, int page){
-		if((page-1)*ARTICLES_PER_PAGE > jc.zcard("all_articles:"+UID))	return null;		//说明已经到了所有页的末尾，后面已经没有了
-		return change_set_type(jc.zrevrange("all_articles:"+UID, (page-1)*ARTICLES_PER_PAGE, page*ARTICLES_PER_PAGE-1));
+		if(page*ARTICLES_PER_PAGE > jc.zcard("all_articles:"+UID))	return null;		//说明已经到了所有页的末尾，后面已经没有了
+		return change_set_type(jc.zrevrange("all_articles:"+UID, page*ARTICLES_PER_PAGE, (page+1)*ARTICLES_PER_PAGE-1));
 	}
 	
 	/**
@@ -574,8 +589,8 @@ public class Cluster {
 	 * @return
 	 */
 	public static Set<Long> get_focus_by_page(long UID, int page){
-		if((page-1)*FOCUS_PER_PAGE > jc.zcard("focus{"+UID+"}"))	return null;		//说明已经到了所有页的末尾，后面已经没有了
-		return change_set_type(jc.zrevrange("focus{"+UID+"}", (page-1)*FOCUS_PER_PAGE, page*FOCUS_PER_PAGE-1));
+		if(page*FOCUS_PER_PAGE > jc.zcard("focus{"+UID+"}"))	return null;		//说明已经到了所有页的末尾，后面已经没有了
+		return change_set_type(jc.zrevrange("focus{"+UID+"}", page*FOCUS_PER_PAGE, (page+1)*FOCUS_PER_PAGE-1));
 	}
 	
 	/**
@@ -584,8 +599,8 @@ public class Cluster {
 	 * @return
 	 */
 	public static Set<Long> get_fans_by_page(long UID, int page){
-		if((page-1)*FOCUS_PER_PAGE > jc.zcard("fans{"+UID+"}"))	return null;		//说明已经到了所有页的末尾，后面已经没有了
-		return change_set_type(jc.zrevrange("fans{"+UID+"}", (page-1)*FOCUS_PER_PAGE, page*FOCUS_PER_PAGE-1));
+		if(page*FOCUS_PER_PAGE > jc.zcard("fans{"+UID+"}"))	return null;		//说明已经到了所有页的末尾，后面已经没有了
+		return change_set_type(jc.zrevrange("fans{"+UID+"}", page*FOCUS_PER_PAGE, (page+1)*FOCUS_PER_PAGE-1));
 	}
 	
 	
@@ -650,8 +665,8 @@ public class Cluster {
 	 * @return
 	 */
 	public static List<Article> get_articles(long UID, int page){
-		if((page-1)*ARTICLES_PER_PAGE > jc.zcard("all_articles:"+UID))	return null;		//说明已经到了所有页的末尾，后面已经没有了
-		Set<String> AIDs = jc.zrevrange("all_articles:"+UID, (page-1)*ARTICLES_PER_PAGE, page*ARTICLES_PER_PAGE-1);
+		if(page*ARTICLES_PER_PAGE > jc.zcard("all_articles:"+UID))	return null;		//说明已经到了所有页的末尾，后面已经没有了
+		Set<String> AIDs = jc.zrevrange("all_articles:"+UID, page*ARTICLES_PER_PAGE, (page+1)*ARTICLES_PER_PAGE-1);
 		List<Article> art_list = new LinkedList<Article>();
 		for(String aid : AIDs){
 			art_list.add(get_an_article(Long.parseLong(aid)));
@@ -684,7 +699,7 @@ public class Cluster {
 			art_list.add(art_upon);
 		}
 		//得到一页的用户回复	=>	先得到10个“此节点的支脉(叶节点)”:child_AID，然后对所有支脉:child_AID求左子树。
-		Set<String> child_AIDs = jc.zrevrange("get_commented:"+AID, (page-1)*COMMENT_PER_PAGE, page*COMMENT_PER_PAGE-1);
+		Set<String> child_AIDs = jc.zrevrange("get_commented:"+AID, page*COMMENT_PER_PAGE, (page+1)*COMMENT_PER_PAGE-1);
 		for(String child_aid : child_AIDs){
 			//得到左支脉下游
 			List<Long> child_AID_down = get_comments_down(Long.parseLong(child_aid));
@@ -866,7 +881,7 @@ public class Cluster {
 	 * @return
 	 */
 	public static Set<Long> change_set_type(Set<String> set){
-		Set<Long> result = new HashSet<Long>();
+		Set<Long> result = new LinkedHashSet<Long>();		//一定要使用正常的顺序......
 		for(String s : set){
 			result.add(Long.parseLong(s));
 		}

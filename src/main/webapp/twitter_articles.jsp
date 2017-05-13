@@ -339,6 +339,7 @@ function isSafari() {
                		dwr.engine.setAsync(true);	//同步
                		
                		function place_articles_in_column(set){
+               		alert(set);
 		                var all_reply = document.getElementById("stream-items-id");
                			for(var i = 0; i < set.length; i ++){	//列出所有文章
 		               		all_reply.appendChild(create_article_zxl(set[i]));  
@@ -795,7 +796,11 @@ function isSafari() {
 			isPrivate: false,
 			pics: [pic]
 		}; */
-		Cluster.add_an_article(document.getElementById("article-comment-text-box").value, LogInUID, 0, 0, false, pics);		//添加这个头像到本地。
+		Cluster.add_an_article(document.getElementById("article-comment-text-box").value, LogInUID, 0, 0, false, pics, function(this_AID){
+			var all_reply = document.getElementById("stream-items-id");
+			alert(all_reply.firstChild);
+		    all_reply.insertBefore(create_article_zxl(this_AID), all_reply.firstChild);  
+		});		//添加这个头像到本地。
 	}
 		
 </script>
