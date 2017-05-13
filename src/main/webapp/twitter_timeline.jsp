@@ -52,7 +52,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
         	<div class="header-btn-left">
                 <ul>
                 <li></li>
-                <li id="head_m"><a href="" id="timeline"><img src="icons/1.png" height="20px" width="20px"><span id="head_m">主页</span></a><div class="under_head_m"></div></li>
+                <li id="head_m"><a href="" id="timeline"><img src="icons/1.png" height="20px" width="20px" style="color:#2aa3ef"><span id="head_m" style="color:#2aa3ef">主页</span></a><div class="under_head_m"></div></li>
                 <li id="head_i"><a><img src="icons/2.png" height="20px" width="20px"><span id="head_i">通知</span></a><div class="under_head_i"></div></li>
                 <li id="head_c"><a><img src="icons/3.png" height="20px" width="20px"><span id="head_c">私信</span></a><div class="under_head_c"></div></li>
                 </ul>
@@ -83,7 +83,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</a>
 		
             <ul>
-                <li id="head_t"><a href="" id="head_articles"><div id="head_t" style="color:#2aa3ef">推文</div><div id="head_t_num" style="color:#2aa3ef"></div></a><div class="under_center_t"></div></li>
+                <li id="head_t"><a href="" id="head_articles"><div id="head_t">推文</div><div id="head_t_num"></div></a><div class="under_center_t"></div></li>
                 <li id="head_f"><a href="" id="head_focusing"><div id="head_f">正在关注</div><div id="head_f_num"></div></a><div class="under_center_f"></div></li>
                 <li id="head_fd"><a href="" id="head_fansing"><div id="head_fd">关注者</div><div id="head_fd_num"></div></a><div class="under_center_fd" style="margin-left:12px"></div></li>
             </ul>
@@ -98,7 +98,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <br><br>
 
 <script type="text/javascript">
-	var this_page = 1;
+	var this_page = 0;
 if (isSafari()) {
 	$(window).bind("pageshow", function (event) {
 		if (event.originalEvent.persisted && $('body').hasClass("no-cache")) {
@@ -1207,7 +1207,6 @@ function complete(aid){
 		}; */
 		Cluster.add_an_article(document.getElementById("article-comment-text-box").value, LogInUID, 0, 0, false, pics, function(this_AID){
 			var all_reply = document.getElementById("stream-items-id");
-		    all_reply.insertBefore(create_article_zxl(this_AID), all_reply.firstChild);  
 		    var article_num = document.getElementById("head_t_num");		//推文数量+1
 		    article_num.innerHTML = parseInt(article_num.innerHTML)+1;
 	//	    offset += 1;		//新增了一篇文章  分页请求时要使用  但是这个页面也不会显示在上边，因此对分页没有影响

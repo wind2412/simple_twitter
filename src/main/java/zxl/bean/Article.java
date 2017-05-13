@@ -1,6 +1,5 @@
 package zxl.bean;
 
-import java.util.List;
 
 
 public class Article {

@@ -33,12 +33,17 @@ function exit_article(aid){
 //JavaScript Document
 $(document).ready(function(){
 	//头部的js效果
-	$("li#head_m").mouseenter(function(){
+	if(this_page != 0){
+		$("li#head_m").mouseenter(function(){
+			$("span#head_m").css("color","#0084B4");
+			$(".under_head_m").show();});
+		$("li#head_m").mouseleave(function(){
+			$("span#head_m").css("color","#6E6D73");
+			$(".under_head_m").hide();});		
+	}else{
 		$("span#head_m").css("color","#0084B4");
-		$(".under_head_m").show();});
-	$("li#head_m").mouseleave(function(){
-		$("span#head_m").css("color","#6E6D73");
-		$(".under_head_m").hide();});
+		$(".under_head_m").show();		
+	}
 	$("li#head_i").mouseenter(function(){
 		$("span#head_i").css("color","#0084B4");
 		$(".under_head_i").show();});
