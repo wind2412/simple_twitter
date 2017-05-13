@@ -51,9 +51,11 @@ $(document).ready(function(){
 	if(this_page != 1){
 		$("li#head_t").mouseenter(function(){
 			$("div#head_t").css("color","#2aa3ef");
+			$("div#head_t_num").css("color","#2aa3ef");
 			$(".under_center_t").show();});
 		$("li#head_t").mouseleave(function(){
-			$("div#head_t").css("color","#2aa3ef");
+			$("div#head_t").css("color","#6E6D73");
+			$("div#head_t_num").css("color","#6E6D73");
 			$(".under_center_t").hide();});		
 	}else{
 			$("div#head_t").css("color","#2aa3ef");
@@ -62,9 +64,11 @@ $(document).ready(function(){
 	if(this_page != 2){
 		$("li#head_f").mouseenter(function(){
 			$("div#head_f").css("color","#2aa3ef");
+			$("div#head_f_num").css("color","#2aa3ef");
 			$(".under_center_f").show();});
 		$("li#head_f").mouseleave(function(){
 			$("div#head_f").css("color","#6E6D73");
+			$("div#head_f_num").css("color","#6E6D73");
 			$(".under_center_f").hide();});
 	}else{
 			$("div#head_f").css("color","#2aa3ef");
@@ -73,9 +77,11 @@ $(document).ready(function(){
 	if(this_page != 3){
 		$("li#head_fd").mouseenter(function(){
 			$("div#head_fd").css("color","#2aa3ef");
+			$("div#head_fd_num").css("color","#2aa3ef");
 			$(".under_center_fd").show();});
 		$("li#head_fd").mouseleave(function(){
 			$("div#head_fd").css("color","#6E6D73");
+			$("div#head_fd_num").css("color","#6E6D73");
 			$(".under_center_fd").hide();});		
 	}else{
 			$("div#head_fd").css("color","#2aa3ef");
