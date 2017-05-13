@@ -604,9 +604,6 @@ function isSafari() {
                             </div>
                             <div class="article-text">
                             	<p class="article-text-content" id="article-text-content">
-                                	2333333333333333<br>
-                                	23333333333333333<br>
-                                	233333333333333333333333333333333333333333333333333333333333333333333333333333333
                                 </p>
                             </div>
                             <div class="article-pic-back">
@@ -635,7 +632,7 @@ function isSafari() {
                             </div>
                             <div class="article-time">
                             	<span class="article-time-text">
-                                	<span id="article-timer">16:36 &nbsp;&nbsp; 2017/5/6</span>
+                                	<span id="article-timer"></span>
                                 </span>
                             </div> 
                             <div class="article-action-list">
@@ -708,7 +705,7 @@ function isSafari() {
                 
                 </div>
     </div>
-    <a class="close-reveal-modal" title="关闭">&#215;</a>
+    <a class="close-reveal-modal" id="close_reveal" title="关闭">&#215;</a>
     </div>
 <!--<div id="myModal" class="reveal-modal">
 <h1>jquery导出层</h1>
@@ -1211,6 +1208,7 @@ function complete(aid){
 		    article_num.innerHTML = parseInt(article_num.innerHTML)+1;
 	//	    offset += 1;		//新增了一篇文章  分页请求时要使用  但是这个页面也不会显示在上边，因此对分页没有影响
 		});		//添加这个头像到本地。
+		$("#close_reveal").trigger("click");
 	}
 	
 	//检测到达页面的底部
