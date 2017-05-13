@@ -71,7 +71,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 </div>
 
 
-<div id="bg" style=" height: auto; min-height:380px; width: 100%; ">		<!--蓝色状态栏-->
+<div id="bg" style=" height: auto;  width: 100%; ">		<!--蓝色状态栏-->
 	<img id="bg_img" class="the-backgroundpic"  style="width:100%; ">
 </div>
 
@@ -511,7 +511,7 @@ function isSafari() {
 			v_num.setAttribute("id","article-action-v-num");
 			v_num.innerHTML="1";
 
-			var a_action_v_2=document.createElement("button");
+			/* var a_action_v_2=document.createElement("button");
 			a_action_v_2.className="article-action-btn";
 			a_action_v_2.setAttribute("id","article-action-ved");
 			a_action_v_2.onmouseover=function(){action_btn_v_on(this);};
@@ -524,12 +524,12 @@ function isSafari() {
 			a_action_v_2.appendChild(v_icon_2);
 			var v_num_2=document.createElement("span");
 			v_num_2.setAttribute("id","article-action-v-num_2");
-			v_num_2.innerHTML="2";
+			v_num_2.innerHTML="2"; */
 			
 			a_action_v.appendChild(v_num);
-			a_action_v_2.appendChild(v_num_2);
+			//a_action_v_2.appendChild(v_num_2);
 			v_action_btn_back.appendChild(a_action_v);
-			v_action_btn_back.appendChild(a_action_v_2);
+			//v_action_btn_back.appendChild(a_action_v_2);
 			
 			article_action_list.appendChild(v_action_btn_back);
 			
@@ -709,14 +709,16 @@ function isSafari() {
                                 <div class="comment-btn-back" id="comment-btn-back">
                                     <div class="comment-pic-btn-back">
                                         <button class="comment-btn" id="aritcle-1-add-pic-btn" onMouseOver="comment_btn_on(this)" onMouseOut="comment_btn_out(this)">
-                                        	<i class="iconfont icon-xiangji"></i>
+                                        	<i class="iconfont icon-xiangji" onclick="getFile()"></i>
                                         </button>
                                         <button class="comment-btn" id="article-1-add-gif-btn" onMouseOver="comment_btn_on(this)" onMouseOut="comment_btn_out(this)">
-                                        	<i class="iconfont icon-gif"></i>
+                                        	<i class="iconfont icon-gif" onclick="getFile()"></i>
                                         </button>
                                         <button class="comment-btn" id="article-1-add-location-btn" onMouseOver="comment_btn_on(this)" onMouseOut="comment_btn_out(this)">
-                                        	<i class="iconfont icon-icon"></i>
+                                        	<i class="iconfont icon-icon" onclick="getFile()"></i>
                                         </button>
+                                        <!-- 隐藏的文件选择框 -->
+                                        <input type="file" onchange="show_pic(this)" accept="image/*"  id="file"  style="width:400px;visibility: hidden;" title="头像">
                                     </div>
                                     <div class="comment-up">
                                     	<button class="comment-up-btn" id="comment-up-btn">发送</button>
@@ -756,7 +758,9 @@ function isSafari() {
 		
 	}
 	
-	
+	function getFile(){
+		$("#file").trigger("click"); 
+	}
 	
 		
 		

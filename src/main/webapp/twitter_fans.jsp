@@ -323,7 +323,7 @@ a:hover{
 </div>
 
 
-<div id="bg" style=" height: auto; min-height:380px; width: 100%; ">		<!--蓝色状态栏-->
+<div id="bg" style=" height: auto;  width: 100%; ">		<!--蓝色状态栏-->
 	<img id="bg_img" class="the-backgroundpic"  style="width:100%; ">
 </div>
 
