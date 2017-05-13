@@ -472,9 +472,9 @@ public class Cluster {
 	 * @param UID
 	 * @return
 	 */
-	public static Set<Long> get_user_articles_by_page(long UID, int page){
-		if(page*ARTICLES_PER_PAGE > jc.zcard("all_articles:"+UID))	return null;		//说明已经到了所有页的末尾，后面已经没有了
-		return change_set_type(jc.zrevrange("all_articles:"+UID, page*ARTICLES_PER_PAGE, (page+1)*ARTICLES_PER_PAGE-1));
+	public static Set<Long> get_user_articles_by_page(long UID, int page, int offset){	//offset是页串位的偏移量.
+		if(page*ARTICLES_PER_PAGE+offset > jc.zcard("all_articles:"+UID))	return null;		//说明已经到了所有页的末尾，后面已经没有了
+		return change_set_type(jc.zrevrange("all_articles:"+UID, page*ARTICLES_PER_PAGE+offset, (page+1)*ARTICLES_PER_PAGE-1+offset));
 	}
 	
 	/**
@@ -659,7 +659,7 @@ public class Cluster {
 	}
 	
 	/**
-	 * 分页得到某个user的文章。一页20篇文章。
+	 * 分页得到某个user的文章。一页20篇文章。 
 	 * @param UID
 	 * @param page
 	 * @return
@@ -681,7 +681,7 @@ public class Cluster {
 	 * @param page	=>	用户先得到第一页。需要往下滚动的时候才开始加载第二页。这时要把page加上1之后调用此函数。注意，网页中，需要使用一个js变量page保存用户打开了几页.
 	 * @return 返回值是一个List<List<Long>>类型。list.0是根源->此AID(包括)。list.1以后，全是评论的支脉。也就是每个child_aid的支脉了。
 	 */
-	public static List<List<Article>> get_article_comments_context(long AID, int page){
+	public static List<List<Article>> get_article_comments_context(long AID, int page/*, int offset*/){			//待改！！！！！！！
 		List<List<Article>> art_list = new LinkedList<List<Article>>();
 		if(page == 0){		//如果是第一次请求page，即page==0，那么就把根源->此AID全发过去。如果page>0，那么这一段必然已经加载。那就不必再发这个了。
 			//得到所有上游
@@ -911,7 +911,7 @@ public class Cluster {
 			//时间倒序查找。每个取20个。		这里的first表示“一度查找”。
 			//[在集群中不是同一个slot不能操作！所以必须把[]改成{}来标记slot！{}中的内容只要一样，就存在同一个slot中！！]
 			//详见：https://my.oschina.net/u/2242064/blog/646771
-			jc.zunionstore("acquaintance_first{"+UID+"}", "focus{"+UID+"}", "voted{"+UID+"}", "commented{"+UID+"}", "trans{"+UID+"}");	//一步操作进行。就是量太大了。其实可以把数量变小。找最新的几人。只不过麻烦，需要额外开辟多个set的副本。
+			jc.zunionstore("acquaintance_first{"+UID+"}", "focus{"+UID+"}", "voted{"+UID+"}"/*, "commented{"+UID+"}", "trans{"+UID+"}"*/);	//一步操作进行。就是量太大了。其实可以把数量变小。找最新的几人。只不过麻烦，需要额外开辟多个set的副本。
 			jc.expire("acquaintance_first{"+UID+"}", 24*60*60);		//保存一天。
 			
 			Set<Long> first = change_set_type(jc.zrange("acquaintance_first{"+UID+"}", 0, -1));
@@ -922,7 +922,7 @@ public class Cluster {
 				//对于每个一度朋友，都缓存一次这个朋友的一度查找。然后我们会对所有一度朋友的一度查找进行union，形成我的二度查找。即寻找朋友的朋友最牛B的几个人。
 				String uid_string = "acquaintance_first{"+uid+"}";
 				if(!jc.exists(uid_string)){
-					jc.zunionstore(uid_string, "focus{"+uid+"}", "voted{"+uid+"}", "commented{"+uid+"}", "trans{"+uid+"}");	//一步操作进行。就是量太大了。其实可以把数量变小。找最新的几人。只不过麻烦，需要额外开辟多个set的副本。
+					jc.zunionstore(uid_string, "focus{"+uid+"}", "voted{"+uid+"}"/*, "commented{"+uid+"}", "trans{"+uid+"}"*/);	//一步操作进行。就是量太大了。其实可以把数量变小。找最新的几人。只不过麻烦，需要额外开辟多个set的副本。
 					jc.expire(uid_string, 24*60*60);		//保存一天。				
 				}
 				argu[j++] = uid_string; 

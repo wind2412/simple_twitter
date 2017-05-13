@@ -499,6 +499,7 @@ a:hover{
 		var focus_num;		
 		var page_num;		
 		var page_cur = 0;
+		var offset = 0;		//用户在本页上发了几篇文章 请求所需的offset
 
 		Cluster.get_focus_num(other_UID, function(data){
 			focus_num = data;

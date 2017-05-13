@@ -322,13 +322,17 @@ function isSafari() {
                <script type="text/javascript">
                		dwr.engine.setAsync(false);	//同步
                		
-               		var articles_num;
+               		var articles_num;		//其实这里有个绝世bug....根本就不能按page得到东西...这样的设计是错误的....因为如果新加了文章，本来的第二页的所有东西就会向后串了。
+               								//本来是59...30第一页,29...0第二页，一旦用户添加了两篇文章，那么第二页就变成了31...2了。这要是分页，倒也正确。但是twitter是实时显示的！
+               								//这就没有办法了。势必会发生31和30两篇文章加载了两次......所以，这次就先这样吧。引以为戒吧...一定要考虑周全啊。
+               								//于是【解决方法】就变成了，每次添加一篇文章，就刷新一次的lowb设计...或者在后端代码中添加offset变量，前端设置用户一共发了几篇文章就是offset，
+               								//然后后端加上偏移量来请求页数了。
                		var page_num;
                		var page_cur = 0;
                		
                		Cluster.get_user_articles_num(other_UID, function(num){
                			articles_num = num;
-               			page_num = Math.floor(articles_num / 20);		//一页20个 
+               			page_num = Math.floor(articles_num / 20);		//一页20个
                		});
                		
                		Cluster.get_user_articles_by_page(other_UID, 0, function(set){
@@ -339,7 +343,6 @@ function isSafari() {
                		dwr.engine.setAsync(true);	//同步
                		
                		function place_articles_in_column(set){
-               		alert(set);
 		                var all_reply = document.getElementById("stream-items-id");
                			for(var i = 0; i < set.length; i ++){	//列出所有文章
 		               		all_reply.appendChild(create_article_zxl(set[i]));  
@@ -764,6 +767,10 @@ function isSafari() {
 	}
 	
 	function upload_page(source) {
+		if(LogInUID == 0)	{
+			window.location.href = "/twitter_proj/login.jsp";		//如果没登录......
+			return;
+		}
 		if(window.FileReader) {
 			var fileReader = new FileReader();
 			pic = source.files[0];
@@ -785,7 +792,10 @@ function isSafari() {
 	}
 	
 	function send(){
-	alert("haha");
+		if(LogInUID == 0)	{
+			window.location.href = "/twitter_proj/login.jsp";		//如果没登录......
+			return;
+		}
 		var pics = new Array();
 		pics[0] = (document.getElementById("hidden_aid").value == "") ? "" : "pictures/pic_"+document.getElementById("hidden_aid").value+".jpg";
 		/* var my_article = {
@@ -798,10 +808,31 @@ function isSafari() {
 		}; */
 		Cluster.add_an_article(document.getElementById("article-comment-text-box").value, LogInUID, 0, 0, false, pics, function(this_AID){
 			var all_reply = document.getElementById("stream-items-id");
-			alert(all_reply.firstChild);
 		    all_reply.insertBefore(create_article_zxl(this_AID), all_reply.firstChild);  
+		    var article_num = document.getElementById("head_t_num");		//推文数量+1
+		    article_num.innerHTML = parseInt(article_num.innerHTML)+1;
 		});		//添加这个头像到本地。
 	}
+	
+	//检测到达页面的底部
+		var $document = $(document);//缓存一下$(document)
+	    $(window).scroll(function(){
+	    　　var $this = $(this),
+	            scrollTop = $this.scrollTop(),
+	            scrollHeight = $document.height(),
+	            windowHeight = $this.height();
+	    　　if(scrollTop + windowHeight >= scrollHeight){
+	    		alert("haha");
+	    		//到达底部		//获取一页focus
+	    		if(page_cur >= page_num)	return;		//如果页指针指向最后，那么一定是到达底端而且全部加载出来了。
+				else Cluster.get_user_articles_by_page(other_UID, page_cur, function(set){
+				
+               			place_articles_in_column(set);
+               			page_cur ++;
+               		});
+	    　　}
+	    });
+	
 		
 </script>
 

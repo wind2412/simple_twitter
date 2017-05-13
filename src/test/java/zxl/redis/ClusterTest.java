@@ -156,8 +156,8 @@ public class ClusterTest {
 		Cluster.focus_a_user(1, 3);
 		Cluster.focus_a_user(6, 5);
 		Cluster.focus_a_user(5, 6);
-		Cluster.focus_a_user(3, 7);
-		Cluster.focus_a_user(4, 7);
+		Cluster.focus_a_user(3, 2);
+		Cluster.focus_a_user(4, 2);
 		Cluster.focus_a_user(2, 8);
 		
 		Cluster.get_all_keys();
@@ -185,7 +185,7 @@ public class ClusterTest {
 //		assert Cluster.judge_voted(1, 1) == true;
 //		assert Cluster.judge_voted(2, 1) == false;
 		
-		int sleepsec = 1000;		//更改这个就可以修改时间间隔。一般如果想要时间间隔，因为内部时间time是除以1000的，因此设置为1000就好。
+		int sleepsec = 1;		//更改这个就可以修改时间间隔。一般如果想要时间间隔，因为内部时间time是除以1000的，因此设置为1000就好。
 		
 		//开始评论
 		Cluster.add_an_article("comment myself article~~ --By zhengxiaolin", 1, 1, 1, false, null);	//7号文章回复1号
@@ -252,7 +252,7 @@ public class ClusterTest {
 		}
 		
 		//我关注的人也关注了他  这些人都有谁
-		List<Long> who_I_focus_also_focus_him = Cluster.who_I_focus_also_focus_him(1, 7);
+		List<Long> who_I_focus_also_focus_him = Cluster.who_I_focus_also_focus_him(1, 2);
 		System.out.println(who_I_focus_also_focus_him);
 		
 	}
