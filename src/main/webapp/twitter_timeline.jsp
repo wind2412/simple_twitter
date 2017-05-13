@@ -122,120 +122,42 @@ function isSafari() {
 	//得到session中登录用户的name
 	var LogInusername = '<%= request.getSession().getAttribute("LogInusername")%>';		//注意......这里会真的显示Tom....不是字符串“Tom”，而是就是Tom......
 	document.getElementById("loginusername").innerHTML = LogInusername;
-	//得到query的username   【注意！！网络中url的传输全是ISO-8859-1编码格式！因此要强转为UTF-8！！！】
-	var other_name = '<%= request.getParameter("usr") == null ? null : new String(request.getParameter("usr").getBytes("iso-8859-1"), "utf-8" ) %>';	//得到请求末尾的query.		但是要注意，可能是null。
 	//设置头的“正在关注”等连接 以及头的头像的链接	
 	document.getElementById("logo1").href = "/twitter_proj/twitter_focus.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
-	document.getElementById("head_articles").href = "/twitter_proj/twitter_articles.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
-	document.getElementById("head_focusing").href = "/twitter_proj/twitter_focus.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
-	document.getElementById("head_fansing").href = "/twitter_proj/twitter_fans.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
+	document.getElementById("head_articles").href = "/twitter_proj/twitter_articles.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
+	document.getElementById("head_focusing").href = "/twitter_proj/twitter_focus.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
+	document.getElementById("head_fansing").href = "/twitter_proj/twitter_fans.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
 	document.getElementById("timeline").href = "/twitter_proj/twitter_timeline.jsp";
-	var other_UID = null;	//如果这里不设置的话，如果query出错的话，比如?usr=zhengxiaoli 那么if(other_uid==0)之后会other_UID未定义。因为并不会定义other_UID. 
-	//看query是否合法才能向下进行。因此这里必须同步方式。需要关闭ajax异步。
-	dwr.engine.setAsync(false);
 	//1.如果query不空，那就检测是否合法，合法就继续走，不合法直接跳页404  2.query空，看是否已经登录，如果登录过(LogInusername不空)则query设为LogInusername 3.否则“请您登录推特主页吧”
-	if(other_name != "null")	{		
-		Cluster.is_user_in_DB(other_name, function(other_uid){		//通过DWR框架直接调用后端判断用户是否注册过的代码
-			if(other_uid == 0){
-				window.location.href = "/twitter_proj/doubi.html";
-			} else {
-				other_UID = other_uid;		//赋值给other_UID
-				
+	if(LogInusername != "null")	{		
 				//得到header的button按钮  为了在自己页面变成关注
 				var a = document.getElementById("logo0");
 				var button = document.createElement("button");
 				button.className = "medium blue";
 				a.appendChild(button);
-				if(other_UID == LogInUID){
 					button.onclick = function(){		//竟然直接设置button.oncick = "window.location='...'"不好使，然而在html中指定onclick是好使的。
 						window.location.href="/twitter_proj/edit.jsp";					
 					}
 					button.innerHTML = "编辑个人资料";
 					button.style.marginRight = "50px";
-				}else{
-					Cluster.focus_or_not(LogInUID, other_uid, function(data){
-						button.style.width = "100px";
-						button.style.marginRight = "50px";
-						if(data == true){//<button class="medium blue" id="edit_or_focus" ></button>
-							if(LogInUID == 0)	return;
-							button.innerHTML = "正在关注";
-							button.onclick = function(){
-								if(LogInUID == 0)	return;
-								if(button.innerHTML == "正在关注"){
-									button.innerHTML = "关注";
-									Cluster.focus_cancelled_oh_no(LogInUID, other_UID, function(){
-										var fans_div = document.getElementById("head_fd_num");
-										fans_div.innerHTML = parseInt(fans_div.innerHTML) - 1;
-									});		//取消关注
-								}else{
-									button.innerHTML = "正在关注";							
-									Cluster.focus_a_user(LogInUID, other_UID, function(){
-										var fans_div = document.getElementById("head_fd_num");
-										fans_div.innerHTML = parseInt(fans_div.innerHTML) + 1;
-									});		//关注
-								}
-							}
-						}else{
-							button.innerHTML = "关注";
-							button.onclick = function(){
-								if(LogInUID == 0)	return;
-								if(button.innerHTML == "正在关注"){
-									button.innerHTML = "关注";
-									Cluster.focus_cancelled_oh_no(LogInUID, other_UID, function(){
-										var fans_div = document.getElementById("head_fd_num");
-										fans_div.innerHTML = parseInt(fans_div.innerHTML) - 1;
-									});		//取消关注
-								}else{
-									button.innerHTML = "正在关注";							
-									Cluster.focus_a_user(LogInUID, other_UID, function(){
-										var fans_div = document.getElementById("head_fd_num");
-										fans_div.innerHTML = parseInt(fans_div.innerHTML) + 1;
-									});			//关注
-								}
-							}
-						}
-					});
-				}
-			}
-		});
-	}else if(LogInusername != "null")	{
-		window.location.href = "/twitter_proj/twitter_articles.jsp?usr="+LogInusername+"&timestamp="+new Date().getTime();
 	}else{
 		window.location.href = "/twitter_proj/login.jsp";
 	}
-	//此时已经获取到最重要的other_UID，可以开启异步了。
-	dwr.engine.setAsync(true);
 	//鼠标放到头像上，显示名字
-	document.getElementById("other_head").title = other_name;
+	document.getElementById("other_head").title = LogInusername;
 	//得到登录的用户LogInusername头像		//必须在得到UID的同时才能执行。因为是异步，不知道什么时候才能读取到啊。
 //alert(LogInUID + "..." + other_UID);		//test
-	if(LogInUID != null)
+	if(LogInUID != 0)
 		Cluster.get_user_portrait(LogInUID, function(src){
 			src==null? src="portraits/anonymous.jpg" :{}; 
 			document.getElementById("portrait").src = src;
-			//如果LogInUID和other_UID相等，复制大头像
-			if(LogInUID == other_UID){	
-			//alert("yes!!!");
 				document.getElementById("bighead").src = document.getElementById("portrait").src;		
 				document.getElementById("bighead").style.visibility = "visible";	
-				if(other_UID != 0)
 					get_user_article_msg();	//异步调用ajax获取other_UID的所有推文，正在关注以及关注者信息。
-			}	//	else alert("no!!!");
-			//上边的两个alert。ajax太诡异了！开了同步，也会在没同步完的时候所有ajax全都异步调用一遍？？然后同步完之后后边的ajax又会重新调用一遍......
 		});
-	//所以就因为这种诡异......这里的if里边必须要设置other_UID!=null条件，来防止第一次全规模的全异步调用......
-	if(LogInUID != other_UID && other_UID != null){	//卧槽？？？js里边这src==null?...就少些个等号=，src竟然就变成object了？？？？？
-		Cluster.get_user_portrait(other_UID, function(src){
-			src==null? src="portraits/anonymous.jpg" :{}; 
-			document.getElementById("bighead").src = src;
-			document.getElementById("bighead").style.visibility = "visible";		
-			if(other_UID != 0)
-				get_user_article_msg();	//异步调用ajax获取other_UID的所有推文，正在关注以及关注者信息。
-		});
-	}
 	//得到other_UID的background。
-	if(other_UID != null){		//由于是异步，所以这里无论如何都会执行。因此，必须设置null把关啊。
-		Cluster.get_user_main_page(other_UID, function(src){
+	if(LogInUID != 0){		//由于是异步，所以这里无论如何都会执行。因此，必须设置null把关啊。
+		Cluster.get_user_main_page(LogInUID, function(src){
 			if(src != null){		//有就设置，没有就不设置。
 				document.getElementById("bg_img").src = src;
 			}else{
@@ -246,14 +168,10 @@ function isSafari() {
 	
 	//得到query用户所有推文，正在关注，以及关注者信息。
 	function get_user_article_msg(){
-		Cluster.get_user_articles_num(other_UID, function(data){document.getElementById("head_t_num").innerHTML = data;});
-		Cluster.get_focus_num(other_UID, function(data){document.getElementById("head_f_num").innerHTML = data;});
-		Cluster.get_fans_num(other_UID, function(data){document.getElementById("head_fd_num").innerHTML = data;});		
+		Cluster.get_user_articles_num(LogInUID, function(data){document.getElementById("head_t_num").innerHTML = data;});
+		Cluster.get_focus_num(LogInUID, function(data){document.getElementById("head_f_num").innerHTML = data;});
+		Cluster.get_fans_num(LogInUID, function(data){document.getElementById("head_fd_num").innerHTML = data;});		
 	}
-	
-	//得到[左方之地]=>other_UID所有信息		//如果dwr中得到一个对象obj的话，那么不用调用方法(因为不是方法)，而是直接调用成员变量。比如obj.name。私有的就可以。
-	var other_usr_info;
-	//Cluster.get_a_user_by_UID(other_UID, function(user_obj){alert(user_obj.name);});
 	
 		
 	//赋予随机背景颜色
@@ -306,9 +224,9 @@ function isSafari() {
     </div>
     
      <script type="text/javascript">
-    	document.getElementById("left_name").innerHTML = other_name;
-    	document.getElementById("left_at").innerHTML = "@"+other_name;
-		Cluster.get_a_user_by_UID(other_UID, function(User){
+    	document.getElementById("left_name").innerHTML = LogInusername;
+    	document.getElementById("left_at").innerHTML = "@"+LogInusername;
+		Cluster.get_a_user_by_UID(LogInUID, function(User){
 			if(User.introduction != null) 	document.getElementById("left_introduction").innerHTML = User.introduction;
 			if(User.position != null)		document.getElementById("left_nationality").innerHTML = User.position;
 			if(User.website != null)		document.getElementById("left_website").innerHTML = User.website;
@@ -331,8 +249,7 @@ function isSafari() {
       <div class="heading-spacer"></div>
       <div class="artical-heading-content">
          <ul class="heading-toggle">
-            <li class="toggle-item">推文</li>
-            <li class="toggle-item">回复</li>
+            <li class="toggle-item">时间线</li>
          </ul>
       </div>
    </div>
@@ -355,12 +272,13 @@ function isSafari() {
                		var page_cur = 0;
                		var offset = 0;
                		
-               		Cluster.get_user_articles_num(other_UID, function(num){
+               		
+               		Cluster.get_timeline_num(LogInUID, function(num){
                			articles_num = num;
                			page_num = Math.floor(articles_num / 20);		//一页20个
                		});
                		
-               		Cluster.get_user_articles_by_page(other_UID, 0, offset, function(set){
+               		Cluster.get_timeline_chains(LogInUID, 0, function(set){
                			place_articles_in_column(set);
                			page_cur ++;
                		});
@@ -370,7 +288,7 @@ function isSafari() {
                		function place_articles_in_column(set){
 		                var all_reply = document.getElementById("stream-items-id");
                			for(var i = 0; i < set.length; i ++){	//列出所有文章
-		               		all_reply.appendChild(create_article_zxl(set[i]));  
+		               		all_reply.appendChild(create_article_zxl(set[i].target_AID));  
                			}
                		}
                		
@@ -398,10 +316,6 @@ function isSafari() {
 			var head_pic=document.createElement("img");
 			head_pic.setAttribute("id","head-pic:"+AID);
 			head_pic.className="head-pic";
-			Cluster.get_user_portrait(other_UID, function(src){
-				src==null? src="portraits/anonymous.jpg" :{}; 
-				head_pic.src= src;		//全指定为头像
-			});
 			article_left.appendChild(head_pic);
 			
 			article.appendChild(article_left);
@@ -415,31 +329,27 @@ function isSafari() {
 			var article_right_header=document.createElement("div");
 			article_right_header.className="article-right-header";
 			var user_link=document.createElement("a");
-			user_link.src= "/twitter_proj/twitter_articles.jsp?usr="+other_name+"&timestamp="+new Date().getTime();
+			
 			user_link.style="float:left; cursor:pointer";
 			var article_right_username=document.createElement("div");
 			article_right_username.className="article-right-username";
 			var username=document.createElement("span");
 			username.setAttribute("id","article-nickname:"+AID);
 			username.style="font-family:'微软雅黑';	color:dodgerblue;";
-			username.innerHTML=other_name;			//全设置为other_name				
 			article_right_username.appendChild(username);
+			
 			
 			var userID=document.createElement("span");
 			userID.className="AID";
 			userID.dir="ltr";
-			userID.innerHTML="";
 			var uid=document.createElement("b");
 			uid.setAttribute("id","article-uid:"+AID);
-			uid.style="color:#657786;"
-			uid.innerHTML="@"+other_name;			//全设置为other_name
 			userID.appendChild(uid);
 			article_right_username.appendChild(userID);
 			user_link.appendChild(article_right_username);
 			article_right_header.appendChild(user_link);
 			
 			var article_others_time=document.createElement("div");
-			article_others_time.style="margin-left: 7px; color: #657786;";
 			article_others_time.setAttribute("id","article-others-time:"+AID);
 			article_others_time.className="article-others-time";
 	//		article_others_time.innerHTML="11:15  2017/5/12";		//改
@@ -459,6 +369,7 @@ function isSafari() {
 			var article_coment_text=document.createElement("div");
 			article_coment_text.setAttribute("id","article-coment-text:"+AID);
 			article_coment_text.className="article-coment-text";
+	//		article_coment_text.innerHTML="うんうん、面白い。<br>(*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；<br>(*・ω・)(*-ω-)(*・ω・)(*-ω-)ウンウン♪；(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)(*´Д｀)。";
 			a.appendChild(article_coment_text);
 			article_right.appendChild(a);
 			
@@ -471,12 +382,24 @@ function isSafari() {
 			article_pic_back.appendChild(article_pic);
 			article_right.appendChild(article_pic_back);
 
-				//后台服务器得到Article
-				Cluster.get_an_article(AID, function(article){
-					var time = new Date(article.time*1000);
-					article_others_time.innerHTML= time.getHours()+":"+time.getMinutes()+"  "+(time.getYear()-100+2000)+"/"+(time.getMonth()+1)+"/"+time.getDate();
-					article_coment_text.innerHTML= article.content;
-					if(article.pics[0] != null){article_pic.src = article.pics[0];}
+				Cluster.get_userID_of_an_article(AID, function(UID){
+					userID.innerHTML=UID;
+					Cluster.get_user_name(UID, function(name){
+						user_link.src= "/twitter_proj/twitter_articles.jsp?usr="+name+"&timestamp="+new Date().getTime();
+						username.innerHTML=name;			//全设置为other_name							
+						uid.innerHTML="@"+name;			//全设置为other_name
+					});
+					Cluster.get_user_portrait(UID, function(src){
+						src==null? src="portraits/anonymous.jpg" :{}; 
+						head_pic.src= src;		//全指定为头像
+					});				
+					//后台服务器得到Article
+					Cluster.get_an_article(AID, function(article){
+						var time = new Date(article.time*1000);
+						article_others_time.innerHTML= time.getHours()+":"+time.getMinutes()+"  "+(time.getYear()-100+2000)+"/"+(time.getMonth()+1)+"/"+time.getDate();
+						article_coment_text.innerHTML= article.content;
+						if(article.pics[0] != null){article_pic.src = article.pics[0];}
+					});
 				});
 			
 			
@@ -497,7 +420,9 @@ function isSafari() {
 			a_action_t.appendChild(t_icon);
 			var t_num=document.createElement("span");
 			t_num.setAttribute("id", "article-action-t-num:"+AID);
-			t_num.innerHTML="0";
+			Cluster.get_commented_num(AID, function(num){
+				t_num.innerHTML = num;
+			});
 			a_action_t.appendChild(t_num);
 			trans_action_btn_back.appendChild(a_action_t);
 			
@@ -516,7 +441,9 @@ function isSafari() {
 			a_action_r.appendChild(r_icon);
 			var r_num=document.createElement("span");
 			r_num.setAttribute("id","article-action-r-num:"+AID);
-			r_num.innerHTML="0";
+			Cluster.get_transed_num(AID, function(num){
+				r_num.innerHTML = num;
+			});
 			a_action_r.appendChild(r_num);
 			re_action_btn_back.appendChild(a_action_r);
 			
@@ -663,7 +590,7 @@ function isSafari() {
                                             
                                             <span class="Aid" dir="ltr">
                                                 ID:
-                                                <b id="article-uid" style="color:#657786">jxc</b>
+                                                <b id="article-uid">jxc</b>
                                             </span>
                                         </div>
                                     </a>
@@ -777,7 +704,7 @@ function isSafari() {
                 		</div>
                 </div>
                 
-                	<div class="article-footer" style="height:0px">
+                	<div class="article-footer" style="height:30px">
                 
                 </div>
     </div>
@@ -864,7 +791,6 @@ function create_another_article(aid,location){
 	userID.dir="ltr";
 	userID.innerHTML="ID:";
 	var uid=document.createElement("b");
-	uid.style="color: #657786;";
 	uid.setAttribute("id","article:"+aid+"-uid");                                     //
 	uid.innerHTML="jxc";
 	userID.appendChild(uid);
@@ -873,7 +799,6 @@ function create_another_article(aid,location){
 	article_right_header.appendChild(user_link);
 	
 	var article_others_time=document.createElement("div");
-	article_others_time.style="margin-left:7px; color: #657786;";
 	article_others_time.setAttribute("id","article:"+aid+"-others-time");                     //
 	article_others_time.className="article-others-time";
 	article_others_time.innerHTML="11:15  2017/5/12";
@@ -1216,7 +1141,24 @@ function complete(aid){
 <script>
 	function announce(){
 		
-		
+		//先把文章内容部分的标签id改了，aid=0，这是transAID。
+		var aid=0;
+		document.getElementById("article-container").setAttribute("aid",aid);
+		document.getElementById("article-main").setAttribute("id","article:"+aid+"-main");//主框
+		//alert(document.getElementById("article:"+aid+"-main"));
+		document.getElementById("head-pic").setAttribute("id","head:"+aid+ "-pic");//头像
+		document.getElementById("article-nickname").setAttribute("id","article:"+aid+ "-nickname");//名字
+		document.getElementById("article-uid").setAttribute("id","article:"+aid+"-uid");//uid
+		document.getElementById("article-text-content").setAttribute("id","article:"+aid+"-text-content");//内容
+		document.getElementById("aritcle-t-num").setAttribute("id","article:"+aid+"-t-num");//转发数的框
+		document.getElementById("article-v-num").setAttribute("id","article:"+aid+"-v-num");//点赞数的框
+		document.getElementById("article-timer").setAttribute("id","article:"+aid+"-timer");//时间
+		document.getElementById("article-action-v-num").setAttribute("id","article:"+aid+"-action-v-num");//点赞按钮
+		document.getElementById("article-action-v").setAttribute("id","article:"+aid+"-action-v");
+		document.getElementById("article-action-t-num").setAttribute("id","article:"+aid+"-action-t-num");//转发按钮
+		document.getElementById("article-action-t").setAttribute("id","article:"+aid+"-action-t");
+		document.getElementById("article-action-r-num").setAttribute("id","article:"+aid+"-action-r-num");//评论按钮
+		document.getElementById("article-action-r").setAttribute("id","article:"+aid+"-action-r");
 	
 		document.getElementById("space-between-c-a").style.display="none";
 		document.getElementById("main-article").style.display="none";
@@ -1232,12 +1174,6 @@ function complete(aid){
 	}
 	
 	function upload_page(source) {
-		if(LogInUID == 0)	{
-			window.location.href = "/twitter_proj/login.jsp";		//如果没登录......
-			return;
-		}else if(LogInUID != other_UID){
-			return;
-		}
 		if(window.FileReader) {
 			var fileReader = new FileReader();
 			pic = source.files[0];
@@ -1259,12 +1195,6 @@ function complete(aid){
 	}
 	
 	function send(){
-		if(LogInUID == 0)	{
-			window.location.href = "/twitter_proj/login.jsp";		//如果没登录......
-			return;
-		}else if(LogInUID != other_UID){
-			return;
-		}
 		var pics = new Array();
 		pics[0] = (document.getElementById("hidden_aid").value == "") ? "" : "pictures/pic_"+document.getElementById("hidden_aid").value+".jpg";
 		/* var my_article = {
@@ -1280,7 +1210,7 @@ function complete(aid){
 		    all_reply.insertBefore(create_article_zxl(this_AID), all_reply.firstChild);  
 		    var article_num = document.getElementById("head_t_num");		//推文数量+1
 		    article_num.innerHTML = parseInt(article_num.innerHTML)+1;
-		    offset += 1;		//新增了一篇文章  分页请求时要使用
+	//	    offset += 1;		//新增了一篇文章  分页请求时要使用  但是这个页面也不会显示在上边，因此对分页没有影响
 		});		//添加这个头像到本地。
 	}
 	
@@ -1294,8 +1224,7 @@ function complete(aid){
 	    　　if(scrollTop + windowHeight >= scrollHeight){
 	    		//到达底部		//获取一页focus
 	    		if(page_cur > page_num)	return;		//如果页指针指向最后，那么一定是到达底端而且全部加载出来了。
-				else Cluster.get_user_articles_by_page(other_UID, page_cur, offset, function(set){
-				
+				else Cluster.get_timeline_chains(LogInUID, 0, offset, function(set){
                			place_articles_in_column(set);
                			page_cur ++;
                		});

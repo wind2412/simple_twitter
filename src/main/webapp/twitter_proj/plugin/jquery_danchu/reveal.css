@@ -19,11 +19,11 @@
 		top: 100px; 
 		left: 50%;
 		margin-left: -300px;
-		width: 700px;
+		width: 666px;
 		background: #eee url(modal-gloss.png) no-repeat -200px -80px;
 		position: absolute;
 		z-index: 101;
-		padding: 30px 40px 34px;
+		padding: 20px 25px 20px;
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
 		border-radius: 5px;

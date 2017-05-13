@@ -313,6 +313,10 @@ public class Cluster {
 		return action_list;		
 	}
 	
+	public static long get_timeline_num(long UID){
+		return jc.zcard("timeline:"+UID);
+	}
+	
 	/**
 	 * 得到不包括此AID文章的之前所有文章链。举例：此AID时由转发AID(3)文章得来。AID(3)由评论AID(5)文章得来。于是得到表：[3,5].
 	 * 此函数仅仅用于给文章加分。如果是要显示所有回复什么的，请使用get_article_comments_context().
@@ -886,6 +890,14 @@ public class Cluster {
 			result.add(Long.parseLong(s));
 		}
 		return result;
+	}
+	
+	public static long get_commented_num(long AID){
+		return jc.zcard("get_commented:"+AID);
+	}
+
+	public static long get_transed_num(long AID){
+		return jc.zcard("get_transed:"+AID);
 	}
 	
 	/**

@@ -308,7 +308,7 @@ a:hover{
         	<div class="header-btn-left">
                 <ul>
                 <li></li>
-                <li id="head_m"><a href=""><img src="icons/1.png" height="20px" width="20px"><span id="head_m">主页</span></a><div class="under_head_m"></div></li>
+                <li id="head_m"><a href="" id="timeline"><img src="icons/1.png" height="20px" width="20px"><span id="head_m">主页</span></a><div class="under_head_m"></div></li>
                 <li id="head_i"><a ><img src="icons/2.png" height="20px" width="20px"><span id="head_i">通知</span></a><div class="under_head_i"></div></li>
                 <li id="head_c"><a ><img src="icons/3.png" height="20px" width="20px"><span id="head_c">私信</span></a><div class="under_head_c"></div></li>
                 </ul>

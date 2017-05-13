@@ -5,6 +5,7 @@
 	  
 	  	<convert converter="bean" match="zxl.bean.Article" javascript="Article"/>
 	  	<convert converter="bean" match="zxl.bean.User"/>
+	  	<convert converter="bean" match="zxl.bean.TimeLineNode"/>
 	  	
 	    <!-- <create creator="new" javascript="User">
 	      <param name="class" value="zxl.bean.User"/>

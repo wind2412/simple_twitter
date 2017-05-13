@@ -23,6 +23,10 @@ function exit_article(aid){
 	document.getElementById("article:"+aid+"-action-t").setAttribute("id","article-action-t");
 	document.getElementById("article:"+aid+"-action-r-num").setAttribute("id","article-action-r-num");//评论按钮
 	document.getElementById("article:"+aid+"-action-r").setAttribute("id","article-action-r");
+	
+	document.getElementById("space-between-c-a").style.display="block";
+	document.getElementById("main-article").style.display="block";
+	//alert(document.getElementById("main-article").style.display);
 }
 
 
@@ -202,7 +206,9 @@ $(document).ready(function(){
 						}, options.animationspeed/2, function() {
 							modal.css({'top':topMeasure, 'opacity' : 1, 'visibility' : 'hidden'});
 							unlockModal();
-						});					
+						});			
+						var AID=document.getElementById("article-container").getAttribute("aid");
+						exit_article(AID);
 					}  	
 					if(options.animation == "fade") {
 						modalBG.delay(options.animationspeed).fadeOut(options.animationspeed);
