@@ -465,8 +465,9 @@ function isSafari() {
 			article_right.appendChild(article_pic_back);
 
 				Cluster.get_userID_of_an_article(AID, function(UID){
-					userID.innerHTML=UID;
 					Cluster.get_user_name(UID, function(name){
+						userID.innerHTML="   @"+name;
+						userID.style.color = "grey";
 						user_link.src= "/twitter_proj/twitter_articles.jsp?usr="+name+"&timestamp="+new Date().getTime();
 						username.innerHTML=name;			//全设置为other_name							
 						uid.innerHTML="@"+name;			//全设置为other_name
@@ -478,7 +479,7 @@ function isSafari() {
 					//后台服务器得到Article
 					Cluster.get_an_article(AID, function(article){
 						var time = new Date(article.time*1000);
-						article_others_time.innerHTML= time.getHours()+":"+time.getMinutes()+"  "+(time.getYear()-100+2000)+"/"+(time.getMonth()+1)+"/"+time.getDate();
+						article_others_time.innerHTML= "&nbsp;&nbsp;" + time.getHours()+":"+time.getMinutes()+"&nbsp;&nbsp;"+(time.getYear()-100+2000)+"/"+(time.getMonth()+1)+"/"+time.getDate();
 						article_coment_text.innerHTML= article.content;
 						if(article.pics[0] != null){article_pic.src = article.pics[0];}
 					});
@@ -502,7 +503,7 @@ function isSafari() {
 			a_action_t.appendChild(t_icon);
 			var t_num=document.createElement("span");
 			t_num.setAttribute("id", "article-action-t-num:"+AID);
-			Cluster.get_commented_num(AID, function(num){
+			Cluster.get_transed_num(AID, function(num){
 				t_num.innerHTML = num;
 			});
 			a_action_t.appendChild(t_num);
@@ -523,7 +524,7 @@ function isSafari() {
 			a_action_r.appendChild(r_icon);
 			var r_num=document.createElement("span");
 			r_num.setAttribute("id","article-action-r-num:"+AID);
-			Cluster.get_transed_num(AID, function(num){
+			Cluster.get_commented_num(AID, function(num){
 				r_num.innerHTML = num;
 			});
 			a_action_r.appendChild(r_num);
@@ -748,7 +749,7 @@ function isSafari() {
                         	<div class="commenting" id="article-commenting">
                                 <div class="article-comment-text-box-back" id="article-comment-text-box-back">
                                     <form class="article-comment-text-box-f">
-                                        <textarea type="text" class="article-comment-text-box" style="margin-left: -20px" maxlength="140" id="article-comment-text-box" placeholder="发布你的回复" onFocus="comment_write()" ></textarea>
+                                        <textarea type="text" class="article-comment-text-box" style="margin-left: -20px" maxlength="140" id="article-comment-text-box" placeholder="发布你的看法" onFocus="comment_write()" ></textarea>
                                         
                                     </form>
                                 </div>
