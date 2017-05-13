@@ -50,15 +50,22 @@ function start_up(){
 							button.style.width = "100px";
 							button.style.marginRight = "50px";
 							if(data == true){//<button class="medium blue" id="edit_or_focus" ></button>
+								if(LogInUID == 0)	return;
 								button.innerHTML = "正在关注";
 								button.onclick = function(){
 									if(LogInUID == 0)	return;
 									if(button.innerHTML == "正在关注"){
 										button.innerHTML = "关注";
-										Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
+										Cluster.focus_cancelled_oh_no(LogInUID, other_UID, function(){
+											var fans_div = document.getElementById("head_fd_num");
+											fans_div.innerHTML = parseInt(fans_div.innerHTML) - 1;
+										});		//取消关注
 									}else{
 										button.innerHTML = "正在关注";							
-										Cluster.focus_a_user(LogInUID, UID);		//关注
+										Cluster.focus_a_user(LogInUID, other_UID, function(){
+											var fans_div = document.getElementById("head_fd_num");
+											fans_div.innerHTML = parseInt(fans_div.innerHTML) + 1;
+										});		//关注
 									}
 								}
 							}else{
@@ -67,10 +74,16 @@ function start_up(){
 									if(LogInUID == 0)	return;
 									if(button.innerHTML == "正在关注"){
 										button.innerHTML = "关注";
-										Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
+										Cluster.focus_cancelled_oh_no(LogInUID, other_UID, function(){
+											var fans_div = document.getElementById("head_fd_num");
+											fans_div.innerHTML = parseInt(fans_div.innerHTML) - 1;
+										});		//取消关注
 									}else{
 										button.innerHTML = "正在关注";							
-										Cluster.focus_a_user(LogInUID, UID);		//关注
+										Cluster.focus_a_user(LogInUID, other_UID, function(){
+											var fans_div = document.getElementById("head_fd_num");
+											fans_div.innerHTML = parseInt(fans_div.innerHTML) + 1;
+										});			//关注
 									}
 								}
 							}
