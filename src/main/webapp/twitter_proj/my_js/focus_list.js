@@ -90,6 +90,7 @@ function focus_list(){
 					button2.className = "but_follow";
 					button2.innerHTML = "关注";
 					button2.onclick = function(){
+						if(LogInUID == 0)	return;
 						//点击按钮要修改前端静态页面的关注人数哦
 						var focus_div = document.getElementById("head_f_num");		
 						if(button2.innerHTML == "正在关注"){

@@ -52,6 +52,7 @@ function start_up(){
 							if(data == true){//<button class="medium blue" id="edit_or_focus" ></button>
 								button.innerHTML = "正在关注";
 								button.onclick = function(){
+									if(LogInUID == 0)	return;
 									if(button.innerHTML == "正在关注"){
 										button.innerHTML = "关注";
 										Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
@@ -63,6 +64,7 @@ function start_up(){
 							}else{
 								button.innerHTML = "关注";
 								button.onclick = function(){
+									if(LogInUID == 0)	return;
 									if(button.innerHTML == "正在关注"){
 										button.innerHTML = "关注";
 										Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
@@ -116,6 +118,8 @@ function start_up(){
 			Cluster.get_user_main_page(other_UID, function(src){
 				if(src != null){		//有就设置，没有就不设置。
 					document.getElementById("bg_img").src = src;
+				}else{
+					document.getElementById("bg").style.height = "259px";				
 				}
 			});
 		}

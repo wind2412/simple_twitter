@@ -300,14 +300,14 @@ a:hover{
 -->
 
 <div>
-	<nav class="navbar" style="border-bottom-color: black; border-bottom-width:thin">	<!-- 去掉了border-style:solid, 否则会感觉header不在垂直的正中央.-->
+	<nav class="navbar" style="border-bottom: 2px solid rgba(0,0,0,0.15)">	<!-- 去掉了border-style:solid, 否则会感觉header不在垂直的正中央.-->
     	<div class="header">
         	<div class="header-btn-left">
                 <ul>
                 <li></li>
                 <li id="head_m"><a href=""><img src="icons/1.png" height="20px" width="20px"><span id="head_m">主页</span></a><div class="under_head_m"></div></li>
-                <li id="head_i"><a href=""><img src="icons/2.png" height="20px" width="20px"><span id="head_i">通知</span></a><div class="under_head_i"></div></li>
-                <li id="head_c"><a href=""><img src="icons/3.png" height="20px" width="20px"><span id="head_c">私信</span></a><div class="under_head_c"></div></li>
+                <li id="head_i"><a ><img src="icons/2.png" height="20px" width="20px"><span id="head_i">通知</span></a><div class="under_head_i"></div></li>
+                <li id="head_c"><a ><img src="icons/3.png" height="20px" width="20px"><span id="head_c">私信</span></a><div class="under_head_c"></div></li>
                 </ul>
             </div>
             <div class="logo-center"><a id="logo2"><img src="icons/5.png" style="width: 40px; height: 40px; margin-top:7px"></a></div>
@@ -410,8 +410,10 @@ function isSafari() {
 						button.style.width = "100px";
 						button.style.marginRight = "50px";
 						if(data == true){//<button class="medium blue" id="edit_or_focus" ></button>
+							if(LogInUID == 0)	return;
 							button.innerHTML = "正在关注";
 							button.onclick = function(){
+								if(LogInUID == 0)	return;
 								if(button.innerHTML == "正在关注"){
 									button.innerHTML = "关注";
 									Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
@@ -423,6 +425,7 @@ function isSafari() {
 						}else{
 							button.innerHTML = "关注";
 							button.onclick = function(){
+								if(LogInUID == 0)	return;
 								if(button.innerHTML == "正在关注"){
 									button.innerHTML = "关注";
 									Cluster.focus_cancelled_oh_no(LogInUID, UID);		//取消关注
@@ -476,6 +479,8 @@ function isSafari() {
 		Cluster.get_user_main_page(other_UID, function(src){
 			if(src != null){		//有就设置，没有就不设置。
 				document.getElementById("bg_img").src = src;
+			}else{
+				document.getElementById("bg").style.height = "259px";				
 			}
 		});
 	}
@@ -680,6 +685,7 @@ function isSafari() {
 						else button.innerHTML = "关注";
 					});
 					button.onclick = function(){
+						if(LogInUID == 0)	return;
 						//点击按钮要修改前端静态页面的关注人数哦
 						var focus_div = document.getElementById("head_f_num");
 						if(button.innerHTML == "正在关注"){

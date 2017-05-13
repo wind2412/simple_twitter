@@ -309,8 +309,8 @@ a:hover{
                 <ul>
                 <li></li>
                 <li id="head_m"><a href=""><img src="icons/1.png" height="20px" width="20px"><span id="head_m">主页</span></a><div class="under_head_m"></div></li>
-                <li id="head_i"><a href=""><img src="icons/2.png" height="20px" width="20px"><span id="head_i">通知</span></a><div class="under_head_i"></div></li>
-                <li id="head_c"><a href=""><img src="icons/3.png" height="20px" width="20px"><span id="head_c">私信</span></a><div class="under_head_c"></div></li>
+                <li id="head_i"><a ><img src="icons/2.png" height="20px" width="20px"><span id="head_i">通知</span></a><div class="under_head_i"></div></li>
+                <li id="head_c"><a ><img src="icons/3.png" height="20px" width="20px"><span id="head_c">私信</span></a><div class="under_head_c"></div></li>
                 </ul>
             </div>
             <div class="logo-center"><a id="logo2"><img src="icons/5.png" style="width: 40px; height: 40px; margin-top:7px"></a></div>
@@ -553,6 +553,7 @@ a:hover{
 						else button.innerHTML = "关注";
 					});
 					button.onclick = function(){
+						if(LogInUID == 0)	return;
 						//点击按钮要修改前端静态页面的关注人数哦
 						var focus_div = document.getElementById("head_f_num");
 						if(button.innerHTML == "正在关注"){
