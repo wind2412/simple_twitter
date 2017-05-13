@@ -257,7 +257,7 @@ function isSafari() {
 	
 	
 	
-	
+
 	
 </script>
 
@@ -329,13 +329,14 @@ function isSafari() {
                								//然后后端加上偏移量来请求页数了。
                		var page_num;
                		var page_cur = 0;
+               		var offset = 0;
                		
                		Cluster.get_user_articles_num(other_UID, function(num){
                			articles_num = num;
                			page_num = Math.floor(articles_num / 20);		//一页20个
                		});
                		
-               		Cluster.get_user_articles_by_page(other_UID, 0, function(set){
+               		Cluster.get_user_articles_by_page(other_UID, 0, offset, function(set){
                			place_articles_in_column(set);
                			page_cur ++;
                		});
@@ -811,6 +812,7 @@ function isSafari() {
 		    all_reply.insertBefore(create_article_zxl(this_AID), all_reply.firstChild);  
 		    var article_num = document.getElementById("head_t_num");		//推文数量+1
 		    article_num.innerHTML = parseInt(article_num.innerHTML)+1;
+		    offset += 1;		//新增了一篇文章  分页请求时要使用
 		});		//添加这个头像到本地。
 	}
 	
@@ -824,8 +826,8 @@ function isSafari() {
 	    　　if(scrollTop + windowHeight >= scrollHeight){
 	    		alert("haha");
 	    		//到达底部		//获取一页focus
-	    		if(page_cur >= page_num)	return;		//如果页指针指向最后，那么一定是到达底端而且全部加载出来了。
-				else Cluster.get_user_articles_by_page(other_UID, page_cur, function(set){
+	    		if(page_cur > page_num)	return;		//如果页指针指向最后，那么一定是到达底端而且全部加载出来了。
+				else Cluster.get_user_articles_by_page(other_UID, page_cur, offset, function(set){
 				
                			place_articles_in_column(set);
                			page_cur ++;
