@@ -771,6 +771,8 @@ function isSafari() {
 		if(LogInUID == 0)	{
 			window.location.href = "/twitter_proj/login.jsp";		//如果没登录......
 			return;
+		}else if(LogInUID != other_UID){
+			return;
 		}
 		if(window.FileReader) {
 			var fileReader = new FileReader();
@@ -795,6 +797,8 @@ function isSafari() {
 	function send(){
 		if(LogInUID == 0)	{
 			window.location.href = "/twitter_proj/login.jsp";		//如果没登录......
+			return;
+		}else if(LogInUID != other_UID){
 			return;
 		}
 		var pics = new Array();
@@ -824,7 +828,6 @@ function isSafari() {
 	            scrollHeight = $document.height(),
 	            windowHeight = $this.height();
 	    　　if(scrollTop + windowHeight >= scrollHeight){
-	    		alert("haha");
 	    		//到达底部		//获取一页focus
 	    		if(page_cur > page_num)	return;		//如果页指针指向最后，那么一定是到达底端而且全部加载出来了。
 				else Cluster.get_user_articles_by_page(other_UID, page_cur, offset, function(set){

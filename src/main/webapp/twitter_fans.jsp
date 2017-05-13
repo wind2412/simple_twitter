@@ -28,6 +28,7 @@ response.setDateHeader("Expires", -10);
 	<link rel="stylesheet" type="text/css" href="css_us/iconfont.css" />
 	     <script src="css_us/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="plugin/jquery_danchu/reveal.css" />
+	<script type="text/javascript" src="my_js/focus_list.js"></script>
      <script type="text/javascript" src="css_us/article.js"></script>
      <script type="text/javascript" src="css_us/together.js"></script>
      <script type="text/javascript" src="css_us/articlepage.js"></script>
