@@ -1,0 +1,441 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+#background-size{	
+	background-size:contain;
+}
+
+a{
+	text-decoration:none;
+}
+
+.header_1{
+	width:150%;
+	height:50px;
+	background:#333;
+	z-index:1;
+	margin-left: -10px;
+	margin-top: -10px;
+}
+
+#header_menu_1{
+	text-align:center; 
+	line-height:40px;
+	float:right;
+	right:388px;
+	height:45px;
+	width:65px;
+	background:#C60;
+	z-index:2;
+	color:#FFF;
+	position:absolute;
+	font-family:黑体;
+	font-size:13px;
+}
+
+#header_menu_2{
+	line-height:40px;
+	text-align:center; 
+	float:right;
+	right:322px;
+	height:40px;
+	width:65px;
+	z-index:2;
+	background:#333;
+	color:#FFF;
+	position:absolute;
+	font-family:黑体;
+	font-size:13px;
+}
+
+#header_menu_2:hover{
+	background:#999;
+}
+
+#header_menu_3{
+	float:right;
+	right:210px;
+	height:40px;
+	width:115px;
+	z-index:2;
+	color:#FFF;
+	background-size:contain;
+	background:url(../images/LogoTexiao1.png);
+	position:absolute;
+}
+
+.lst{
+	position:absolute;
+	height:110px;
+	width:600px;
+	background:#666;
+	display:none;
+	right:0px;
+	top:40px;
+}
+
+.lst_d{
+	margin-left:7px;
+	height:140px;
+	width:500px;
+	z-index:9999;
+}
+
+.lst_d table{
+	width: 550px;
+	margin-left:8px;
+	align:center;
+}
+
+.lst_d table td{
+	font-family:黑体;
+	font-size:14px;
+	text-align:center;
+	width:40px;
+	height:20px;
+}
+
+.lon{
+	margin-left:12px;
+	color:#FFF;
+	font-family:黑体;
+	font-size:14px;
+	text-align:center;
+	width:80px;
+	height:20px;
+}
+
+.lon:hover{
+	background:#999;
+}
+
+
+
+.lst_d table td:hover{
+	background:#999;
+}
+
+#header_menu_3:hover .lst{
+	display:block;
+}
+
+.header_2{
+	width:150%;
+	height:70px;
+	background:url(../images/channelNav_go.jpg);
+	z-index:1;
+	margin-left: -10px;
+	margin-top: -10px;
+}
+
+.header_sec{
+	margin-top:-5px;
+	padding:5px 10px;
+	height:25px;
+	text-align:center;
+	float:left;
+	font-size:17px;
+	z-index:3;
+	border-radius:3px;
+}
+
+.header_now{
+	margin-top:-5px;
+	padding:5px 10px;
+	height:25px;
+	background:#90C;
+	text-align:center;
+	float:left;
+	font-size:17px;
+	z-index:3;
+	color:#FFF;
+	border-radius:3px;
+}
+
+.logo{
+	left:210px;
+	position:absolute;
+	width:150px;
+	height:100px;
+	border-radius:5px;
+	background-image:url(../images/channelLogo_go.png);
+	z-index:2;
+}
+
+.header_section{
+	position:absolute;
+	width:50%;
+	height:70px;
+	left:370px;
+}
+
+.header_section ul li{
+	float:left;
+	margin-left:15px;
+	margin-top:5px;
+}
+
+.header_section a{
+	font-size:17px;
+	font-family:微软雅黑;
+	color:#000;
+}
+
+.header_section a:hover{
+	font-family:微软雅黑;
+	color:#C9F;
+}
+
+.footer_1{
+	width:100%;
+	height:90px;
+	background:#06C;
+}
+
+.footer_1 h1{
+	font-family:宋体;
+	font-size:17px;
+	color:#FFF;
+}
+
+.footer_1 ul{
+	font-family:宋体;
+	font-size:17px;
+	color:#FFF;
+	list-style-type:none;
+}
+
+.footer_1 a{
+	font-family:黑体;
+	font-size:12px;
+	color:#09F;
+	text-decoration:none;
+}
+
+.footer_1 a:hover{
+	font-family:黑体;
+	font-size:12px;
+	color:#FFF;
+	text-decoration:none;
+}
+
+#footer_1_menu_1{
+	padding-left:30px;
+	margin:10px 0px 10px 200px;
+	height:70px;
+	border-left:1px solid #69F;
+	border-right:1px solid #69F;
+	width:140px;
+	float:left;
+	
+}
+
+#footer_1_menu_2{
+	margin:10px 0px 10px 100px;
+	height:70px;
+	float:left;		
+	
+}
+
+#footer_1_menu_3{
+	padding-left:30px;
+	margin:10px 200px 10px 0px;
+	height:70px;
+	width:500px;
+	border-left:1px solid #69F;
+	border-right:1px solid #69F;
+	float:right;
+	
+}
+
+.footer_2{
+	width:100%;
+	height:70px;
+	font-size:12px;
+	color:#CCC;
+	font-family:宋体;
+}
+
+.footer_2 a{
+	
+	color:#999;
+	text-decoration:none;
+}
+
+.footer_2 a:hover{
+	color:#F00;
+	text-decoration:none;
+}
+
+.footer_2 ul{
+	margin-left:400px;
+	text-align:center;	
+	type:none;
+}
+
+.footer_2 ul li{
+	display:inline-block;
+	float:left;
+	margin-left:5px;
+	
+}
+<!----footer end---->
+
+
+<!-----destination----->
+.big{
+	width:120px;
+	height:120px;
+	border-radius:90px;
+	position:absolute;
+	z-index:2;
+	background:#C93;
+	border:20px solid #FF3;
+	filter:alpha(opacity=50);
+}
+
+
+.sma{
+	width:90px;
+	height:90px;
+	border-radius:90px;
+	position:absolute;
+	z-index:2;
+	background:#666;
+	border:10px;
+	border-color:rgba(204,153,102,1)	
+}
+
+.c_name{
+	font-family:黑体;
+	font-size:24px;
+	text-align:center;
+	color:#000;
+	margin:12px 0px;
+	
+}
+
+.e_name{
+	font-family:黑体;
+	font-size:11px;
+	text-align:center;
+	margin:-8px 0px;
+	color:#000;
+}
+
+
+.North_America{ 
+	background:#C63;
+	border:5px solid rgba(204,153,102,0.9); 
+	width: 80px; 
+	height: 80px; 
+	border-radius:90px;
+	position: absolute; 
+	display: block; 
+	z-index: 100; 
+	left: 460px; 
+	top: 280px;
+	opacity:0.8; 
+} 
+
+
+	
+.South_America{ 
+	background:#C63;
+	border:5px solid rgba(204,153,102,0.9); 
+	width: 80px; 
+	height: 80px; 
+	border-radius:90px;
+	position: absolute; 
+	display: block; 
+	z-index: 100; 
+	left: 550px; 
+	top: 450px;
+	opacity:0.8; 
+}
+	 
+.Europe{ 
+	background:#C63;
+	border:5px solid rgba(204,153,102,0.9); 
+	width: 60px; 
+	height: 60px; 
+	border-radius:90px;
+	position: absolute; 
+	display: block; 
+	z-index: 100; 
+	left: 720px; 
+	top: 280px;
+	opacity:0.8; 
+} 
+
+.Africa{ 
+	background:#C63;
+	border:5px solid rgba(204,153,102,0.9);  
+	width: 60px; 
+	height: 60px; 
+	border-radius:90px;
+	position: absolute; 
+	display: block; 
+	z-index: 100; 
+	left: 720px; 
+	top: 420px;
+	opacity:0.8; 
+} 
+
+.Asia{ 
+	background:#C63;
+	border:5px solid rgba(204,153,102,0.9);  
+	width: 60px; 
+	height: 60px; 
+	border-radius:90px;
+	position: absolute; 
+	display: block; 
+	z-index: 100; 
+	left: 880px; 
+	top: 300px;
+	opacity:0.8; 
+} 
+
+.Oceania{ 
+	background:#C63;
+	border:5px solid rgba(204,153,102,0.9);  
+	width: 80px; 
+	height: 80px; 
+	border-radius:90px;
+	position: absolute; 
+	display: block; 
+	z-index: 100; 
+	left: 960px; 
+	top: 480px;
+	opacity:0.8; 
+} 
+
+.hot_city{ 
+	width: 350px; 
+	height: 50px; 
+	padding-left: 80px; 
+	position: absolute; 
+	bottom: 120px; 
+	left: 540px; 
+	background:url(../images/hot_city_bg.png) no-repeat;   
+	color: #fff; 
+}
+
+
+.hot_city ul li{
+	float:left;
+	margin-left:10px;
+	margin-top:-1px;
+	font-family:微软雅黑;
+	font-size:14px;
+	color:#FFF;
+}
+
+
+
+<!-----destination------>
+
+
+<!--------des-------->
+.

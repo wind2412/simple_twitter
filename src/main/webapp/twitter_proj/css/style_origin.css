@@ -1,0 +1,33 @@
+/*-- w3layouts --*/
+.banner-matter h2 {
+    font-size: 2em;
+    line-height: 1.8em;
+    width: 62%;
+    margin: 0;
+    color: #FFFFFF;
+    background-color:rgba(183, 193, 216, 0.75);
+    padding: 0.5em 2em;
+    text-align: left;
+}
+/*-- planning --*/
+.plan-top {
+    background-color:#FFFFFF;
+    padding: 1em;
+}
+.w3l h3 {
+    color: #ff5f8a;
+    font-family: 'Ubuntu', sans-;
+    font-size: 2.2em;
+}
+.w3l p {
+    font-size: 1.2em;
+    line-height: 1.7em;
+    margin: 1em 0;
+    color:#6D758A;
+}
+.w3l {
+    padding: 1em 0;
+}
+.plan-top:hover{
+	background:#FCDFE7;
+}

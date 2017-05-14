@@ -59,6 +59,7 @@ public class Redis {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		
 		Redis.redis_cluster();	//open redis cluster~
+//		Cluster.flush_all();
 //		System.out.println(System.getProperty("os.name"));
 //		System.out.println(call_shell("ls -l cluster", false));
 //		System.out.println(call_shell("./cluster/redis-trib.rb create --replicas 1 127.0.0.1:6379 127.0.0.1:6380 127.0.0.1:6381 127.0.0.1:6382 127.0.0.1:6383 127.0.0.1:6384", false));

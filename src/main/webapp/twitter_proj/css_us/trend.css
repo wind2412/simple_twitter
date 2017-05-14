@@ -1,0 +1,45 @@
+@charset "utf-8";
+/*趋势 CSS Document */
+.topic{
+	background-color: #fff;
+    border: 1px solid #e6ecf0;
+    border-radius: 5px 5px 0 0;
+	width:280px;
+}
+.topic-header{
+	color:#999;
+	height:30px;
+	padding-top:20px;
+	padding-left:30px;
+}
+.topic-container{
+	padding-top:2px;
+}
+ol{
+	margin:0;
+	padding:5px;
+	display:block;
+	list-style: none;
+}
+li{
+	text-align: inherit;
+    display: list-item;
+	padding:3px;
+	height:10px;
+}
+a:link{
+	color:#66C;
+	text-decoration:none;
+}
+a:hover{
+	color:#66C;
+	text-decoration:underline;
+}
+.topic-key{
+    font-size:13px;
+	font-weight:bold;
+}
+.key-num{
+	font-size:10px;
+	color:#999;
+}

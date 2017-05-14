@@ -7,11 +7,12 @@ import org.junit.Test;
 
 import redis.clients.jedis.JedisCluster;
 import zxl.bean.Article;
+import zxl.bean.TimeLineNode;
 import zxl.bean.User;
 
 public class ClusterTest {
 	
-	private static JedisCluster jc;
+	private static JedisCluster jc = Cluster.jc;
 	
 	static {
 		//先要更换成为测试数据库。
@@ -32,7 +33,11 @@ public class ClusterTest {
 //		}
 		
 		connect();
-		initialize_db();
+		try {
+			initialize_db();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -40,45 +45,81 @@ public class ClusterTest {
 	private static void connect() {
 
 		//调用Cluster的任一方法时候，Cluster类会初始化，由于static块在最前边，所以会自动运行，即客户端会自动连接。
-		jc = Cluster.getJC();
 		Cluster.flush_all(); 		//清空测试数据库
-		User zxl = new User("zhengxiaolin", "123", 20);
-		User jxc = new User("jiangxicong", "123", 20);
-		User ltg = new User("litiange", "123", 19);
-		User zfy = new User("zhangfangyuan", "123", 19);
-		User wy = new User("wangyue", "123", 20);
-		User user1 = new User("user1", "123", 11);		//加上10个随机用户  测试推荐好友算法
-		User user2 = new User("user2", "123", 12);
-		User user3 = new User("user3", "123", 13);
-		User user4 = new User("user4", "123", 14);
-		User user5 = new User("user5", "123", 15);
-		User user6 = new User("user6", "123", 16);
-		User user7 = new User("user7", "123", 17);
-		User user8 = new User("user8", "123", 18);
-		User user9 = new User("user9", "123", 19);
-		User user10 = new User("user10", "123", 20);
-		Cluster.add_a_user(zxl);	//函数内部会自动赋给zxl一个UID
-		Cluster.add_a_user(zxl);				//***重复添加测试***
-		Cluster.add_a_user(jxc);
-		Cluster.add_a_user(ltg);
-		Cluster.add_a_user(zfy);
-		Cluster.add_a_user(wy);
-		Cluster.add_a_user(user1);
-		Cluster.add_a_user(user2);
-		Cluster.add_a_user(user3);
-		Cluster.add_a_user(user4);
-		Cluster.add_a_user(user5);
-		Cluster.add_a_user(user6);
-		Cluster.add_a_user(user7);
-		Cluster.add_a_user(user8);
-		Cluster.add_a_user(user9);
-		Cluster.add_a_user(user10);
-		Cluster.add_an_article(new Article("null --By zhengxiaolin.", zxl.getUID(), 0, 0, null));		//0参数表示并非转发
-		Cluster.add_an_article(new Article("the second blood! --By zhengxiaolin.", zxl.getUID(), 0, 0, null));		//0参数表示并非转发
-		Cluster.add_an_article(new Article("omoshiroi --By jiangxicong.", jxc.getUID(), 0, 0, null));
-		Cluster.add_an_article(new Article("mouth can't hold ouch!! --By litiange.", ltg.getUID(), 0, 0, null));
-		Cluster.add_an_article(new Article("if U can take me with the trip~ --By zhangfangyuan.", zfy.getUID(), 0, 0, null));
-		Cluster.add_an_article(new Article("T4ks --By wangyue.", wy.getUID(), 0, 0, null));
+		User zxl = new User("郑孝林");
+		User jxc = new User("江錫聰");
+		User ltg = new User("李天歌");
+		User zfy = new User("张方圆");
+		User wy = new User("王悦");
+		User user1 = new User("user1");		//加上10个随机用户  测试推荐好友算法
+		User user2 = new User("user2");
+		User user3 = new User("user3");
+		User user4 = new User("user4");
+		User user5 = new User("user5");
+		User user6 = new User("user6");
+		User user7 = new User("user7");
+		User user8 = new User("user8");
+		User user9 = new User("user9");
+		User user10 = new User("user10");
+		zxl.setUID(Cluster.add_a_user(zxl.getName(), "123"));	//函数内部会自动赋给zxl一个UID
+		Cluster.add_a_user(zxl.getName(), "123");				//***重复添加测试***
+		{
+			zxl.setIntroduction("I am a good person. I am a good person. I am a good person.");
+			zxl.setPosition("China");
+			zxl.setWebsite("wind2412.github.io");
+			zxl.setPortrait_path("portraits/head_"+zxl.getUID()+".jpg");
+			zxl.setMain_page("portraits/page_"+zxl.getUID()+".jpg");
+			Cluster.upgrade_user_settings(zxl);
+		}
+		jxc.setUID(Cluster.add_a_user(jxc.getName(), "123"));
+		{
+			jxc.setIntroduction("蛤蛤.");
+			jxc.setPosition("歐摩西羅伊市");
+			jxc.setWebsite("youngerJiang.twitter.com");
+			jxc.setPortrait_path("portraits/head_"+jxc.getUID()+".jpg");			
+			jxc.setMain_page("portraits/page_"+jxc.getUID()+".jpg");
+			Cluster.upgrade_user_settings(jxc);
+		}
+		ltg.setUID(Cluster.add_a_user(ltg.getName(), "123"));
+		{
+			ltg.setIntroduction("哈哈哈");
+			ltg.setPosition("辽宁 沈阳");
+			ltg.setPortrait_path("portraits/head_"+ltg.getUID()+".jpg");			
+			ltg.setMain_page("portraits/page_"+ltg.getUID()+".jpg");
+			Cluster.upgrade_user_settings(ltg);
+		}
+		zfy.setUID(Cluster.add_a_user(zfy.getName(), "123"));			//这些方法全都要改！！因为UID并没有设置！所以zxl.getUID()的时候getUID就是0了！！！
+		{
+			zfy.setIntroduction("如果你能带我一起旅行…");
+			zfy.setPosition("捷克共和国--布拉格直辖市");
+			zfy.setPortrait_path("portraits/head_"+zfy.getUID()+".jpg");			
+			zfy.setMain_page("portraits/page_"+zfy.getUID()+".jpg");
+			Cluster.upgrade_user_settings(zfy);			
+		}
+		wy.setUID(Cluster.add_a_user(wy.getName(), "123"));
+		{
+			wy.setIntroduction("T4ks");
+			wy.setPosition("法国");
+			wy.setPortrait_path("portraits/head_"+wy.getUID()+".jpg");			
+			wy.setMain_page("portraits/page_"+wy.getUID()+".jpg");
+			Cluster.upgrade_user_settings(wy);			
+		}
+		user1.setUID(Cluster.add_a_user(user1.getName(), "123"));
+		user2.setUID(Cluster.add_a_user(user2.getName(), "123"));
+		user3.setUID(Cluster.add_a_user(user3.getName(), "123"));
+		user4.setUID(Cluster.add_a_user(user4.getName(), "123"));
+		user5.setUID(Cluster.add_a_user(user5.getName(), "123"));
+		user6.setUID(Cluster.add_a_user(user6.getName(), "123"));
+		user7.setUID(Cluster.add_a_user(user7.getName(), "123"));
+		user8.setUID(Cluster.add_a_user(user8.getName(), "123"));
+		user9.setUID(Cluster.add_a_user(user9.getName(), "123"));
+		user10.setUID(Cluster.add_a_user(user10.getName(), "123"));
+		Cluster.add_an_article("null --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null);		//0参数表示并非转发
+		Cluster.add_an_article("the second blood! --By zhengxiaolin.", zxl.getUID(), 0, 0, false, null);		//0参数表示并非转发
+		Cluster.add_an_article("omoshiroi --By jiangxicong.", jxc.getUID(), 0, 0, false, null);
+		Cluster.add_an_article("mouth can't hold ouch!! --By litiange.", ltg.getUID(), 0, 0, false, null);
+		Cluster.add_an_article("if U can take me with the trip~ --By zhangfangyuan.", zfy.getUID(), 0, 0, false, null);
+		Cluster.add_an_article("T4ks --By wangyue.", wy.getUID(), 0, 0, false, null);
 		Cluster.get_all_keys();
 		get_all_scores();
 	}
@@ -102,11 +143,12 @@ public class ClusterTest {
 	}
 	
 	
-	private static void initialize_db() {
+	private static void initialize_db() throws InterruptedException {
 		
 		//互相关注一波
 		Cluster.focus_a_user(2, 1);
 		Cluster.focus_a_user(1, 2);
+		Cluster.focus_a_user(1, 9);
 		Cluster.focus_a_user(3, 4);
 		Cluster.focus_a_user(4, 3);
 		Cluster.focus_a_user(1, 5);
@@ -114,18 +156,18 @@ public class ClusterTest {
 		Cluster.focus_a_user(1, 3);
 		Cluster.focus_a_user(6, 5);
 		Cluster.focus_a_user(5, 6);
-		Cluster.focus_a_user(3, 7);
-		Cluster.focus_a_user(4, 7);
+		Cluster.focus_a_user(3, 2);
+		Cluster.focus_a_user(4, 2);
 		Cluster.focus_a_user(2, 8);
 		
 		Cluster.get_all_keys();
 		
+		//推送可能认识的人
 		System.out.println("***" + Cluster.get_probably_acquaintance(1));
-		
-		Cluster.focus_cancelled_oh_no(1, 2);
+		System.out.println("***" + Cluster.get_probably_acquaintance(2));
+		Cluster.focus_cancelled_oh_no(1, 2);		//取消了一波关注
 		
 		get_all_scores();
-		
 		//test
 		assert Cluster.focus_or_not(1, 2) == false;
 		assert Cluster.focus_or_not(2, 1) == true;
@@ -143,30 +185,76 @@ public class ClusterTest {
 //		assert Cluster.judge_voted(1, 1) == true;
 //		assert Cluster.judge_voted(2, 1) == false;
 		
+		int sleepsec = 1;		//更改这个就可以修改时间间隔。一般如果想要时间间隔，因为内部时间time是除以1000的，因此设置为1000就好。
+		
 		//开始评论
-		Cluster.add_an_article(new Article("comment myself article~~ --By zhengxiaolin", 1, 1, 1, null));	//7号文章回复1号
+		Cluster.add_an_article("comment myself article~~ --By zhengxiaolin", 1, 1, 1, false, null);	//7号文章回复1号
 		get_all_scores();
+		Thread.sleep(sleepsec);		//间隔一秒钟，模拟时间的不同。否则zrevrange里边的时间都是一样。。只能按照字典排序了。。。
 		
-		Cluster.add_an_article(new Article("comment your comment. --By jiangxicong", 2, 1, 7, null));		//8号文章回复7号
+		Cluster.add_an_article("comment your comment. --By jiangxicong", 2, 1, 7, false, null);		//8号文章回复7号
 		get_all_scores();
+		Thread.sleep(sleepsec);
 		
-		Cluster.add_an_article(new Article("comment your comment! --By zhengxiaolin", 1, 1, 8, null));		//9号文章回复8号
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 8, false, null);		//9号文章回复8号
 		get_all_scores();
+		Thread.sleep(sleepsec);
 		
-		Cluster.remove_an_article(9);																		//移除9号
-		get_all_scores();
+//		Cluster.remove_an_article(9);																				//移除9号
+//		get_all_scores();
 		
 		//开始转发
-		Cluster.add_an_article(new Article("trans myself article~~ --By zhengxiaolin", 1, 2, 1, null));		//10号文章转发1号
+		Cluster.add_an_article("trans myself article~~ --By zhengxiaolin", 1, 2, 1, false, null);		//10号文章转发1号
 		get_all_scores();
+		Thread.sleep(sleepsec);
 		
-		Cluster.add_an_article(new Article("trans jxc's article. --By litinage", 3, 2, 8, null));			//11号文章转发8号
+		Cluster.add_an_article("trans jxc's article. --By litinage", 3, 2, 8, false, null);			//11号文章转发8号
 		get_all_scores();
+		Thread.sleep(sleepsec);
 
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 7, false, null);		//12号文章回复7号
+		Thread.sleep(sleepsec);
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 12, false, null);		//13号文章回复12号
+		Thread.sleep(sleepsec);
+
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 7, false, null);		//14号文章回复7号
+		Thread.sleep(sleepsec);
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 14, false, null);		//15号文章回复14号
+		Thread.sleep(sleepsec);
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 14, false, null);		//16号文章回复14号
+		Thread.sleep(sleepsec);
+		
+		Cluster.add_an_article("comment your comment! --By zhengxiaolin", 1, 1, 7, false, null);		//17号文章回复7号
+		Thread.sleep(sleepsec);
+
+		
 		Cluster.remove_an_article(11); 																		//移除11号文章
 		get_all_scores();
 
 		Cluster.get_all_keys();
+		
+		//得到所有评论
+		List<List<Article>> all_comments = Cluster.get_article_comments_context(7, 0);
+		for(List<Article> l : all_comments){
+			for(Article a : l){
+				System.out.println("AID:" + a.getAID() + " ... " + "trans_AID:" + a.getTrans_AID());
+			}
+			System.out.println();
+		}
+		
+		//得到uid的时间线
+		List<TimeLineNode> all_timeline = Cluster.get_timeline_chains(2, 0);
+		for(TimeLineNode tln : all_timeline){
+			if(tln.getType() == 0)  System.out.println("your focus " + tln.getUID() + " posted: " + tln.getTarget_AID());		//少！！修复bug。
+			else if(tln.getType() == 1)  System.out.println("your focus " + tln.getUID() + " replied: " + tln.getTarget_AID());
+			else if(tln.getType() == 2)  System.out.println("your focus " + tln.getUID() + " transed: " + tln.getTarget_AID());
+			else System.out.println("hehe");
+		}
+		
+		//我关注的人也关注了他  这些人都有谁
+		List<Long> who_I_focus_also_focus_him = Cluster.who_I_focus_also_focus_him(1, 2);
+		System.out.println(who_I_focus_also_focus_him);
+		
 	}
 
 
