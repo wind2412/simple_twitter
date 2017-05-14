@@ -14,6 +14,8 @@ function exit_article(aid){
 	document.getElementById("article:"+aid+ "-nickname").setAttribute("id","article-nickname");//名字
 	document.getElementById("article:"+aid+"-uid").setAttribute("id","article-uid");//uid
 	document.getElementById("article:"+aid+"-text-content").setAttribute("id","article-text-content");//内容
+	document.getElementById("article:"+aid+"-pic").src = "";//图片的链接
+	document.getElementById("article:"+aid+"-pic").setAttribute("id","article-pic");//图片
 	document.getElementById("article:"+aid+"-t-num").setAttribute("id","aritcle-t-num");//转发数的框
 	document.getElementById("article:"+aid+"-v-num").setAttribute("id","article-v-num");//点赞数的框
 	document.getElementById("article:"+aid+"-timer").setAttribute("id","article-timer");//时间
@@ -26,6 +28,13 @@ function exit_article(aid){
 	
 	document.getElementById("space-between-c-a").style.display="block";
 	document.getElementById("main-article").style.display="block";
+	
+	document.getElementById("article-commenting").style.height="102px";
+	document.getElementById("article-comment-text-box-back").style.height="70px";
+	document.getElementById("article-comment-text-box").style.height="38px";
+	document.getElementById("comment-btn-back").style.display="none";
+	
+	
 	//alert(document.getElementById("main-article").style.display);
 }
 

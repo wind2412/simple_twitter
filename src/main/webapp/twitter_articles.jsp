@@ -672,7 +672,7 @@ function isSafari() {
                                             <div class="nickname" id="article-nickname">欧摩西罗伊</div>
                                             
                                             <span class="Aid" dir="ltr">
-                                                ID:
+                                                @
                                                 <b id="article-uid" style="color:#657786">jxc</b>
                                             </span>
                                         </div>
@@ -704,12 +704,7 @@ function isSafari() {
                                         <span class="t-v-num" id="article-v-num">0</span>
                                     </li>
                                     <li id="v-user" class="t-v-li">
-                                    	<a href="" class="v-user-head-a" onMouseOver="user_on()" onMouseOut="user_out()">
-                                        	<img src="head.jpg" class="v-user-head">
-                                        </a>
-                                        <a href="" class="v-user-head-a" onMouseOver="user_on()" onMouseOut="user_out()">
-                                        	<img src="head2.jpg" class="v-user-head" >
-                                        </a>
+                                    	
                                     </li>
                                 </ul>
                             </div>
@@ -869,7 +864,7 @@ function create_another_article(aid,location){
 	var userID=document.createElement("span");
 	userID.className="Aid";
 	userID.dir="ltr";
-	userID.innerHTML="ID:";
+	userID.innerHTML="@";
 	var uid=document.createElement("b");
 	uid.style="color: #657786;";
 	uid.setAttribute("id","article:"+aid+"-uid");                                     //
@@ -1009,12 +1004,12 @@ function show_another_article(aid,location){
 		//alert(nick.getAttribute("id"));
 		Cluster.get_a_user_by_UID(atc.UID,function(data){
 			id("article:" +aid+ "-nickname").innerHTML=data.name;
+			id("article:"+aid+"-uid").innerHTML=data.name;
 		});
 		/*Cluster.get_a_user_by_UID(data.UID,function(data){
 			id("article:" +aid+ "-nickname").innerHTML=data.name;
 		});*/
 		//id("article-uid").setAttribute("id","article:"+aid+"-uid");//uid
-		id("article:"+aid+"-uid").innerHTML=atc.UID;
 		//id("article-others-time").setAttribute("id","article:"+aid+"-others-time");//时间
 		//id("article:"+aid+"-others-time").innerHTML=" ·"+atc.time;
 		//id("article-coment-text").setAttribute("id","article:"+aid+"-coment-text");//内容
@@ -1125,22 +1120,22 @@ function complete(aid){
 		});
 		
 		id("article-nickname").setAttribute("id","article:" +aid+ "-nickname");//名字
+		id("article-uid").setAttribute("id","article:"+aid+"-uid");//uid
 		Cluster.get_a_user_by_UID(data.UID,function(data){
 			id("article:" +aid+ "-nickname").innerHTML=data.name;
+			id("article:"+aid+"-uid").innerHTML=data.name;
 		});
-		id("article-uid").setAttribute("id","article:"+aid+"-uid");//uid
-		id("article:"+aid+"-uid").innerHTML=data.UID;
 		
 		/*            
-						关注按钮 先不写。               
+						关注按钮 先不写。  后面已填坑。。。             
 		*/
 		
 		id("article-text-content").setAttribute("id","article:"+aid+"-text-content");//内容
 		id("article:"+aid+"-text-content").innerHTML=data.content.replace("\r\n","<br>");
 		
-		//              图片，未完成.
-		//id("article-pic").setAttribute("id","article:"+aid+"-pic");
-		//id("article:"+aid+"-pic").src=
+		//              图片，已完成.
+		id("article-pic").setAttribute("id","article:"+aid+"-pic");
+		if(data.pics[0] != null){id("article:"+aid+"-pic").src = data.pics[0];}
 		
 		id("aritcle-t-num").setAttribute("id","article:"+aid+"-t-num");//转发数的框
 		//    转发数，还有一句没写。
@@ -1157,8 +1152,8 @@ function complete(aid){
 		id("article-timer").setAttribute("id",art+"-timer");//时间
 		
 		var time = new Date(data.time*1000);
-		id(art+"-timer").innerHTML=(time.getYear()-100+2000)+"/"+(time.getMonth()+1)+"/"+time.getDate()+"     "+time.getHours()+":"+time.getMinutes();
-		alert(id("article-action-t"));
+		id(art+"-timer").innerHTML="&nbsp;"+(time.getYear()-100+2000)+"/"+(time.getMonth()+1)+"/"+time.getDate()+"&nbsp;&nbsp;"+time.getHours()+":"+time.getMinutes();
+		//alert(id("article-action-t"));
 		id("article-action-t-num").setAttribute("id","article:"+aid+"-action-t-num");//转发按钮
 		id("article-action-t").setAttribute("id","article:"+aid+"-action-t");
 		//同上转发数框
@@ -1269,6 +1264,7 @@ function complete(aid){
 		document.getElementById("article-nickname").setAttribute("id","article:"+aid+ "-nickname");//名字
 		document.getElementById("article-uid").setAttribute("id","article:"+aid+"-uid");//uid
 		document.getElementById("article-text-content").setAttribute("id","article:"+aid+"-text-content");//内容
+		document.getElementById("article-pic").setAttribute("id","article:"+aid+"-pic");//图片
 		document.getElementById("aritcle-t-num").setAttribute("id","article:"+aid+"-t-num");//转发数的框
 		document.getElementById("article-v-num").setAttribute("id","article:"+aid+"-v-num");//点赞数的框
 		document.getElementById("article-timer").setAttribute("id","article:"+aid+"-timer");//时间
@@ -1323,8 +1319,6 @@ function complete(aid){
 		if(LogInUID == 0)	{
 			window.location.href = "/twitter_proj/login.jsp";		//如果没登录......
 			return;
-		}else if(LogInUID != other_UID){
-			return;
 		}
 		var pics = new Array();
 		pics[0] = (document.getElementById("hidden_aid").value == "") ? "" : "pictures/pic_"+document.getElementById("hidden_aid").value+".jpg";
@@ -1349,6 +1343,7 @@ function complete(aid){
 		});		//添加这个头像到本地。
 		
 		document.getElementById("article-comment-text-box").value = "";
+		document.getElementById("hidden_aid").value = "";
 		
 		$("#close_reveal").trigger("click");
 	}
