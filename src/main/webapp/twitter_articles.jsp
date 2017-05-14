@@ -1336,7 +1336,8 @@ function complete(aid){
 		var trans_AID = document.getElementById("article-container").getAttribute("aid") == "0" ? 0 : parseInt(document.getElementById("article-container").getAttribute("aid"));
 		Cluster.add_an_article(document.getElementById("article-comment-text-box").value, LogInUID, type, trans_AID, false, pics, function(this_AID){
 			var all_reply = document.getElementById("stream-items-id");
-		    all_reply.insertBefore(create_article_zxl(this_AID), all_reply.firstChild);  
+			if(other_UID == LogInUID)
+		    	all_reply.insertBefore(create_article_zxl(this_AID), all_reply.firstChild);  
 		    var article_num = document.getElementById("head_t_num");		//推文数量+1
 		    article_num.innerHTML = parseInt(article_num.innerHTML)+1;
 		    offset += 1;		//新增了一篇文章  分页请求时要使用
