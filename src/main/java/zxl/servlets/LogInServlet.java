@@ -65,7 +65,7 @@ public class LogInServlet extends HttpServlet {
 			//URLEncoder好像就是把一个本来是UTF-8编码的东西，在每个字节前加上%号，充当URL的query的网络编码格式啊。。实际上还是utf-8.但是又不同于utf-8了。
 			//因为我设置twitter_focus.jsp接收西文的iso-8859-1网络编码query，因此变成8859-1把。
 			//而且query的字符编码也不是纯的iso-8859-1。。。其实是要在每个字节前也要加上%的。。。。(笑)
-			request.getRequestDispatcher("/twitter_focus.jsp?usr="+/*URLEncoder.encode(username)*/URLEncoder.encode(new String(username.getBytes(), "iso-8859-1"))+"&timestamp="+new Date().getTime()).forward(request, response);	//如果这里不加上query，那么twitter_user.jsp会由于没有query，会再跳一次页面。
+			request.getRequestDispatcher("/twitter_timeline.jsp?usr="+/*URLEncoder.encode(username)*/URLEncoder.encode(new String(username.getBytes(), "iso-8859-1"))+"&timestamp="+new Date().getTime()).forward(request, response);	//如果这里不加上query，那么twitter_user.jsp会由于没有query，会再跳一次页面。
 																										//这样的话，所有的ajax会请求两次。如果碰到不加query后边调用由于某个值是null就会出错的情况，
 																										//服务器会报异常。server error。解决方法就是这里加上username，然后jsp把错误情况过滤掉。
 				//注意：加上query时间戳为了防止ajax缓存
