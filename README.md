@@ -17,3 +17,10 @@ Lab members:
 @Wang Yue
 
 
+My main work:   
+`/src/main/java/zxl/bean/*`
+`/src/main/java/zxl/redis/*`
+`/src/main/java/zxl/servlets/*`
+`/src/test/java/zxl/*`
+Ajax framework `DWR`'s creation and config
+And so on.
