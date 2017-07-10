@@ -49,6 +49,8 @@ Use RDB && AOF.
 
 Our frontend used Kickstart Framework.
 
+Thank you for your CSS Library and helps a lot!~
+
 [@Kickstart](http://www.99lime.com/elements/)
 
 *****************************************
