@@ -39,6 +39,13 @@ And so on.
 
 Use Radis to support the backend.
 
+-[x] vote function
+-[x] reply function
+-[x] revise personal data (include upload background picture and small personal portrait)
+-[x] focus and be focused function
+-[x] **friend recommend algorithm** (三元闭包算法)
+-[x] click a comment and pop out the window like real·twitter
+
 Show the effects:
 
 ![1](https://wind2412.files.wordpress.com/2017/07/1.jpg)￼
