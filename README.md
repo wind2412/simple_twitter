@@ -34,3 +34,17 @@ My main work:  
 Ajax framework `DWR`'s creation and config
 
 And so on.
+
+*****************************************
+
+Use Radis to support the backend.
+
+Show the effects:
+
+![1](https://wind2412.files.wordpress.com/2017/07/1.jpg)￼
+
+![2](https://wind2412.files.wordpress.com/2017/07/2.jpg)￼
+
+And our database design draft lists below:
+
+![IMG_3598](https://wind2412.files.wordpress.com/2017/07/img_3598.jpg)￼
