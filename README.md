@@ -45,6 +45,14 @@ Use RDB && AOF.
 
 *****************************************
 
+## ATTENTION
+
+Our frontend used Kickstart Framework.
+
+[@Kickstart](http://www.99lime.com/elements/)
+
+*****************************************
+
 ## Completions
 - [x] vote function
 - [x] reply function
