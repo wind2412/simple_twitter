@@ -19,9 +19,7 @@ Lab members:
 
 ******************************************
 
-
-
-My main work:  
+## My main work:  
 
 `/src/main/java/zxl/bean/*`
 
@@ -37,7 +35,15 @@ And so on.
 
 *****************************************
 
-Use Radis to support the backend.
+## Database
+
+Use Redis to support the backend.
+
+Made a cluster of 8 redis server of 4 master and 4 slaves, also 3 sentinels.
+
+Use RDB && AOF.
+
+*****************************************
 
 ## Completions
 - [x] vote function
@@ -47,7 +53,9 @@ Use Radis to support the backend.
 - [x] **friend recommend algorithm** (三元闭包算法)
 - [x] click a comment and pop out the window like real·twitter
 
-Show the effects:
+*****************************************
+
+## Show the effects:
 
 ![1](https://wind2412.files.wordpress.com/2017/07/1.jpg)￼
 
@@ -56,3 +64,5 @@ Show the effects:
 And our database design draft lists below:
 
 ![IMG_3598](https://wind2412.files.wordpress.com/2017/07/img_3598.jpg)￼
+
+over.
